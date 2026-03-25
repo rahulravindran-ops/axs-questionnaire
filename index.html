@@ -88,14 +88,37 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 .multiselect-option:hover { background:#f3f4f6; }
 .multiselect-option.selected { background:#eff6ff; }
 .multiselect-option input { width:16px; height:16px; }
+.tip-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.tip-row .field-label { margin-bottom:0; }
+.tip-icon { display:none; width:20px; height:20px; border-radius:50%; background:#e8f0fb; color:#185FA5; border:none; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0; align-items:center; justify-content:center; }
+.tip-icon.open { background:#003e7e; color:white; }
+.training-active .tip-icon { display:flex; }
+.tip-bubble { display:none; background:#eff6ff; border-left:3px solid #3b82f6; border-radius:0 6px 6px 0; padding:9px 12px; margin-bottom:10px; font-size:12px; color:#1e40af; line-height:1.5; }
+.tip-bubble strong { display:block; font-size:12px; font-weight:700; margin-bottom:3px; color:#1e3a8a; }
+.tip-bubble .tip-example { display:block; margin-top:4px; font-style:italic; color:#3b82f6; }
+.train-toggle { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; padding:4px 0 4px 12px; }
+.train-pill { width:34px; height:19px; border-radius:10px; background:rgba(255,255,255,0.25); position:relative; transition:background 0.25s; }
+.train-pill.on { background:#10b981; }
+.train-dot { width:15px; height:15px; background:white; border-radius:50%; position:absolute; top:2px; left:2px; transition:left 0.25s; }
+.train-dot.on { left:17px; }
+.train-lbl { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; opacity:0.7; white-space:nowrap; }
+.train-lbl.on { opacity:1; color:#10b981; }
 </style>
 </head>
 <body>
 
 <div class="app">
   <div class="header">
-    <h1>AXS Requirements Capture</h1>
-    <p>v4.0 - Consolidated</p>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;">
+        <h1>AXS Requirements Capture</h1>
+        <p>v4.0 - Consolidated</p>
+      </div>
+      <div class="train-toggle" onclick="toggleTraining()">
+        <div class="train-pill" id="trainPill"><div class="train-dot" id="trainDot"></div></div>
+        <span class="train-lbl" id="trainLbl">Training</span>
+      </div>
+    </div>
   </div>
   
   <div class="progress">
@@ -127,17 +150,20 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Basic Information</div>
       
       <div class="field-group">
-        <label class="field-label">Customer Name</label>
+        <div class="tip-row"><label class="field-label">Customer Name</label><button class="tip-icon" data-tip="tip-s1-customer" onclick="toggleTip('tip-s1-customer')">?</button></div>
+        <div class="tip-bubble" id="tip-s1-customer"><strong>Enter the agency's official name</strong>Use the full legal name as it should appear on documents.<span class="tip-example">e.g. "City of Dallas" not "Dallas PD" — "Travis County Emergency Services" not "Travis County"</span></div>
         <input type="text" id="customerName" placeholder="e.g., City of Dallas">
       </div>
       
       <div class="field-group">
-        <label class="field-label">Project Name</label>
+        <div class="tip-row"><label class="field-label">Project Name</label><button class="tip-icon" data-tip="tip-s1-project" onclick="toggleTip('tip-s1-project')">?</button></div>
+        <div class="tip-bubble" id="tip-s1-project"><strong>Short, recognizable project description</strong>Used in follow-up emails and documents. Keep it specific enough to distinguish from other projects at the same agency.<span class="tip-example">e.g. "New 911 Dispatch Center" or "PSAP Upgrade — Phase 2"</span></div>
         <input type="text" id="projectName" placeholder="e.g., New 911 Dispatch Center">
       </div>
       
       <div class="field-group">
-        <label class="field-label">Location</label>
+        <div class="tip-row"><label class="field-label">Location</label><button class="tip-icon" data-tip="tip-s1-location" onclick="toggleTip('tip-s1-location')">?</button></div>
+        <div class="tip-bubble" id="tip-s1-location"><strong>State affects installation pricing</strong>Labor rates, prevailing wage requirements, and available installers vary significantly by state. Always capture both state and city.</div>
         <div class="inline-fields">
           <div>
             <select id="state">
@@ -168,7 +194,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Regional System <span class="field-sublabel">(optional)</span></label>
+        <div class="tip-row"><label class="field-label">Regional System <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s1-regional" onclick="toggleTip('tip-s1-regional')">?</button></div>
+        <div class="tip-bubble" id="tip-s1-regional"><strong>Shared radio infrastructure</strong>Many agencies share a regional system (e.g. a county or COG). This can affect channel counts, licensing, and who manages the backhaul.<span class="tip-example">e.g. "North Central Texas COG (NCTCOG)" or "Harris County ODEM"</span></div>
         <input type="text" id="regionalSystem" placeholder="e.g., North Texas Regional System">
       </div>
     </div>
@@ -179,7 +206,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Project Configuration</div>
       
       <div class="field-group">
-        <label class="field-label">Project Type</label>
+        <div class="tip-row"><label class="field-label">Project Type</label><button class="tip-icon" data-tip="tip-s2-type" onclick="toggleTip('tip-s2-type')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-type"><strong>Sets the scope of the entire project</strong>New = greenfield, no existing system. Replace = ripping out old consoles and installing new. Expansion = adding positions to an existing AXS or MCC system.<span class="tip-example">Ask: "Is this a brand new center or are you replacing what you have today?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('projectType','new'); showExistingSystem(false);">
             <input type="radio" name="projectType" value="new">
@@ -197,7 +225,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group" id="existingSystemGroup" style="display:none;">
-        <label class="field-label">Existing Console System</label>
+        <div class="tip-row"><label class="field-label">Existing Console System</label><button class="tip-icon" data-tip="tip-s2-existing" onclick="toggleTip('tip-s2-existing')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-existing"><strong>Knowing the platform helps plan the cutover</strong>MCC = previous Motorola gen. AXS = current platform. 3rd Party = competitor (confirm model). This affects licensing, reuse opportunities, and migration complexity.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('existingSystem','MCC')">
             <input type="radio" name="existingSystem" value="MCC">
@@ -217,7 +246,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Total Operator Positions</label>
+        <div class="tip-row"><label class="field-label">Total Operator Positions</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-op"><strong>Ask: "How many dispatchers work simultaneously on your busiest shift?"</strong>Count active consoles, not total workstations in the room. Typical range is 4–24. Under 4 or over 30 is unusual — verify before moving on.<span class="tip-example">A 4-position center might only staff 2 overnight — count peak, not overnight.</span></div>
         <input type="number" class="big-input" id="opPositions" placeholder="0" min="1">
         <div id="opWarning" class="warning" style="display:none;">
           <div class="warning-text">⚠️ Most projects have 4-24 positions</div>
@@ -225,8 +255,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Console Type</label>
-        <div class="help-box">
+        <div class="tip-row"><label class="field-label">Console Type</label><button class="tip-icon" data-tip="tip-s2-console" onclick="toggleTip('tip-s2-console')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-console"><strong>Cannot mix console types at the same dispatch center</strong>AXS = Motorola's current platform, recommended for new projects. MCC7500E CCHUB = previous gen hardware, still supported. MCC7500E USB with Laptop = lightweight/remote option. If unsure, default to AXS.</div>
           <div class="help-text">Cannot mix different console types at same dispatch center</div>
         </div>
         <div class="radio-group">
@@ -260,7 +290,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Site Layout & Cabling</div>
       
       <div class="field-group">
-        <label class="field-label">Positions Co-located in One Room?</label>
+        <div class="tip-row"><label class="field-label">Positions Co-located in One Room?</label><button class="tip-icon" data-tip="tip-s3-coloc" onclick="toggleTip('tip-s3-coloc')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-coloc"><strong>Multiple rooms significantly increases cabling complexity</strong>If positions are spread across rooms or floors, each run needs its own cable path. This adds labor time and cost. Take photos of the layout if complex.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('colocated','yes')">
             <input type="radio" name="colocated" value="yes">
@@ -274,7 +305,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Existing Cabling Between Backroom & Positions?</label>
+        <div class="tip-row"><label class="field-label">Existing Cabling Between Backroom & Positions?</label><button class="tip-icon" data-tip="tip-s3-cable" onclick="toggleTip('tip-s3-cable')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-cable"><strong>Cat5e or better can often be reused — saves significant cost</strong>Ask: "Is there existing network cabling running from the equipment room to each console position?" Look for patch panels and cable trays during the site walk.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('existingCabling','yes')">
             <input type="radio" name="existingCabling" value="yes">
@@ -286,9 +318,10 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           </div>
         </div>
       </div>
-      
+
       <div class="field-group">
-        <label class="field-label">Conduits Exist for Running New Cabling?</label>
+        <div class="tip-row"><label class="field-label">Conduits Exist for Running New Cabling?</label><button class="tip-icon" data-tip="tip-s3-conduit" onclick="toggleTip('tip-s3-conduit')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-conduit"><strong>No conduits = additional installation cost and time</strong>If new cabling is needed and there are no conduits, the installer will need to core-drill or surface-mount raceways. Flag this early — it can affect the SI estimate significantly.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('conduitsExist','yes')">
             <input type="radio" name="conduitsExist" value="yes">
@@ -329,7 +362,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Any Positions Outside RNI?</label>
+        <div class="tip-row"><label class="field-label">Any Positions Outside RNI?</label><button class="tip-icon" data-tip="tip-s4-orni" onclick="toggleTip('tip-s4-orni')">?</button></div>
+        <div class="tip-bubble" id="tip-s4-orni"><strong>ORNI = positions outside the Radio Network Infrastructure</strong>Typically supervisor offices, EOCs, or remote command posts. The customer is responsible for VPN/network connectivity to these positions — Motorola doesn't provide that path.<span class="tip-example">Ask: "Are any of your dispatch positions located outside the main dispatch center building?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('outsideRNI','yes'); showORNIDetails(true);">
             <input type="radio" name="outsideRNI" value="yes">
@@ -346,12 +380,14 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="divider"></div>
         
         <div class="field-group">
-          <label class="field-label">Number of Outside RNI Positions</label>
+          <div class="tip-row"><label class="field-label">Number of Outside RNI Positions</label><button class="tip-icon" data-tip="tip-s4-count" onclick="toggleTip('tip-s4-count')">?</button></div>
+          <div class="tip-bubble" id="tip-s4-count"><strong>Each outside position needs its own licensed network path</strong>More ORNI positions increases network complexity and cost. Confirm each position's location — some may share a building and only need one connection.</div>
           <input type="number" class="big-input" id="orniCount" placeholder="0" min="1">
         </div>
         
         <div class="field-group">
-          <label class="field-label">Existing ORNI Position Type</label>
+          <div class="tip-row"><label class="field-label">Existing ORNI Position Type</label><button class="tip-icon" data-tip="tip-s4-type" onclick="toggleTip('tip-s4-type')">?</button></div>
+          <div class="tip-bubble" id="tip-s4-type"><strong>Existing hardware may carry forward licenses or config</strong>MCC7100 and MCC7500E USB positions have different upgrade paths to AXS. "None — All New" means we're providing everything from scratch.</div>
           <select id="existingORNIType">
             <option value="None">None - All New</option>
             <option value="MCC7100">MCC7100</option>
@@ -369,7 +405,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Equipment & Features</div>
       
       <div class="field-group">
-        <label class="field-label">Touch Screen Monitors</label>
+        <div class="tip-row"><label class="field-label">Touch Screen Monitors</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-touch"><strong>Touch screens add ~$800/position to the quote</strong>If the customer already has monitors they want to keep, select "Customer Providing" — this removes them from pricing. Confirm monitor brand/model if reusing, as not all are compatible.<span class="tip-example">Ask: "Are you planning to reuse your existing monitors?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('touchScreens','yes'); showMonitorSize(true);">
             <input type="radio" name="touchScreens" value="yes">
@@ -387,7 +424,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group" id="monitorSizeGroup" style="display:none;">
-        <label class="field-label">Monitor Size</label>
+        <div class="tip-row"><label class="field-label">Monitor Size</label><button class="tip-icon" data-tip="tip-s5-monsize" onclick="toggleTip('tip-s5-monsize')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-monsize"><strong>24" is the most common choice for new installs</strong>27" is popular for supervisors or agencies wanting more real estate. 19" is typically only for legacy replacements where desk space is tight.</div>
         <select id="monitorSize">
           <option value="">Select size...</option>
           <option value="19">19"</option>
@@ -398,12 +436,14 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label>
+        <div class="tip-row"><label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label><button class="tip-icon" data-tip="tip-s5-speakers" onclick="toggleTip('tip-s5-speakers')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-speakers"><strong>Most positions use 1–2 speakers</strong>Dispatcher audio separation (e.g. left speaker = fire, right = police) requires 2 speakers. Ask if they use audio separation today — if yes, they'll want 2.<span class="tip-example">Ask: "Do your dispatchers currently split audio channels between speakers?"</span></div>
         <input type="number" id="speakersPerPosition" placeholder="0" min="0">
       </div>
       
       <div class="field-group">
-        <label class="field-label">Instant Recall Recorder (IRR)</label>
+        <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr" onclick="toggleTip('tip-s5-irr')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local, per-position, for "I didn't catch that" moments. Logging is agency-wide and long-term. Many agencies want both.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('irrRequired','yes')">
             <input type="radio" name="irrRequired" value="yes">
@@ -419,7 +459,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="divider"></div>
       
       <div class="field-group">
-        <label class="field-label">MCC-AXS Migration</label>
+        <div class="tip-row"><label class="field-label">MCC-AXS Migration</label><button class="tip-icon" data-tip="tip-s5-migration" onclick="toggleTip('tip-s5-migration')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-migration"><strong>Only applies when replacing MCC consoles with AXS</strong>Some MCC footswitches and headset jacks are compatible and can be reused, saving cost. Select N/A for new dispatch centers or 3rd-party replacements.</div>
         <div class="inline-fields">
           <div>
             <label class="field-label field-sublabel">Reuse Footswitches?</label>
@@ -443,7 +484,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Hardware / Software Encryption</label>
+        <div class="tip-row"><label class="field-label">Hardware / Software Encryption</label><button class="tip-icon" data-tip="tip-s5-encrimpl" onclick="toggleTip('tip-s5-encrimpl')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-encrimpl"><strong>Hardware encryption uses a physical module; software is license-based</strong>Hardware is typically required for federal/DoD customers. Software is more common for state/local. If unsure, ask: "Does your radio system currently use hardware encryption modules?"</div>
         <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value; document.getElementById('encryptionTypesGroup').style.display = (this.value === 'hardware' || this.value === 'software') ? 'block' : 'none';">
           <option value="">Select...</option>
           <option value="hardware">Hardware</option>
@@ -453,7 +495,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group" id="encryptionTypesGroup" style="display:none;">
-        <label class="field-label">Encryption Types</label>
+        <div class="tip-row"><label class="field-label">Encryption Types</label><button class="tip-icon" data-tip="tip-s5-encrtype" onclick="toggleTip('tip-s5-encrtype')">?</button></div>
+        <div class="tip-bubble" id="tip-s5-encrtype"><strong>Select all types the customer uses across their radio fleet</strong>DES-OFB = older, still common in legacy systems. AES = current standard, required for P25 compliance. ADP = Motorola proprietary, found on older Motorola portables. Multiple selections are common for agencies mid-migration.</div>
         <div class="multiselect-dropdown" id="encryptionDropdown">
           <button type="button" class="multiselect-btn" onclick="toggleMultiselect('encryptionDropdown')">
             <span id="encryptionLabel">Select encryption...</span>
@@ -483,7 +526,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <!-- Existing Conventional Channels -->
       <div class="field-group">
-        <label class="field-label">Does the customer interface to existing conventional channels which will need to stay?</label>
+        <div class="tip-row"><label class="field-label">Does the customer interface to existing conventional channels which will need to stay?</label><button class="tip-icon" data-tip="tip-s6-exconv" onclick="toggleTip('tip-s6-exconv')">?</button></div>
+        <div class="tip-bubble" id="tip-s6-exconv"><strong>Conventional channels are direct radio connections outside the P25 trunked system</strong>Common for mutual aid, fire alerting, or legacy VHF/UHF radios. If yes, each channel needs a physical radio connected to the console backroom — make sure to capture count and type.<span class="tip-example">Ask: "Do you dispatch any channels that go directly to a radio — not through the trunked system?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('existingConvChannels','yes'); showExistingConvDetails(true);">
             <input type="radio" name="existingConvChannels" value="yes">
@@ -503,7 +547,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <!-- New Conventional Radios -->
       <div class="field-group">
-        <label class="field-label">Will new conventional radios be needed for mutual aid or backup?</label>
+        <div class="tip-row"><label class="field-label">Will new conventional radios be needed for mutual aid or backup?</label><button class="tip-icon" data-tip="tip-s6-newconv" onclick="toggleTip('tip-s6-newconv')">?</button></div>
+        <div class="tip-bubble" id="tip-s6-newconv"><strong>New radios may be needed when expanding capability or adding mutual aid channels</strong>These are consolette-style radios mounted in the backroom rack. Capture the radio type carefully — VHF, UHF, and 800MHz require different equipment.<span class="tip-example">Ask: "Are there any new radio channels you need to add that you don't have today?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('newConvRadios','yes'); showNewConvDetails(true);">
             <input type="radio" name="newConvRadios" value="yes">
@@ -523,7 +568,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <!-- Backup Radios at Each OP -->
       <div class="field-group">
-        <label class="field-label">Are backup radios required at each OP position?</label>
+        <div class="tip-row"><label class="field-label">Are backup radios required at each OP position?</label><button class="tip-icon" data-tip="tip-s6-backup" onclick="toggleTip('tip-s6-backup')">?</button></div>
+        <div class="tip-bubble" id="tip-s6-backup"><strong>Backup radios sit on the desk as a failsafe if the console goes down</strong>Usually a portable or mobile radio per position. This is separate from consolette-style backroom radios. Adds cost per position — confirm if it's a hard requirement or a nice-to-have.<span class="tip-example">Ask: "If a console position went offline, does each dispatcher need a standalone radio on their desk?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('backupRadiosPerOP','yes')">
             <input type="radio" name="backupRadiosPerOP" value="yes">
@@ -546,7 +592,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
       <!-- Antenna Systems -->
       <div class="field-group">
-        <label class="field-label">Existing Antenna System(s)?</label>
+        <div class="tip-row"><label class="field-label">Existing Antenna System(s)?</label><button class="tip-icon" data-tip="tip-s6-antenna" onclick="toggleTip('tip-s6-antenna')">?</button></div>
+        <div class="tip-bubble" id="tip-s6-antenna"><strong>Existing antennas may be reusable — this can save significant cost</strong>Capture combiner type, number of ports, and condition. Poor antenna systems cause RF issues that are hard to troubleshoot post-install. Always photograph coax labeling, connectors, and entry points.<span class="tip-example">Ask: "Do you have antennas on the roof or tower currently serving these radios?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true);">
             <input type="radio" name="antennaSystem" value="yes">
@@ -591,7 +638,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Interfaces & Power</div>
       
       <div class="field-group">
-        <label class="field-label">Auxiliary I/O</label>
+        <div class="tip-row"><label class="field-label">Auxiliary I/O</label><button class="tip-icon" data-tip="tip-s7-aux" onclick="toggleTip('tip-s7-aux')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-aux"><strong>Aux I/O connects external alert devices, lights, sirens, and sensors to the console</strong>Inputs = signals coming IN (door sensors, alarm triggers). Outputs = signals going OUT (activate a light, trigger an alert tone). Most agencies use 4–16 of each. 0 is valid if none needed.<span class="tip-example">Ask: "Do you have any external alert lights, door buzzers, or equipment triggers tied to your console today?"</span></div>
         <div class="inline-fields">
           <div>
             <label class="field-label field-sublabel">Inputs (0-48)</label>
@@ -605,7 +653,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Backhaul Links</label>
+        <div class="tip-row"><label class="field-label">Backhaul Links</label><button class="tip-icon" data-tip="tip-s7-backhaul" onclick="toggleTip('tip-s7-backhaul')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-backhaul"><strong>Backhaul connects the console to the radio system infrastructure</strong>New microwave = we're providing a new RF link, typically for remote sites. Existing = customer already has fiber, leased line, or microwave in place. Other covers carrier-managed services like ACS or MPLS.<span class="tip-example">Ask: "How does your dispatch center currently connect back to the radio tower sites?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('backhaulType','na'); showBackhaulDetails(false); showBackhaulRedundancy(false);">
             <input type="radio" name="backhaulType" value="na">
@@ -637,7 +686,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
 
       <div class="field-group" id="backhaulRedundancyGroup" style="display:none;">
-        <label class="field-label">Backhaul Redundancy</label>
+        <div class="tip-row"><label class="field-label">Backhaul Redundancy</label><button class="tip-icon" data-tip="tip-s7-bhredun" onclick="toggleTip('tip-s7-bhredun')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-bhredun"><strong>Redundant = two independent paths so one failure doesn't cut off the console</strong>Most mission-critical agencies require redundancy. Non-redundant is lower cost but a single failure can take down the whole system. Flag non-redundant as a risk in your notes.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('backhaulRedundancy','redundant')">
             <input type="radio" name="backhaulRedundancy" value="redundant">
@@ -653,7 +703,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="divider"></div>
 
       <div class="field-group">
-        <label class="field-label">Backup Power / UPS</label>
+        <div class="tip-row"><label class="field-label">Backup Power / UPS</label><button class="tip-icon" data-tip="tip-s7-ups" onclick="toggleTip('tip-s7-ups')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-ups"><strong>UPS keeps consoles running during a power outage</strong>"Both OP and Backroom" is the safest option for 911 centers. A backroom-only UPS keeps the radio system up but dispatchers lose their screens. Confirm if the building has a generator — if yes, UPS only needs to bridge the ~30s startup gap.</div>
         <select id="backupPower">
           <option value="">Select...</option>
           <option value="none">None</option>
@@ -664,7 +715,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Console Alias Manager (CAM)</label>
+        <div class="tip-row"><label class="field-label">Console Alias Manager (CAM)</label><button class="tip-icon" data-tip="tip-s7-cam" onclick="toggleTip('tip-s7-cam')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-cam"><strong>CAM lets dispatchers see plain-English names instead of radio IDs</strong>Without CAM, the console shows a raw unit ID like "4201" instead of "Unit 12 — Sgt. Johnson." Highly recommended for any agency with a fleet management system or who needs readable unit names on screen.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('camRequired','yes')">
             <input type="radio" name="camRequired" value="yes">
@@ -680,7 +732,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="divider"></div>
       
       <div class="field-group">
-        <label class="field-label">Logging Recorder (New or Expand)?</label>
+        <div class="tip-row"><label class="field-label">Logging Recorder (New or Expand)?</label><button class="tip-icon" data-tip="tip-s7-logging" onclick="toggleTip('tip-s7-logging')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-logging"><strong>Logging recorders capture all radio and phone audio for compliance and investigations</strong>Different from IRR — logging is long-term, agency-wide storage. Ask if they have an existing recorder and whether it needs to be replaced or just expanded with new channels.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('loggingRecorder','yes')">
             <input type="radio" name="loggingRecorder" value="yes">
@@ -694,7 +747,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">CAD Vendor API Access?</label>
+        <div class="tip-row"><label class="field-label">CAD Vendor API Access?</label><button class="tip-icon" data-tip="tip-s7-cad" onclick="toggleTip('tip-s7-cad')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-cad"><strong>CAD integration displays unit status and call info directly on the console screen</strong>Requires the CAD vendor to provide an API. Common vendors: Tritech, CentralSquare, Tyler, Motorola PremierOne. If yes, capture the vendor — it determines which interface module is needed.<span class="tip-example">Ask: "What CAD system do you use — and does your vendor support an API?"</span></div>
         <div class="inline-fields">
           <div style="flex:0.4;">
             <select id="cadAPI" onchange="document.getElementById('cadVendorName').style.display = this.value==='yes' ? 'block' : 'none';">
@@ -710,7 +764,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Fire Station Alerting?</label>
+        <div class="tip-row"><label class="field-label">Fire Station Alerting?</label><button class="tip-icon" data-tip="tip-s7-fire" onclick="toggleTip('tip-s7-fire')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-fire"><strong>Fire alerting systems activate station lights, doors, and PA from the console</strong>Common systems: US Digital Designs (USDD), Westnet, Zetron. Each has a specific integration. If yes, always capture the system name — integration type and cost varies significantly by vendor.</div>
         <div class="inline-fields">
           <div style="flex:0.4;">
             <select id="fireAlerting" onchange="document.getElementById('fireAlertingType').style.display = this.value==='yes' ? 'block' : 'none';">
@@ -726,7 +781,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Other 3rd Party Interfaces?</label>
+        <div class="tip-row"><label class="field-label">Other 3rd Party Interfaces?</label><button class="tip-icon" data-tip="tip-s7-other" onclick="toggleTip('tip-s7-other')">?</button></div>
+        <div class="tip-bubble" id="tip-s7-other"><strong>Catch anything that connects to the console that isn't covered above</strong>Examples: paging systems, intercom, door access control, AVL/GPS displays, alerting panels. Each interface is a separate SOW item — capture vendor and system name.<span class="tip-example">Ask: "Is there anything else that currently connects to your console that we haven't talked about?"</span></div>
         <div class="inline-fields">
           <div style="flex:0.4;">
             <select id="otherInterfaces" onchange="document.getElementById('otherInterfacesDetails').style.display = this.value==='yes' ? 'block' : 'none';">
@@ -756,7 +812,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="screen-title">Operational & Training</div>
       
       <div class="field-group">
-        <label class="field-label">All Consoles Utilized During All Shifts?</label>
+        <div class="tip-row"><label class="field-label">All Consoles Utilized During All Shifts?</label><button class="tip-icon" data-tip="tip-s8-shifts" onclick="toggleTip('tip-s8-shifts')">?</button></div>
+        <div class="tip-bubble" id="tip-s8-shifts"><strong>Affects cutover planning and staffing during install</strong>If some positions sit idle overnight, the installer can use those as a staging area or swap them first with less disruption. "Some Idle" gives more flexibility for a phased cutover.<span class="tip-example">Ask: "Do you staff all your console positions 24/7, or are some positions only used during peak hours?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('allShifts','yes')">
             <input type="radio" name="allShifts" value="yes">
@@ -770,7 +827,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <label class="field-label">Can One Console Be Removed for Cutover?</label>
+        <div class="tip-row"><label class="field-label">Can One Console Be Removed for Cutover?</label><button class="tip-icon" data-tip="tip-s8-cutover" onclick="toggleTip('tip-s8-cutover')">?</button></div>
+        <div class="tip-bubble" id="tip-s8-cutover"><strong>This is one of the most critical logistics questions for the install team</strong>Remove & Replace = swap one position at a time while others stay live — cleanest approach. "Cannot Remove" means we need to install new consoles alongside existing ones before cutting over — requires extra space and planning.<span class="tip-example">Ask: "During the installation, can we take one console offline at a time while your dispatchers use the others?"</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('removeForCutover','yes'); showParallelSpace(false);">
             <input type="radio" name="removeForCutover" value="yes">
@@ -784,7 +842,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group" id="parallelSpaceGroup" style="display:none;">
-        <label class="field-label">Space for Parallel Console Installation?</label>
+        <div class="tip-row"><label class="field-label">Space for Parallel Console Installation?</label><button class="tip-icon" data-tip="tip-s8-parallel" onclick="toggleTip('tip-s8-parallel')">?</button></div>
+        <div class="tip-bubble" id="tip-s8-parallel"><strong>Parallel install requires temporary floor space — typically 3–4 ft per position</strong>If no space is available, the project needs a different cutover strategy (e.g. a maintenance window or temporary dispatch relocation). Flag "No Space" as a risk item — it adds complexity and cost.<span class="tip-example">Walk the room and look for open wall space, unused desks, or staging areas near the existing positions.</span></div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('parallelSpace','yes')">
             <input type="radio" name="parallelSpace" value="yes">
@@ -800,7 +859,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="divider"></div>
       
       <div class="field-group">
-        <label class="field-label">Training Requirements</label>
+        <div class="tip-row"><label class="field-label">Training Requirements</label><button class="tip-icon" data-tip="tip-s8-training" onclick="toggleTip('tip-s8-training')">?</button></div>
+        <div class="tip-bubble" id="tip-s8-training"><strong>Supervisor (Admin) training covers system configuration; Operator training covers daily use</strong>Count total people who need training — not shifts. A 3-shift agency with 4 dispatchers per shift needs 12 operator seats. Under-counting training is a common mistake that leads to change orders.<span class="tip-example">Ask: "How many total dispatchers and supervisors will need to be trained — counting all shifts?"</span></div>
         <div class="inline-fields">
           <div>
             <label class="field-label field-sublabel">Supervisors (Admin)</label>
@@ -858,7 +918,32 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 </div>
 
 <script>
-var currentScreen = 0;
+var trainingMode = false;
+
+function toggleTraining() {
+  trainingMode = !trainingMode;
+  document.querySelector('.app').classList.toggle('training-active', trainingMode);
+  document.getElementById('trainPill').classList.toggle('on', trainingMode);
+  document.getElementById('trainDot').classList.toggle('on', trainingMode);
+  var lbl = document.getElementById('trainLbl');
+  lbl.classList.toggle('on', trainingMode);
+  lbl.textContent = trainingMode ? 'Training ON' : 'Training';
+  if (!trainingMode) {
+    document.querySelectorAll('.tip-bubble').forEach(function(b) { b.style.display = 'none'; });
+    document.querySelectorAll('.tip-icon').forEach(function(i) { i.classList.remove('open'); });
+  }
+}
+
+function toggleTip(id) {
+  var el = document.getElementById(id);
+  var btn = document.querySelector('[data-tip="' + id + '"]');
+  if (!el) return;
+  var open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open', !open);
+}
+
+
 var totalScreens = 10;
 var currentCaptureId = null;
 
