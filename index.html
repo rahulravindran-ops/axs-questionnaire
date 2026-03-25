@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AXS Capture">
+<title>AXS Requirements Capture v4.0</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#003e7e; }
+.app { max-width:500px; margin:0 auto; background:white; min-height:100vh; }
+.header { background:#003e7e; color:white; padding:14px 20px; text-align:center; }
+.header h1 { font-size:18px; font-weight:bold; }
+.header p { font-size:12px; opacity:0.9; margin-top:3px; }
+.progress { height:4px; background:rgba(0,0,0,0.1); }
+.progress-bar { height:100%; background:#10b981; width:0%; transition:width 0.3s; }
+.content { padding:20px; min-height:400px; padding-bottom:190px; }
+.screen { display:none; }
+.screen.active { display:block; }
+.section-badge { display:inline-block; background:#003e7e; color:white; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:600; margin-bottom:12px; text-transform:uppercase; }
+.screen-title { font-size:20px; font-weight:bold; color:#1f2937; margin-bottom:16px; }
+.field-group { margin-bottom:16px; }
+.field-label { display:block; font-weight:600; margin-bottom:6px; font-size:13px; color:#374151; }
+.field-sublabel { font-size:12px; color:#6b7280; font-weight:normal; }
+input[type="text"], input[type="number"], select, textarea { width:100%; padding:12px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; }
+textarea { min-height:70px; resize:vertical; }
+input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:center; color:#003e7e; border:3px solid #003e7e; padding:14px; }
+.inline-fields { display:flex; gap:10px; }
+.inline-fields > div { flex:1; }
+.radio-group, .checkbox-group { margin:8px 0; }
+.option { border:2px solid #e5e7eb; padding:12px; margin-bottom:8px; border-radius:10px; cursor:pointer; transition:all 0.2s; }
+.option:hover { border-color:#003e7e; background:#f9fafb; }
+.option.selected { border-color:#003e7e; background:#eff6ff; }
+.option input[type="radio"], .option input[type="checkbox"] { margin-right:8px; width:18px; height:18px; vertical-align:middle; }
+.option-label { font-weight:600; font-size:14px; }
+.option-inline { display:inline-block; margin-right:10px; margin-bottom:8px; }
+.option-inline .option { display:inline-block; padding:10px 16px; }
+.help-box { background:#eff6ff; border-left:3px solid #3b82f6; padding:10px 12px; margin-bottom:14px; border-radius:6px; }
+.help-text { color:#1e40af; font-size:12px; line-height:1.4; }
+.warning { background:#fef3c7; border-left:3px solid #f59e0b; padding:10px 12px; margin-top:10px; border-radius:6px; }
+.warning-text { color:#92400e; font-size:12px; }
+.divider { border-top:1px solid #e5e7eb; margin:20px 0; }
+.photo-section { background:#f9fafb; border-radius:10px; padding:14px; margin-top:16px; }
+.photo-section-title { font-weight:600; font-size:13px; color:#374151; margin-bottom:10px; }
+.photo-btn { width:100%; padding:12px; background:#003e7e; color:white; border:none; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; margin-bottom:8px; }
+.photo-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.photo-item { position:relative; }
+.photo-thumb { width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #e5e7eb; }
+.photo-delete { position:absolute; top:-6px; right:-6px; background:#ef4444; color:white; border:none; width:20px; height:20px; border-radius:50%; cursor:pointer; font-size:12px; }
+.photo-count { font-size:11px; color:#6b7280; margin-top:6px; }
+.nav-buttons { position:fixed; bottom:70px; left:0; right:0; display:flex; gap:10px; padding:12px 20px; background:transparent; max-width:500px; margin:0 auto; z-index:10; }
+.btn { padding:14px; font-size:15px; font-weight:600; border:none; border-radius:8px; cursor:pointer; }
+.btn-back { flex:0.35; background:#f3f4f6; color:#374151; }
+.btn-next { flex:1; background:#003e7e; color:white; }
+.btn-next:disabled { background:#9ca3af; cursor:not-allowed; }
+.success-icon { width:60px; height:60px; background:#10b981; border-radius:50%; color:white; font-size:28px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.summary-box { background:#f9fafb; border-radius:10px; padding:14px; margin:14px 0; }
+.summary-section { margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #e5e7eb; }
+.summary-section:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.summary-title { font-weight:700; color:#003e7e; margin-bottom:8px; font-size:12px; text-transform:uppercase; }
+.summary-row { display:flex; justify-content:space-between; padding:4px 0; font-size:12px; }
+.summary-label { color:#6b7280; }
+.summary-value { font-weight:600; color:#1f2937; text-align:right; max-width:60%; }
+.code-box { background:#003e7e; color:white; padding:18px; border-radius:10px; text-align:center; margin:14px 0; }
+.code-label { font-size:12px; opacity:0.9; margin-bottom:6px; }
+.code-value { font-size:14px; font-weight:bold; font-family:monospace; word-break:break-all; }
+.action-btn { width:100%; padding:14px; margin:8px 0; font-size:14px; font-weight:600; border:2px solid #003e7e; border-radius:8px; cursor:pointer; }
+.action-btn.primary { background:#003e7e; color:white; }
+.action-btn.secondary { background:white; color:#003e7e; }
+.saved-item { background:#f9fafb; border:2px solid #e5e7eb; border-radius:10px; padding:12px; margin-bottom:10px; }
+.saved-header { display:flex; justify-content:space-between; align-items:center; }
+.saved-title { font-weight:600; font-size:14px; }
+.saved-date { font-size:11px; color:#6b7280; }
+.saved-details { font-size:12px; color:#6b7280; margin:6px 0; }
+.saved-btns { display:flex; gap:8px; margin-top:8px; }
+.saved-btn { flex:1; padding:8px; font-size:12px; font-weight:600; border-radius:6px; cursor:pointer; border:2px solid; }
+.saved-btn.resume { background:#003e7e; color:white; border-color:#003e7e; }
+.saved-btn.delete { background:white; color:#ef4444; border-color:#ef4444; }
+.multiselect-dropdown { position:relative; }
+.multiselect-btn { width:100%; padding:12px; font-size:14px; border:2px solid #e5e7eb; border-radius:8px; background:white; text-align:left; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.multiselect-btn:after { content:'▼'; font-size:10px; color:#6b7280; }
+.multiselect-options { position:absolute; top:100%; left:0; right:0; background:white; border:2px solid #e5e7eb; border-radius:8px; margin-top:4px; z-index:100; max-height:200px; overflow-y:auto; display:none; }
+.multiselect-options.open { display:block; }
+.multiselect-option { padding:10px 12px; cursor:pointer; display:flex; align-items:center; gap:8px; }
+.multiselect-option:hover { background:#f3f4f6; }
+.multiselect-option.selected { background:#eff6ff; }
+.multiselect-option input { width:16px; height:16px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>AXS Requirements Capture</h1>
+    <p>v4.0 - Consolidated</p>
+  </div>
+  
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="content">
+    
+    <!-- ==================== SCREEN 0: MENU ==================== -->
+    <div class="screen active" id="screen0">
+      <div class="screen-title">AXS Requirements</div>
+      
+      <div class="help-box">
+        <div class="help-text">📋 Complete site visit questionnaire. 8 screens, auto-saves progress.</div>
+      </div>
+      
+      <button class="action-btn primary" onclick="startNew()">✨ Start New Capture</button>
+      
+      <div id="savedList" style="margin-top:16px;"></div>
+      <div id="noSaved" style="text-align:center; color:#6b7280; padding:30px; display:none;">
+        <div style="font-size:36px; margin-bottom:8px;">📋</div>
+        <div>No saved captures</div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 1: BASIC INFO ==================== -->
+    <div class="screen" id="screen1">
+      <div class="section-badge">Screen 1 of 8</div>
+      <div class="screen-title">Basic Information</div>
+      
+      <div class="field-group">
+        <label class="field-label">Customer Name</label>
+        <input type="text" id="customerName" placeholder="e.g., City of Dallas">
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Project Name</label>
+        <input type="text" id="projectName" placeholder="e.g., New 911 Dispatch Center">
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Location</label>
+        <div class="inline-fields">
+          <div>
+            <select id="state">
+              <option value="">State...</option>
+              <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option>
+              <option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option>
+              <option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option>
+              <option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
+              <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option>
+              <option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option>
+              <option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option>
+              <option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+              <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option>
+              <option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option>
+              <option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option>
+              <option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+              <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option>
+              <option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option>
+              <option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option>
+              <option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
+              <option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+            </select>
+          </div>
+          <div>
+            <input type="text" id="city" placeholder="City">
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Regional System <span class="field-sublabel">(optional)</span></label>
+        <input type="text" id="regionalSystem" placeholder="e.g., North Texas Regional System">
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 2: PROJECT CONFIG ==================== -->
+    <div class="screen" id="screen2">
+      <div class="section-badge">Screen 2 of 8</div>
+      <div class="screen-title">Project Configuration</div>
+      
+      <div class="field-group">
+        <label class="field-label">Project Type</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('projectType','new'); showExistingSystem(false);">
+            <input type="radio" name="projectType" value="new">
+            <span class="option-label">New Dispatch Center</span>
+          </div>
+          <div class="option" onclick="selectRadio('projectType','replace'); showExistingSystem(true);">
+            <input type="radio" name="projectType" value="replace">
+            <span class="option-label">Replace Existing</span>
+          </div>
+          <div class="option" onclick="selectRadio('projectType','expansion'); showExistingSystem(true);">
+            <input type="radio" name="projectType" value="expansion">
+            <span class="option-label">Expansion / OP Add-on</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group" id="existingSystemGroup" style="display:none;">
+        <label class="field-label">Existing Console System</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('existingSystem','MCC')">
+            <input type="radio" name="existingSystem" value="MCC">
+            <span class="option-label">MCC</span>
+          </div>
+          <div class="option" onclick="selectRadio('existingSystem','AXS')">
+            <input type="radio" name="existingSystem" value="AXS">
+            <span class="option-label">AXS</span>
+          </div>
+          <div class="option" onclick="selectRadio('existingSystem','3rdParty')">
+            <input type="radio" name="existingSystem" value="3rdParty">
+            <span class="option-label">3rd Party</span>
+          </div>
+        </div>
+        <label class="field-label" style="margin-top:10px;">Details <span class="field-sublabel">(model, version, etc.)</span></label>
+        <input type="text" id="existingSystemDetails" placeholder="e.g., MCC7500 VPM, Commander, etc.">
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Total Operator Positions</label>
+        <input type="number" class="big-input" id="opPositions" placeholder="0" min="1">
+        <div id="opWarning" class="warning" style="display:none;">
+          <div class="warning-text">⚠️ Most projects have 4-24 positions</div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Console Type</label>
+        <div class="help-box">
+          <div class="help-text">Cannot mix different console types at same dispatch center</div>
+        </div>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('consoleType','AXS')">
+            <input type="radio" name="consoleType" value="AXS">
+            <span class="option-label">AXS</span>
+          </div>
+          <div class="option" onclick="selectRadio('consoleType','MCC7500E CCHUB')">
+            <input type="radio" name="consoleType" value="MCC7500E CCHUB">
+            <span class="option-label">MCC7500E CCHUB</span>
+          </div>
+          <div class="option" onclick="selectRadio('consoleType','MCC7500E USB')">
+            <input type="radio" name="consoleType" value="MCC7500E USB">
+            <span class="option-label">MCC7500E USB with Laptop</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="photo-section">
+        <div class="photo-section-title">📸 Operator Position Photos</div>
+        <input type="file" id="photo2" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos2')">
+        <button class="photo-btn" onclick="document.getElementById('photo2').click()">📸 Add Photos</button>
+        <div class="photo-grid" id="photoGrid2"></div>
+        <div class="photo-count" id="photoCount2"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 3: SITE LAYOUT ==================== -->
+    <div class="screen" id="screen3">
+      <div class="section-badge">Screen 3 of 8</div>
+      <div class="screen-title">Site Layout & Cabling</div>
+      
+      <div class="field-group">
+        <label class="field-label">Positions Co-located in One Room?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('colocated','yes')">
+            <input type="radio" name="colocated" value="yes">
+            <span class="option-label">Yes - Same Room</span>
+          </div>
+          <div class="option" onclick="selectRadio('colocated','no')">
+            <input type="radio" name="colocated" value="no">
+            <span class="option-label">No - Multiple Rooms</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Existing Cabling Between Backroom & Positions?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('existingCabling','yes')">
+            <input type="radio" name="existingCabling" value="yes">
+            <span class="option-label">Yes - Can Reuse</span>
+          </div>
+          <div class="option" onclick="selectRadio('existingCabling','no')">
+            <input type="radio" name="existingCabling" value="no">
+            <span class="option-label">No - Need New Cables</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Conduits Exist for Running New Cabling?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('conduitsExist','yes')">
+            <input type="radio" name="conduitsExist" value="yes">
+            <span class="option-label">Yes - Conduits Available</span>
+          </div>
+          <div class="option" onclick="selectRadio('conduitsExist','no')">
+            <input type="radio" name="conduitsExist" value="no">
+            <span class="option-label">No - Need New Conduits</span>
+          </div>
+          <div class="option" onclick="selectRadio('conduitsExist','na')">
+            <input type="radio" name="conduitsExist" value="na">
+            <span class="option-label">N/A</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Layout Notes <span class="field-sublabel">(optional)</span></label>
+        <textarea id="layoutNotes" placeholder="Any additional notes about site layout, cable runs, room configuration..."></textarea>
+      </div>
+      
+      <div class="photo-section">
+        <div class="photo-section-title">📸 Dispatch Room / Cabling Photos</div>
+        <input type="file" id="photo3" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos3')">
+        <button class="photo-btn" onclick="document.getElementById('photo3').click()">📸 Add Photos</button>
+        <div class="photo-grid" id="photoGrid3"></div>
+        <div class="photo-count" id="photoCount3"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 4: OUTSIDE RNI ==================== -->
+    <div class="screen" id="screen4">
+      <div class="section-badge">Screen 4 of 8</div>
+      <div class="screen-title">Outside RNI Positions</div>
+      
+      <div class="help-box">
+        <div class="help-text">Positions outside Radio Network Infrastructure. Customer responsible for remote connectivity including VPN.</div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Any Positions Outside RNI?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('outsideRNI','yes'); showORNIDetails(true);">
+            <input type="radio" name="outsideRNI" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('outsideRNI','no'); showORNIDetails(false);">
+            <input type="radio" name="outsideRNI" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="orniDetails" style="display:none;">
+        <div class="divider"></div>
+        
+        <div class="field-group">
+          <label class="field-label">Number of Outside RNI Positions</label>
+          <input type="number" class="big-input" id="orniCount" placeholder="0" min="1">
+        </div>
+        
+        <div class="field-group">
+          <label class="field-label">Existing ORNI Position Type</label>
+          <select id="existingORNIType">
+            <option value="None">None - All New</option>
+            <option value="MCC7100">MCC7100</option>
+            <option value="MCC7500E AIM">MCC7500E AIM</option>
+            <option value="MCC7500E USB">MCC7500E USB</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 5: EQUIPMENT ==================== -->
+    <div class="screen" id="screen5">
+      <div class="section-badge">Screen 5 of 8</div>
+      <div class="screen-title">Equipment & Features</div>
+      
+      <div class="field-group">
+        <label class="field-label">Touch Screen Monitors</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('touchScreens','yes'); showMonitorSize(true);">
+            <input type="radio" name="touchScreens" value="yes">
+            <span class="option-label">Yes - Include Touch Screens</span>
+          </div>
+          <div class="option" onclick="selectRadio('touchScreens','customer'); showMonitorSize(false);">
+            <input type="radio" name="touchScreens" value="customer">
+            <span class="option-label">No - Customer Providing</span>
+          </div>
+          <div class="option" onclick="selectRadio('touchScreens','nontouch'); showMonitorSize(true);">
+            <input type="radio" name="touchScreens" value="nontouch">
+            <span class="option-label">No - Need Non-Touch</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group" id="monitorSizeGroup" style="display:none;">
+        <label class="field-label">Monitor Size</label>
+        <select id="monitorSize">
+          <option value="">Select size...</option>
+          <option value="19">19"</option>
+          <option value="22">22"</option>
+          <option value="24">24"</option>
+          <option value="27">27"</option>
+        </select>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label>
+        <input type="number" id="speakersPerPosition" placeholder="0" min="0">
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Instant Recall Recorder (IRR)</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('irrRequired','yes')">
+            <input type="radio" name="irrRequired" value="yes">
+            <span class="option-label">Yes - Include IRR</span>
+          </div>
+          <div class="option" onclick="selectRadio('irrRequired','no')">
+            <input type="radio" name="irrRequired" value="no">
+            <span class="option-label">No IRR</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="field-group">
+        <label class="field-label">MCC-AXS Migration</label>
+        <div class="inline-fields">
+          <div>
+            <label class="field-label field-sublabel">Reuse Footswitches?</label>
+            <select id="reuseFootswitches">
+              <option value="">Select...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="na">N/A</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label field-sublabel">Reuse Headset Jacks?</label>
+            <select id="reuseHeadsets">
+              <option value="">Select...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="na">N/A</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Encryption Types</label>
+        <div class="multiselect-dropdown" id="encryptionDropdown">
+          <button type="button" class="multiselect-btn" onclick="toggleMultiselect('encryptionDropdown')">
+            <span id="encryptionLabel">Select encryption...</span>
+          </button>
+          <div class="multiselect-options" id="encryptionOptions">
+            <label class="multiselect-option" onclick="toggleMultiOption('encryption','None')">
+              <input type="checkbox" value="None"> None
+            </label>
+            <label class="multiselect-option" onclick="toggleMultiOption('encryption','DES-OFB')">
+              <input type="checkbox" value="DES-OFB"> DES-OFB
+            </label>
+            <label class="multiselect-option" onclick="toggleMultiOption('encryption','AES')">
+              <input type="checkbox" value="AES"> AES
+            </label>
+            <label class="multiselect-option" onclick="toggleMultiOption('encryption','ADP')">
+              <input type="checkbox" value="ADP"> ADP
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 6: CHANNELS & RADIOS ==================== -->
+    <div class="screen" id="screen6">
+      <div class="section-badge">Screen 6 of 8</div>
+      <div class="screen-title">Channels & Radios</div>
+      
+      <!-- Existing Conventional Channels -->
+      <div class="field-group">
+        <label class="field-label">Does the customer interface to existing conventional channels which will need to stay?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('existingConvChannels','yes'); showExistingConvDetails(true);">
+            <input type="radio" name="existingConvChannels" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('existingConvChannels','no'); showExistingConvDetails(false);">
+            <input type="radio" name="existingConvChannels" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="existingConvDetails" style="display:none;">
+        <div class="inline-fields">
+          <div>
+            <label class="field-label field-sublabel">How Many?</label>
+            <input type="number" id="existingConvCount" placeholder="0" min="1">
+          </div>
+          <div>
+            <label class="field-label field-sublabel">Radio Types</label>
+            <input type="text" id="existingConvTypes" placeholder="e.g., VHF, UHF, 800MHz">
+          </div>
+        </div>
+      </div>
+      
+      <!-- New Conventional Radios -->
+      <div class="field-group">
+        <label class="field-label">Will new conventional radios be needed for mutual aid or backup?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('newConvRadios','yes'); showNewConvDetails(true);">
+            <input type="radio" name="newConvRadios" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('newConvRadios','no'); showNewConvDetails(false);">
+            <input type="radio" name="newConvRadios" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="newConvDetails" style="display:none;">
+        <div class="inline-fields">
+          <div>
+            <label class="field-label field-sublabel">How Many?</label>
+            <input type="number" id="newConvCount" placeholder="0" min="1">
+          </div>
+          <div>
+            <label class="field-label field-sublabel">Radio Types</label>
+            <input type="text" id="newConvTypes" placeholder="e.g., VHF, UHF, 800MHz">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Backup Radios at Each OP -->
+      <div class="field-group">
+        <label class="field-label">Are backup radios required at each OP position?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('backupRadiosPerOP','yes')">
+            <input type="radio" name="backupRadiosPerOP" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('backupRadiosPerOP','no')">
+            <input type="radio" name="backupRadiosPerOP" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Notes -->
+      <div class="field-group">
+        <label class="field-label">Additional Notes <span class="field-sublabel">(optional)</span></label>
+        <textarea id="screen6Notes" placeholder="Any additional notes about conventional channels or backup radios..."></textarea>
+      </div>
+      
+      <div class="photo-section">
+        <div class="photo-section-title">📸 Conventional Channel Equipment Photos</div>
+        <input type="file" id="photo6" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos6')">
+        <button class="photo-btn" onclick="document.getElementById('photo6').click()">📸 Add Photos</button>
+        <div class="photo-grid" id="photoGrid6"></div>
+        <div class="photo-count" id="photoCount6"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 7: INTERFACES & POWER ==================== -->
+    <div class="screen" id="screen7">
+      <div class="section-badge">Screen 7 of 8</div>
+      <div class="screen-title">Interfaces & Power</div>
+      
+      <div class="field-group">
+        <label class="field-label">Auxiliary I/O</label>
+        <div class="inline-fields">
+          <div>
+            <label class="field-label field-sublabel">Inputs (0-48)</label>
+            <input type="number" id="auxInputs" placeholder="0" min="0" max="48">
+          </div>
+          <div>
+            <label class="field-label field-sublabel">Outputs (0-16)</label>
+            <input type="number" id="auxOutputs" placeholder="0" min="0" max="16">
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Backup Power / UPS</label>
+        <select id="backupPower">
+          <option value="">Select...</option>
+          <option value="none">None</option>
+          <option value="op">UPS per Operator Position Only</option>
+          <option value="backroom">UPS Backroom Equipment Only</option>
+          <option value="both">Both OP and Backroom</option>
+        </select>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Console Alias Manager (CAM)</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('camRequired','yes')">
+            <input type="radio" name="camRequired" value="yes">
+            <span class="option-label">Yes - Include CAM</span>
+          </div>
+          <div class="option" onclick="selectRadio('camRequired','no')">
+            <input type="radio" name="camRequired" value="no">
+            <span class="option-label">No CAM</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="field-group">
+        <label class="field-label">Logging Recorder (New or Expand)?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('loggingRecorder','yes')">
+            <input type="radio" name="loggingRecorder" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('loggingRecorder','no')">
+            <input type="radio" name="loggingRecorder" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">CAD Vendor API Access?</label>
+        <div class="inline-fields">
+          <div style="flex:0.4;">
+            <select id="cadAPI" onchange="document.getElementById('cadVendorName').style.display = this.value==='yes' ? 'block' : 'none';">
+              <option value="">...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="cadVendorName" placeholder="Vendor name..." style="display:none;">
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Fire Station Alerting?</label>
+        <div class="inline-fields">
+          <div style="flex:0.4;">
+            <select id="fireAlerting" onchange="document.getElementById('fireAlertingType').style.display = this.value==='yes' ? 'block' : 'none';">
+              <option value="">...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="fireAlertingType" placeholder="System type..." style="display:none;">
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Other 3rd Party Interfaces?</label>
+        <div class="inline-fields">
+          <div style="flex:0.4;">
+            <select id="otherInterfaces" onchange="document.getElementById('otherInterfacesDetails').style.display = this.value==='yes' ? 'block' : 'none';">
+              <option value="">...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="otherInterfacesDetails" placeholder="Details..." style="display:none;">
+          </div>
+        </div>
+      </div>
+      
+      <div class="photo-section">
+        <div class="photo-section-title">📸 Interface/Power Photos</div>
+        <input type="file" id="photo7" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos7')">
+        <button class="photo-btn" onclick="document.getElementById('photo7').click()">📸 Add Photos</button>
+        <div class="photo-grid" id="photoGrid7"></div>
+        <div class="photo-count" id="photoCount7"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 8: OPERATIONAL & TRAINING ==================== -->
+    <div class="screen" id="screen8">
+      <div class="section-badge">Screen 8 of 8</div>
+      <div class="screen-title">Operational & Training</div>
+      
+      <div class="field-group">
+        <label class="field-label">All Consoles Utilized During All Shifts?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('allShifts','yes')">
+            <input type="radio" name="allShifts" value="yes">
+            <span class="option-label">Yes - All Shifts</span>
+          </div>
+          <div class="option" onclick="selectRadio('allShifts','no')">
+            <input type="radio" name="allShifts" value="no">
+            <span class="option-label">No - Some Idle</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Can One Console Be Removed for Cutover?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('removeForCutover','yes'); showParallelSpace(false);">
+            <input type="radio" name="removeForCutover" value="yes">
+            <span class="option-label">Yes - Remove & Replace One at a Time</span>
+          </div>
+          <div class="option" onclick="selectRadio('removeForCutover','no'); showParallelSpace(true);">
+            <input type="radio" name="removeForCutover" value="no">
+            <span class="option-label">No - Cannot Remove</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-group" id="parallelSpaceGroup" style="display:none;">
+        <label class="field-label">Space for Parallel Console Installation?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('parallelSpace','yes')">
+            <input type="radio" name="parallelSpace" value="yes">
+            <span class="option-label">Yes - Room Available</span>
+          </div>
+          <div class="option" onclick="selectRadio('parallelSpace','no')">
+            <input type="radio" name="parallelSpace" value="no">
+            <span class="option-label">No - No Space</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="field-group">
+        <label class="field-label">Training Requirements</label>
+        <div class="inline-fields">
+          <div>
+            <label class="field-label field-sublabel">Supervisors (Admin)</label>
+            <input type="number" id="supervisorTraining" placeholder="0" min="0">
+          </div>
+          <div>
+            <label class="field-label field-sublabel">Operators</label>
+            <input type="number" id="operatorTraining" placeholder="0" min="0">
+          </div>
+        </div>
+      </div>
+      
+      <div class="photo-section">
+        <div class="photo-section-title">📸 Backroom Electronics Room Photos</div>
+        <input type="file" id="photo8" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos8')">
+        <button class="photo-btn" onclick="document.getElementById('photo8').click()">📸 Add Photos</button>
+        <div class="photo-grid" id="photoGrid8"></div>
+        <div class="photo-count" id="photoCount8"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 9: SUMMARY ==================== -->
+    <div class="screen" id="screen9">
+      <div class="success-icon">✓</div>
+      <div class="screen-title" style="text-align:center;">Capture Complete!</div>
+      
+      <div class="summary-box" id="summaryBox"></div>
+      
+      <div class="code-box">
+        <div class="code-label">Import Code</div>
+        <div class="code-value" id="exportCode"></div>
+      </div>
+      
+      <button class="action-btn secondary" onclick="goBackFromSummary()">← Back to Edit</button>
+      <button class="action-btn primary" onclick="copyCode()">📋 Copy Code</button>
+      <button class="action-btn primary" onclick="shareReport()">📧 Email Report</button>
+      <button class="action-btn secondary" id="downloadPhotosBtn" onclick="downloadAllPhotos()" style="display:none;">📸 Download All Photos</button>
+      
+      <div class="divider"></div>
+      
+      <button class="action-btn primary" onclick="saveAndReturn()">💾 Save & Return to Menu</button>
+      <button class="action-btn secondary" onclick="discardAndReturn()" style="color:#ef4444; border-color:#ef4444;">🗑️ Discard & Return to Menu</button>
+    </div>
+    
+  </div>
+
+  <div id="buttonBg" style="position:fixed; bottom:0; left:0; right:0; height:140px; background:white; max-width:500px; margin:0 auto; border-top:1px solid #e5e7eb; z-index:5;"></div>
+
+  <div class="nav-buttons" id="navButtons">
+    <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+    <button class="btn btn-next" id="nextBtn" onclick="goNext()">Next →</button>
+  </div>
+  
+  <div id="saveExitBtn" style="position:fixed; bottom:0; left:0; right:0; text-align:center; padding:0px 20px 28px 20px; background:transparent; max-width:500px; margin:0 auto; z-index:10;">
+    <button onclick="saveAndExit()" style="width:100%; padding:11px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">💾 Save & Exit</button>
+  </div>
+</div>
+
+<script>
+var currentScreen = 0;
+var totalScreens = 10;
+var currentCaptureId = null;
+
+var appData = {
+  customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
+  projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', consoleType:'',
+  colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'',
+  outsideRNI:'', orniCount:'', existingORNIType:'None',
+  touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
+  reuseFootswitches:'', reuseHeadsets:'', encryption:[],
+  existingConvChannels:'', existingConvCount:'', existingConvTypes:'',
+  newConvRadios:'', newConvCount:'', newConvTypes:'',
+  backupRadiosPerOP:'', screen6Notes:'',
+  auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
+  loggingRecorder:'', cadAPI:'', cadVendorName:'',
+  fireAlerting:'', fireAlertingType:'',
+  otherInterfaces:'', otherInterfacesDetails:'',
+  allShifts:'', removeForCutover:'', parallelSpace:'',
+  supervisorTraining:'', operatorTraining:'',
+  photos2:[], photos3:[], photos6:[], photos7:[], photos8:[]
+};
+
+window.onload = function() { loadSavedList(); };
+
+function loadSavedList() {
+  var saved = getSaved();
+  var list = document.getElementById('savedList');
+  var noSaved = document.getElementById('noSaved');
+  if (saved.length === 0) { list.innerHTML = ''; noSaved.style.display = 'block'; return; }
+  noSaved.style.display = 'none';
+  var html = '<div style="font-weight:600; margin-bottom:10px; font-size:13px;">Saved Captures</div>';
+  saved.forEach(function(c) {
+    var d = new Date(c.timestamp);
+    html += '<div class="saved-item"><div class="saved-header"><span class="saved-title">' + (c.data.customerName || 'Unnamed') + '</span><span class="saved-date">' + d.toLocaleDateString() + '</span></div><div class="saved-details">' + (c.data.projectName || '') + '</div><div class="saved-btns"><button class="saved-btn resume" onclick="resumeCapture(\'' + c.id + '\')">Resume</button><button class="saved-btn delete" onclick="deleteCapture(\'' + c.id + '\')">Delete</button></div></div>';
+  });
+  list.innerHTML = html;
+}
+
+function getSaved() { var s = localStorage.getItem('axsV4'); return s ? JSON.parse(s) : []; }
+
+function saveCapture() {
+  if (currentScreen === 0 || currentScreen === 9) return;
+  var caps = getSaved();
+  if (!currentCaptureId) currentCaptureId = 'c' + Date.now();
+  caps = caps.filter(function(c) { return c.id !== currentCaptureId; });
+  caps.push({ id: currentCaptureId, timestamp: Date.now(), currentScreen: currentScreen, data: JSON.parse(JSON.stringify(appData)) });
+  if (caps.length > 10) caps = caps.slice(-10);
+  localStorage.setItem('axsV4', JSON.stringify(caps));
+}
+
+function resumeCapture(id) {
+  var c = getSaved().find(function(x) { return x.id === id; });
+  if (!c) return;
+  currentCaptureId = id;
+  appData = JSON.parse(JSON.stringify(c.data));
+  restoreForm();
+  currentScreen = c.currentScreen;
+  showScreen(currentScreen);
+}
+
+function deleteCapture(id) {
+  if (!confirm('Delete?')) return;
+  localStorage.setItem('axsV4', JSON.stringify(getSaved().filter(function(c) { return c.id !== id; })));
+  loadSavedList();
+}
+
+function startNew() {
+  currentCaptureId = null;
+  appData = {
+    customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
+    projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', consoleType:'',
+    colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'',
+    outsideRNI:'', orniCount:'', existingORNIType:'None',
+    touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
+    reuseFootswitches:'', reuseHeadsets:'', encryption:[],
+    existingConvChannels:'', existingConvCount:'', existingConvTypes:'',
+    newConvRadios:'', newConvCount:'', newConvTypes:'',
+    backupRadiosPerOP:'', screen6Notes:'',
+    auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
+    loggingRecorder:'', cadAPI:'', cadVendorName:'',
+    fireAlerting:'', fireAlertingType:'',
+    otherInterfaces:'', otherInterfacesDetails:'',
+    allShifts:'', removeForCutover:'', parallelSpace:'',
+    supervisorTraining:'', operatorTraining:'',
+    photos2:[], photos3:[], photos6:[], photos7:[], photos8:[]
+  };
+  currentScreen = 1;
+  showScreen(1);
+}
+
+function showScreen(n) {
+  for (var i = 0; i < totalScreens; i++) {
+    var s = document.getElementById('screen' + i);
+    if (s) s.classList.remove('active');
+  }
+  document.getElementById('screen' + n).classList.add('active');
+  
+  var nav = document.getElementById('navButtons');
+  var saveBtn = document.getElementById('saveExitBtn');
+  var buttonBg = document.getElementById('buttonBg');
+  if (n === 0 || n === 9) { 
+    nav.style.display = 'none'; 
+    if (saveBtn) saveBtn.style.display = 'none';
+    if (buttonBg) buttonBg.style.display = 'none';
+  }
+  else {
+    nav.style.display = 'flex';
+    if (saveBtn) saveBtn.style.display = 'block';
+    if (buttonBg) buttonBg.style.display = 'block';
+    document.getElementById('backBtn').style.display = n > 1 ? 'block' : 'none';
+    document.getElementById('nextBtn').textContent = n === 8 ? 'Finish →' : 'Next →';
+  }
+  
+  updateProgress();
+  updatePhotoDisplays();
+  window.scrollTo(0, 0);
+}
+
+function updateProgress() {
+  var p = currentScreen === 0 ? 0 : ((currentScreen) / 8) * 100;
+  document.getElementById('progressBar').style.width = Math.min(p, 100) + '%';
+}
+
+function selectRadio(name, value) {
+  appData[name] = value;
+  document.querySelectorAll('input[name="' + name + '"]').forEach(function(r) {
+    r.checked = false; r.parentElement.classList.remove('selected');
+  });
+  var sel = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+  if (sel) { sel.checked = true; sel.parentElement.classList.add('selected'); }
+}
+
+function showORNIDetails(show) { document.getElementById('orniDetails').style.display = show ? 'block' : 'none'; }
+function showExistingSystem(show) { document.getElementById('existingSystemGroup').style.display = show ? 'block' : 'none'; }
+function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
+function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; }
+function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; }
+function showParallelSpace(show) { document.getElementById('parallelSpaceGroup').style.display = show ? 'block' : 'none'; }
+
+function toggleMultiselect(id) {
+  var opts = document.getElementById(id).querySelector('.multiselect-options');
+  opts.classList.toggle('open');
+}
+
+function toggleMultiOption(field, value) {
+  var idx = appData[field].indexOf(value);
+  if (idx === -1) appData[field].push(value);
+  else appData[field].splice(idx, 1);
+  updateMultiselectLabel(field);
+}
+
+function updateMultiselectLabel(field) {
+  var labelId = field === 'encryption' ? 'encryptionLabel' : 'radioTypesLabel';
+  var label = appData[field].length > 0 ? appData[field].join(', ') : (field === 'encryption' ? 'Select encryption...' : 'Select radio types...');
+  document.getElementById(labelId).textContent = label;
+}
+
+function collectScreenData() {
+  if (currentScreen === 1) {
+    appData.customerName = document.getElementById('customerName').value;
+    appData.projectName = document.getElementById('projectName').value;
+    appData.state = document.getElementById('state').value;
+    appData.city = document.getElementById('city').value;
+    appData.regionalSystem = document.getElementById('regionalSystem').value;
+  } else if (currentScreen === 2) {
+    appData.opPositions = document.getElementById('opPositions').value;
+    appData.existingSystemDetails = document.getElementById('existingSystemDetails').value;
+  } else if (currentScreen === 3) {
+    appData.layoutNotes = document.getElementById('layoutNotes').value;
+  } else if (currentScreen === 4) {
+    appData.orniCount = document.getElementById('orniCount').value;
+    appData.existingORNIType = document.getElementById('existingORNIType').value;
+  } else if (currentScreen === 5) {
+    appData.monitorSize = document.getElementById('monitorSize').value;
+    appData.speakersPerPosition = document.getElementById('speakersPerPosition').value;
+    appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
+    appData.reuseHeadsets = document.getElementById('reuseHeadsets').value;
+  } else if (currentScreen === 6) {
+    appData.existingConvCount = document.getElementById('existingConvCount').value;
+    appData.existingConvTypes = document.getElementById('existingConvTypes').value;
+    appData.newConvCount = document.getElementById('newConvCount').value;
+    appData.newConvTypes = document.getElementById('newConvTypes').value;
+    appData.screen6Notes = document.getElementById('screen6Notes').value;
+  } else if (currentScreen === 7) {
+    appData.auxInputs = document.getElementById('auxInputs').value;
+    appData.auxOutputs = document.getElementById('auxOutputs').value;
+    appData.backupPower = document.getElementById('backupPower').value;
+    appData.cadAPI = document.getElementById('cadAPI').value;
+    appData.cadVendorName = document.getElementById('cadVendorName').value;
+    appData.fireAlerting = document.getElementById('fireAlerting').value;
+    appData.fireAlertingType = document.getElementById('fireAlertingType').value;
+    appData.otherInterfaces = document.getElementById('otherInterfaces').value;
+    appData.otherInterfacesDetails = document.getElementById('otherInterfacesDetails').value;
+  } else if (currentScreen === 8) {
+    appData.supervisorTraining = document.getElementById('supervisorTraining').value;
+    appData.operatorTraining = document.getElementById('operatorTraining').value;
+  }
+}
+
+function goNext() {
+  collectScreenData();
+  
+  if (currentScreen === 8) {
+    generateSummary();
+  }
+  
+  currentScreen++;
+  saveCapture();
+  showScreen(currentScreen);
+}
+
+function goBack() {
+  collectScreenData();
+  if (currentScreen === 1) {
+    if (confirm('Return to menu? Progress saved.')) {
+      saveCapture();
+      currentScreen = 0;
+      loadSavedList();
+      showScreen(0);
+    }
+    return;
+  }
+  currentScreen--;
+  showScreen(currentScreen);
+}
+
+function saveAndExit() {
+  collectScreenData();
+  saveCapture();
+  alert('Progress saved!');
+  currentScreen = 0;
+  loadSavedList();
+  showScreen(0);
+}
+
+function restoreForm() {
+  document.getElementById('customerName').value = appData.customerName || '';
+  document.getElementById('projectName').value = appData.projectName || '';
+  document.getElementById('state').value = appData.state || '';
+  document.getElementById('city').value = appData.city || '';
+  document.getElementById('regionalSystem').value = appData.regionalSystem || '';
+  document.getElementById('opPositions').value = appData.opPositions || '';
+  document.getElementById('existingSystemDetails').value = appData.existingSystemDetails || '';
+  document.getElementById('layoutNotes').value = appData.layoutNotes || '';
+  document.getElementById('orniCount').value = appData.orniCount || '';
+  document.getElementById('existingORNIType').value = appData.existingORNIType || 'None';
+  document.getElementById('monitorSize').value = appData.monitorSize || '';
+  document.getElementById('speakersPerPosition').value = appData.speakersPerPosition || '';
+  document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
+  document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
+  document.getElementById('existingConvCount').value = appData.existingConvCount || '';
+  document.getElementById('existingConvTypes').value = appData.existingConvTypes || '';
+  document.getElementById('newConvCount').value = appData.newConvCount || '';
+  document.getElementById('newConvTypes').value = appData.newConvTypes || '';
+  document.getElementById('screen6Notes').value = appData.screen6Notes || '';
+  document.getElementById('auxInputs').value = appData.auxInputs || '';
+  document.getElementById('auxOutputs').value = appData.auxOutputs || '';
+  document.getElementById('backupPower').value = appData.backupPower || '';
+  document.getElementById('cadAPI').value = appData.cadAPI || '';
+  document.getElementById('cadVendorName').value = appData.cadVendorName || '';
+  document.getElementById('fireAlerting').value = appData.fireAlerting || '';
+  document.getElementById('fireAlertingType').value = appData.fireAlertingType || '';
+  document.getElementById('otherInterfaces').value = appData.otherInterfaces || '';
+  document.getElementById('otherInterfacesDetails').value = appData.otherInterfacesDetails || '';
+  document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
+  document.getElementById('operatorTraining').value = appData.operatorTraining || '';
+  
+  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP'].forEach(function(name) {
+    if (appData[name]) {
+      var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
+      if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
+    }
+  });
+  
+  if (appData.outsideRNI === 'yes') showORNIDetails(true);
+  if (appData.projectType === 'replace' || appData.projectType === 'expansion') showExistingSystem(true);
+  if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
+  if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
+  if (appData.newConvRadios === 'yes') showNewConvDetails(true);
+  if (appData.removeForCutover === 'no') showParallelSpace(true);
+  if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
+  if (appData.fireAlerting === 'yes') document.getElementById('fireAlertingType').style.display = 'block';
+  if (appData.otherInterfaces === 'yes') document.getElementById('otherInterfacesDetails').style.display = 'block';
+  
+  updateMultiselectLabel('encryption');
+}
+
+// Photo handling
+function handlePhoto(e, key) {
+  var files = e.target.files;
+  if (!files || files.length === 0) return;
+  var max = 5;
+  var current = appData[key].length;
+  var toAdd = Math.min(files.length, max - current);
+  if (current >= max) { alert('Maximum ' + max + ' photos per section'); return; }
+  
+  for (var i = 0; i < toAdd; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        compressImage(ev.target.result, function(compressed) {
+          appData[key].push({ id: 'p' + Date.now() + Math.random(), data: compressed });
+          updatePhotoDisplays();
+        });
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+  e.target.value = '';
+}
+
+function compressImage(dataUrl, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    var max = 800, w = img.width, h = img.height;
+    if (w > h) { if (w > max) { h *= max / w; w = max; } }
+    else { if (h > max) { w *= max / h; h = max; } }
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.7));
+  };
+  img.src = dataUrl;
+}
+
+function updatePhotoDisplays() {
+  ['photos2','photos3','photos6','photos7','photos8'].forEach(function(key) {
+    var grid = document.getElementById('photoGrid' + key.slice(-1));
+    var count = document.getElementById('photoCount' + key.slice(-1));
+    if (!grid) return;
+    
+    var photos = appData[key];
+    if (!photos || photos.length === 0) {
+      grid.innerHTML = '';
+      count.textContent = '';
+      return;
+    }
+    
+    var html = '';
+    photos.forEach(function(p) {
+      html += '<div class="photo-item"><button class="photo-delete" onclick="deletePhoto(\'' + key + '\',\'' + p.id + '\')">×</button><img src="' + p.data + '" class="photo-thumb"></div>';
+    });
+    grid.innerHTML = html;
+    count.textContent = photos.length + '/5 photos';
+  });
+}
+
+function deletePhoto(key, id) {
+  appData[key] = appData[key].filter(function(p) { return p.id !== id; });
+  updatePhotoDisplays();
+}
+
+function getTotalPhotoCount() {
+  return appData.photos2.length + appData.photos3.length + appData.photos6.length + appData.photos7.length + appData.photos8.length;
+}
+
+function downloadAllPhotos() {
+  var all = [];
+  ['photos2','photos3','photos6','photos7','photos8'].forEach(function(key) {
+    appData[key].forEach(function(p, i) {
+      all.push({ data: p.data, name: appData.customerName.replace(/[^a-z0-9]/gi,'_') + '_' + key + '_' + (i+1) + '.jpg' });
+    });
+  });
+  all.forEach(function(p) {
+    var a = document.createElement('a');
+    a.href = p.data;
+    a.download = p.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+}
+
+function generateSummary() {
+  var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
+  var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
+  
+  var existingInfo = '';
+  if (appData.projectType === 'replace' || appData.projectType === 'expansion') {
+    existingInfo = appData.existingSystem || '';
+    if (appData.existingSystemDetails) existingInfo += ' - ' + appData.existingSystemDetails;
+  }
+  
+  var html = '<div class="summary-section"><div class="summary-title">Basic Info</div>' +
+    '<div class="summary-row"><span class="summary-label">Customer</span><span class="summary-value">' + appData.customerName + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Project</span><span class="summary-value">' + appData.projectName + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Location</span><span class="summary-value">' + appData.city + ', ' + appData.state + '</span></div>' +
+    '</div>';
+  
+  html += '<div class="summary-section"><div class="summary-title">Configuration</div>' +
+    '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (typeLabels[appData.projectType] || appData.projectType) + '</span></div>' +
+    (existingInfo ? '<div class="summary-row"><span class="summary-label">Existing System</span><span class="summary-value">' + existingInfo + '</span></div>' : '') +
+    '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + appData.opPositions + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Console Type</span><span class="summary-value">' + appData.consoleType + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Outside RNI</span><span class="summary-value">' + (appData.outsideRNI === 'yes' ? appData.orniCount : 'No') + '</span></div>' +
+    '</div>';
+  
+  var existingConvInfo = appData.existingConvChannels === 'yes' ? (appData.existingConvCount || '?') + ' - ' + (appData.existingConvTypes || 'Types TBD') : 'No';
+  var newConvInfo = appData.newConvRadios === 'yes' ? (appData.newConvCount || '?') + ' - ' + (appData.newConvTypes || 'Types TBD') : 'No';
+  
+  html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
+    '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + existingConvInfo + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + newConvInfo + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Backup per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+    '</div>';
+  
+  html += '<div class="summary-section"><div class="summary-title">Equipment</div>' +
+    '<div class="summary-row"><span class="summary-label">Monitors</span><span class="summary-value">' + (appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : appData.touchScreens === 'customer' ? 'Customer' : appData.monitorSize + '"') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + (appData.encryption.join(', ') || 'None') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
+    '</div>';
+  
+  html += '<div class="summary-section"><div class="summary-title">Training</div>' +
+    '<div class="summary-row"><span class="summary-label">Supervisors</span><span class="summary-value">' + (appData.supervisorTraining || '0') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Operators</span><span class="summary-value">' + (appData.operatorTraining || '0') + '</span></div>' +
+    '</div>';
+  
+  var photoCount = getTotalPhotoCount();
+  if (photoCount > 0) {
+    html += '<div class="summary-section"><div class="summary-title">Photos</div>' +
+      '<div class="summary-row"><span class="summary-label">Total Photos</span><span class="summary-value">' + photoCount + '</span></div></div>';
+  }
+  
+  document.getElementById('summaryBox').innerHTML = html;
+  document.getElementById('downloadPhotosBtn').style.display = photoCount > 0 ? 'block' : 'none';
+  
+  var exportData = { v:'4.0', t:Date.now(), d:appData };
+  var code = btoa(JSON.stringify(exportData));
+  document.getElementById('exportCode').textContent = 'AXS-' + code.substring(0,24).toUpperCase();
+}
+
+function copyCode() {
+  var code = document.getElementById('exportCode').textContent;
+  if (navigator.clipboard) navigator.clipboard.writeText(code).then(function() { alert('Copied!'); });
+  else prompt('Copy:', code);
+}
+
+async function shareReport() {
+  var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
+  var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
+  
+  // Build clean text summary - only include fields with values
+  var lines = [];
+  lines.push('AXS REQUIREMENTS CAPTURE');
+  lines.push('');
+  
+  // Basic Info
+  if (appData.customerName) lines.push('Customer: ' + appData.customerName);
+  if (appData.projectName) lines.push('Project: ' + appData.projectName);
+  if (appData.city && appData.state) lines.push('Location: ' + appData.city + ', ' + appData.state);
+  if (appData.regionalSystem) lines.push('Regional System: ' + appData.regionalSystem);
+  
+  // Project Config
+  lines.push('');
+  lines.push('--- PROJECT ---');
+  if (appData.projectType) lines.push('Type: ' + (typeLabels[appData.projectType] || appData.projectType));
+  if (appData.existingSystem) {
+    var existing = appData.existingSystem;
+    if (appData.existingSystemDetails) existing += ' (' + appData.existingSystemDetails + ')';
+    lines.push('Existing System: ' + existing);
+  }
+  if (appData.opPositions) lines.push('OP Positions: ' + appData.opPositions);
+  if (appData.consoleType) lines.push('Console Type: ' + appData.consoleType);
+  if (appData.outsideRNI === 'yes') lines.push('Outside RNI: ' + appData.orniCount + ' positions');
+  
+  // Site Layout
+  if (appData.colocated || appData.existingCabling || appData.conduitsExist) {
+    lines.push('');
+    lines.push('--- SITE LAYOUT ---');
+    if (appData.colocated) lines.push('Co-located: ' + (appData.colocated === 'yes' ? 'Yes' : 'No'));
+    if (appData.existingCabling) lines.push('Existing Cabling: ' + (appData.existingCabling === 'yes' ? 'Yes' : 'No'));
+    if (appData.conduitsExist && appData.conduitsExist !== 'na') lines.push('Conduits Available: ' + (appData.conduitsExist === 'yes' ? 'Yes' : 'No'));
+    if (appData.layoutNotes) lines.push('Notes: ' + appData.layoutNotes);
+  }
+  
+  // Channels & Radios
+  if (appData.existingConvChannels === 'yes' || appData.newConvRadios === 'yes' || appData.backupRadiosPerOP === 'yes') {
+    lines.push('');
+    lines.push('--- CHANNELS & RADIOS ---');
+    if (appData.existingConvChannels === 'yes') {
+      lines.push('Existing Conv Channels: ' + appData.existingConvCount + ' (' + appData.existingConvTypes + ')');
+    }
+    if (appData.newConvRadios === 'yes') {
+      lines.push('New Conv Radios Needed: ' + appData.newConvCount + ' (' + appData.newConvTypes + ')');
+    }
+    if (appData.backupRadiosPerOP === 'yes') lines.push('Backup Radios per OP: Yes');
+    if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
+  }
+  
+  // Equipment
+  lines.push('');
+  lines.push('--- EQUIPMENT ---');
+  if (appData.touchScreens) {
+    var monitorText = appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : 
+                      appData.touchScreens === 'customer' ? 'Customer Providing' : 
+                      appData.monitorSize ? appData.monitorSize + '" Non-Touch' : 'TBD';
+    lines.push('Monitors: ' + monitorText);
+  }
+  if (appData.speakersPerPosition) lines.push('Speakers per Position: ' + appData.speakersPerPosition);
+  if (appData.irrRequired === 'yes') lines.push('IRR: Yes');
+  if (appData.encryption && appData.encryption.length > 0 && appData.encryption[0] !== 'None') {
+    lines.push('Encryption: ' + appData.encryption.join(', '));
+  }
+  if (appData.reuseFootswitches === 'yes') lines.push('Reuse Footswitches: Yes');
+  if (appData.reuseHeadsets === 'yes') lines.push('Reuse Headset Jacks: Yes');
+  
+  // Power & Interfaces
+  if (appData.backupPower && appData.backupPower !== 'none') {
+    lines.push('Backup Power: ' + (upsLabels[appData.backupPower] || appData.backupPower));
+  }
+  if (appData.camRequired === 'yes') lines.push('CAM: Yes');
+  if (appData.loggingRecorder === 'yes') lines.push('Logging Recorder: Yes');
+  if (appData.cadAPI === 'yes') lines.push('CAD API: Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : ''));
+  if (appData.fireAlerting === 'yes') lines.push('Fire Station Alerting: Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : ''));
+  if (appData.otherInterfaces === 'yes') lines.push('Other Interfaces: ' + appData.otherInterfacesDetails);
+  if (appData.auxInputs || appData.auxOutputs) {
+    lines.push('Aux I/O: ' + (appData.auxInputs || '0') + ' inputs, ' + (appData.auxOutputs || '0') + ' outputs');
+  }
+  
+  // Operational
+  if (appData.allShifts || appData.removeForCutover) {
+    lines.push('');
+    lines.push('--- OPERATIONAL ---');
+    if (appData.allShifts) lines.push('All Shifts Utilized: ' + (appData.allShifts === 'yes' ? 'Yes' : 'No'));
+    if (appData.removeForCutover) {
+      lines.push('Cutover Method: ' + (appData.removeForCutover === 'yes' ? 'Remove & Replace' : 'Parallel Install'));
+      if (appData.removeForCutover === 'no' && appData.parallelSpace) {
+        lines.push('Parallel Space Available: ' + (appData.parallelSpace === 'yes' ? 'Yes' : 'No'));
+      }
+    }
+  }
+  
+  // Training
+  if (appData.supervisorTraining || appData.operatorTraining) {
+    lines.push('');
+    lines.push('--- TRAINING ---');
+    if (appData.supervisorTraining) lines.push('Supervisors: ' + appData.supervisorTraining);
+    if (appData.operatorTraining) lines.push('Operators: ' + appData.operatorTraining);
+  }
+  
+  // Photo counts
+  var photoCounts = [];
+  if (appData.photos2.length) photoCounts.push('Operator Position: ' + appData.photos2.length);
+  if (appData.photos3.length) photoCounts.push('Dispatch Room: ' + appData.photos3.length);
+  if (appData.photos6.length) photoCounts.push('Conv Equipment: ' + appData.photos6.length);
+  if (appData.photos7.length) photoCounts.push('Interface/Power: ' + appData.photos7.length);
+  if (appData.photos8.length) photoCounts.push('Backroom: ' + appData.photos8.length);
+  if (photoCounts.length > 0) {
+    lines.push('');
+    lines.push('--- PHOTOS ---');
+    photoCounts.forEach(function(c) { lines.push(c); });
+  }
+  
+  lines.push('');
+  lines.push('Import Code: ' + document.getElementById('exportCode').textContent);
+  
+  var text = lines.join('\n');
+  
+  // Collect photos and create ZIP if there are any
+  var photoSections = [
+    { key: 'photos2', name: '1_Operator_Position' },
+    { key: 'photos3', name: '2_Dispatch_Room' },
+    { key: 'photos6', name: '3_Conv_Equipment' },
+    { key: 'photos7', name: '4_Interface_Power' },
+    { key: 'photos8', name: '5_Backroom' }
+  ];
+  
+  var customerSlug = appData.customerName.replace(/[^a-z0-9]/gi, '_') || 'capture';
+  var fileName = customerSlug + '_AXS_Report.zip';
+  var code = document.getElementById('exportCode').textContent;
+  
+  // Create ZIP file with photos and summary
+  if (typeof JSZip === 'undefined') {
+    alert('ZIP library not loaded. Check internet connection.');
+    return;
+  }
+  
+  var zip = new JSZip();
+  
+  // Add photos
+  for (var s = 0; s < photoSections.length; s++) {
+    var section = photoSections[s];
+    var photos = appData[section.key];
+    for (var p = 0; p < photos.length; p++) {
+      try {
+        var dataUrl = photos[p].data;
+        var base64Data = dataUrl.split(',')[1];
+        var photoName = section.name + '_' + (p + 1) + '.jpg';
+        zip.file(photoName, base64Data, {base64: true});
+      } catch (e) {
+        console.log('Error adding photo to zip:', e);
+      }
+    }
+  }
+  
+  // Add summary.txt to ZIP
+  zip.file('AXS_Summary.txt', text);
+  
+  try {
+    var zipBlob = await zip.generateAsync({type: 'blob'});
+    var zipFile = new File([zipBlob], fileName, { type: 'application/zip' });
+    
+    // Use Web Share API - user can pick Mail/Gmail from share sheet
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [zipFile] })) {
+      await navigator.share({
+        files: [zipFile],
+        title: 'AXS Requirements - ' + appData.customerName,
+        text: 'CODE: ' + code
+      });
+    } else {
+      // Fallback for browsers without file sharing
+      var url = URL.createObjectURL(zipBlob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Open email separately
+      var subj = 'AXS Requirements - ' + appData.customerName;
+      setTimeout(function() {
+        window.location.href = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent('CODE: ' + code);
+      }, 500);
+    }
+    
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      console.log('Error:', e);
+    }
+  }
+}
+
+function saveAndReturn() {
+  saveCapture();
+  currentCaptureId = null;
+  currentScreen = 0;
+  loadSavedList();
+  showScreen(0);
+}
+
+function discardAndReturn() {
+  if (!confirm('Discard this capture? This cannot be undone.')) return;
+  if (currentCaptureId) {
+    localStorage.setItem('axsV4', JSON.stringify(getSaved().filter(function(c) { return c.id !== currentCaptureId; })));
+  }
+  currentCaptureId = null;
+  currentScreen = 0;
+  loadSavedList();
+  showScreen(0);
+}
+
+function goBackFromSummary() {
+  currentScreen = 8;
+  showScreen(8);
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.multiselect-dropdown')) {
+    document.querySelectorAll('.multiselect-options').forEach(function(el) { el.classList.remove('open'); });
+  }
+});
+</script>
+
+</body>
+</html>
