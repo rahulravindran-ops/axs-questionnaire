@@ -443,6 +443,16 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
+        <label class="field-label">Hardware / Software Encryption</label>
+        <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value; document.getElementById('encryptionTypesGroup').style.display = (this.value === 'hardware' || this.value === 'software') ? 'block' : 'none';">
+          <option value="">Select...</option>
+          <option value="hardware">Hardware</option>
+          <option value="software">Software</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+      
+      <div class="field-group" id="encryptionTypesGroup" style="display:none;">
         <label class="field-label">Encryption Types</label>
         <div class="multiselect-dropdown" id="encryptionDropdown">
           <button type="button" class="multiselect-btn" onclick="toggleMultiselect('encryptionDropdown')">
@@ -487,16 +497,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div id="existingConvDetails" style="display:none;">
-        <div class="inline-fields">
-          <div>
-            <label class="field-label field-sublabel">How Many?</label>
-            <input type="number" id="existingConvCount" placeholder="0" min="1">
-          </div>
-          <div>
-            <label class="field-label field-sublabel">Radio Types</label>
-            <input type="text" id="existingConvTypes" placeholder="e.g., VHF, UHF, 800MHz">
-          </div>
-        </div>
+        <div id="existingConvRows"></div>
+        <button type="button" onclick="addConvRow('existing')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
       </div>
       
       <!-- New Conventional Radios -->
@@ -515,16 +517,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div id="newConvDetails" style="display:none;">
-        <div class="inline-fields">
-          <div>
-            <label class="field-label field-sublabel">How Many?</label>
-            <input type="number" id="newConvCount" placeholder="0" min="1">
-          </div>
-          <div>
-            <label class="field-label field-sublabel">Radio Types</label>
-            <input type="text" id="newConvTypes" placeholder="e.g., VHF, UHF, 800MHz">
-          </div>
-        </div>
+        <div id="newConvRows"></div>
+        <button type="button" onclick="addConvRow('new')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
       </div>
       
       <!-- Backup Radios at Each OP -->
@@ -547,7 +541,41 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <label class="field-label">Additional Notes <span class="field-sublabel">(optional)</span></label>
         <textarea id="screen6Notes" placeholder="Any additional notes about conventional channels or backup radios..."></textarea>
       </div>
-      
+
+      <div class="divider"></div>
+
+      <!-- Antenna Systems -->
+      <div class="field-group">
+        <label class="field-label">Existing Antenna System(s)?</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true);">
+            <input type="radio" name="antennaSystem" value="yes">
+            <span class="option-label">Yes</span>
+          </div>
+          <div class="option" onclick="selectRadio('antennaSystem','no'); showAntennaDetails(false);">
+            <input type="radio" name="antennaSystem" value="no">
+            <span class="option-label">No</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="antennaDetails" style="display:none;">
+        <div class="field-group">
+          <label class="field-label">Combining / Antenna Details <span class="field-sublabel">(combiners, duplexers, shared antenna, separate runs, etc.)</span></label>
+          <textarea id="antennaCombining" placeholder="e.g., 4-port combiner feeding shared rooftop antenna, separate feedlines per radio, duplexed VHF/UHF..."></textarea>
+        </div>
+        <div class="photo-section">
+          <div class="photo-section-title">📸 Antenna / Feed Lines / Entry Port Photos</div>
+          <div class="help-box" style="margin-bottom:10px;">
+            <div class="help-text">📷 Capture antennas, coax runs, entry ports, combiners, duplexers, and any labeling visible on lines.</div>
+          </div>
+          <input type="file" id="photoAnt" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photosAnt')">
+          <button class="photo-btn" onclick="document.getElementById('photoAnt').click()">📸 Add Photos</button>
+          <div class="photo-grid" id="photoGridAnt"></div>
+          <div class="photo-count" id="photoCountAnt"></div>
+        </div>
+      </div>
+
       <div class="photo-section">
         <div class="photo-section-title">📸 Conventional Channel Equipment Photos</div>
         <input type="file" id="photo6" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos6')">
@@ -753,19 +781,17 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <div class="summary-box" id="summaryBox"></div>
       
-      <div class="code-box">
-        <div class="code-label">Import Code</div>
-        <div class="code-value" id="exportCode"></div>
-      </div>
+      <div id="exportCode" style="display:none;"></div>
       
-      <button class="action-btn secondary" onclick="goBackFromSummary()">← Back to Edit</button>
-      <button class="action-btn primary" onclick="copyCode()">📋 Copy Code</button>
       <button class="action-btn primary" onclick="shareReport()">📧 Email Report</button>
+      <div id="codeSubtext" style="text-align:center; font-size:11px; color:#9ca3af; margin:-4px 0 12px; font-family:monospace; word-break:break-all;"></div>
+      
       <button class="action-btn secondary" id="downloadPhotosBtn" onclick="downloadAllPhotos()" style="display:none;">📸 Download All Photos</button>
       
       <div class="divider"></div>
       
       <button class="action-btn primary" onclick="saveAndReturn()">💾 Save & Return to Menu</button>
+      <button class="action-btn secondary" onclick="goBackFromSummary()">← Back to Edit</button>
       <button class="action-btn secondary" onclick="discardAndReturn()" style="color:#ef4444; border-color:#ef4444;">🗑️ Discard & Return to Menu</button>
     </div>
     
@@ -794,17 +820,17 @@ var appData = {
   colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'',
   outsideRNI:'', orniCount:'', existingORNIType:'None',
   touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-  reuseFootswitches:'', reuseHeadsets:'', encryption:[],
-  existingConvChannels:'', existingConvCount:'', existingConvTypes:'',
-  newConvRadios:'', newConvCount:'', newConvTypes:'',
-  backupRadiosPerOP:'', screen6Notes:'',
+  reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', encryption:[],
+  existingConvChannels:'', existingConvList:[{count:'',type:''}],
+  newConvRadios:'', newConvList:[{count:'',type:''}],
+  backupRadiosPerOP:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
   auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
   loggingRecorder:'', cadAPI:'', cadVendorName:'',
   fireAlerting:'', fireAlertingType:'',
   otherInterfaces:'', otherInterfacesDetails:'',
   allShifts:'', removeForCutover:'', parallelSpace:'',
   supervisorTraining:'', operatorTraining:'',
-  photos2:[], photos3:[], photos6:[], photos7:[], photos8:[]
+  photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
 };
 
 window.onload = function() { loadSavedList(); };
@@ -859,17 +885,17 @@ function startNew() {
     colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'',
     outsideRNI:'', orniCount:'', existingORNIType:'None',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-    reuseFootswitches:'', reuseHeadsets:'', encryption:[],
-    existingConvChannels:'', existingConvCount:'', existingConvTypes:'',
-    newConvRadios:'', newConvCount:'', newConvTypes:'',
-    backupRadiosPerOP:'', screen6Notes:'',
+    reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', encryption:[],
+    existingConvChannels:'', existingConvList:[{count:'',type:''}],
+    newConvRadios:'', newConvList:[{count:'',type:''}],
+    backupRadiosPerOP:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
     auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
     loggingRecorder:'', cadAPI:'', cadVendorName:'',
     fireAlerting:'', fireAlertingType:'',
     otherInterfaces:'', otherInterfacesDetails:'',
     allShifts:'', removeForCutover:'', parallelSpace:'',
     supervisorTraining:'', operatorTraining:'',
-    photos2:[], photos3:[], photos6:[], photos7:[], photos8:[]
+    photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
   };
   currentScreen = 1;
   showScreen(1);
@@ -920,8 +946,9 @@ function selectRadio(name, value) {
 function showORNIDetails(show) { document.getElementById('orniDetails').style.display = show ? 'block' : 'none'; }
 function showExistingSystem(show) { document.getElementById('existingSystemGroup').style.display = show ? 'block' : 'none'; }
 function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
-function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; }
-function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; }
+function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
+function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('new'); }
+function showAntennaDetails(show) { document.getElementById('antennaDetails').style.display = show ? 'block' : 'none'; }
 function showParallelSpace(show) { document.getElementById('parallelSpaceGroup').style.display = show ? 'block' : 'none'; }
 
 function toggleMultiselect(id) {
@@ -963,11 +990,10 @@ function collectScreenData() {
     appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
     appData.reuseHeadsets = document.getElementById('reuseHeadsets').value;
   } else if (currentScreen === 6) {
-    appData.existingConvCount = document.getElementById('existingConvCount').value;
-    appData.existingConvTypes = document.getElementById('existingConvTypes').value;
-    appData.newConvCount = document.getElementById('newConvCount').value;
-    appData.newConvTypes = document.getElementById('newConvTypes').value;
+    appData.existingConvList = getConvRows('existing');
+    appData.newConvList = getConvRows('new');
     appData.screen6Notes = document.getElementById('screen6Notes').value;
+    appData.antennaCombining = document.getElementById('antennaCombining').value;
   } else if (currentScreen === 7) {
     appData.auxInputs = document.getElementById('auxInputs').value;
     appData.auxOutputs = document.getElementById('auxOutputs').value;
@@ -1035,11 +1061,12 @@ function restoreForm() {
   document.getElementById('speakersPerPosition').value = appData.speakersPerPosition || '';
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
   document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
-  document.getElementById('existingConvCount').value = appData.existingConvCount || '';
-  document.getElementById('existingConvTypes').value = appData.existingConvTypes || '';
-  document.getElementById('newConvCount').value = appData.newConvCount || '';
-  document.getElementById('newConvTypes').value = appData.newConvTypes || '';
+  document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
+  document.getElementById('encryptionTypesGroup').style.display = (appData.encryptionImpl === 'hardware' || appData.encryptionImpl === 'software') ? 'block' : 'none';
+  renderConvRows('existing');
+  renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
+  document.getElementById('antennaCombining').value = appData.antennaCombining || '';
   document.getElementById('auxInputs').value = appData.auxInputs || '';
   document.getElementById('auxOutputs').value = appData.auxOutputs || '';
   document.getElementById('backupPower').value = appData.backupPower || '';
@@ -1052,7 +1079,7 @@ function restoreForm() {
   document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
   
-  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP'].forEach(function(name) {
+  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','antennaSystem'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
@@ -1064,6 +1091,7 @@ function restoreForm() {
   if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
   if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
   if (appData.newConvRadios === 'yes') showNewConvDetails(true);
+  if (appData.antennaSystem === 'yes') showAntennaDetails(true);
   if (appData.removeForCutover === 'no') showParallelSpace(true);
   if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
   if (appData.fireAlerting === 'yes') document.getElementById('fireAlertingType').style.display = 'block';
@@ -1111,18 +1139,17 @@ function compressImage(dataUrl, callback) {
 }
 
 function updatePhotoDisplays() {
-  ['photos2','photos3','photos6','photos7','photos8'].forEach(function(key) {
-    var grid = document.getElementById('photoGrid' + key.slice(-1));
-    var count = document.getElementById('photoCount' + key.slice(-1));
+  var photoMap = {
+    photos2: '2', photos3: '3', photos6: '6',
+    photosAnt: 'Ant', photos7: '7', photos8: '8'
+  };
+  Object.keys(photoMap).forEach(function(key) {
+    var suffix = photoMap[key];
+    var grid = document.getElementById('photoGrid' + suffix);
+    var count = document.getElementById('photoCount' + suffix);
     if (!grid) return;
-    
     var photos = appData[key];
-    if (!photos || photos.length === 0) {
-      grid.innerHTML = '';
-      count.textContent = '';
-      return;
-    }
-    
+    if (!photos || photos.length === 0) { grid.innerHTML = ''; count.textContent = ''; return; }
     var html = '';
     photos.forEach(function(p) {
       html += '<div class="photo-item"><button class="photo-delete" onclick="deletePhoto(\'' + key + '\',\'' + p.id + '\')">×</button><img src="' + p.data + '" class="photo-thumb"></div>';
@@ -1138,12 +1165,12 @@ function deletePhoto(key, id) {
 }
 
 function getTotalPhotoCount() {
-  return appData.photos2.length + appData.photos3.length + appData.photos6.length + appData.photos7.length + appData.photos8.length;
+  return appData.photos2.length + appData.photos3.length + appData.photos6.length + (appData.photosAnt||[]).length + appData.photos7.length + appData.photos8.length;
 }
 
 function downloadAllPhotos() {
   var all = [];
-  ['photos2','photos3','photos6','photos7','photos8'].forEach(function(key) {
+  ['photos2','photos3','photos6','photosAnt','photos7','photos8'].forEach(function(key) {
     appData[key].forEach(function(p, i) {
       all.push({ data: p.data, name: appData.customerName.replace(/[^a-z0-9]/gi,'_') + '_' + key + '_' + (i+1) + '.jpg' });
     });
@@ -1182,18 +1209,26 @@ function generateSummary() {
     '<div class="summary-row"><span class="summary-label">Outside RNI</span><span class="summary-value">' + (appData.outsideRNI === 'yes' ? appData.orniCount : 'No') + '</span></div>' +
     '</div>';
   
-  var existingConvInfo = appData.existingConvChannels === 'yes' ? (appData.existingConvCount || '?') + ' - ' + (appData.existingConvTypes || 'Types TBD') : 'No';
-  var newConvInfo = appData.newConvRadios === 'yes' ? (appData.newConvCount || '?') + ' - ' + (appData.newConvTypes || 'Types TBD') : 'No';
+  var existingConvInfo = 'No';
+  if (appData.existingConvChannels === 'yes' && appData.existingConvList && appData.existingConvList.length) {
+    existingConvInfo = appData.existingConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?';
+  }
+  var newConvInfo = 'No';
+  if (appData.newConvRadios === 'yes' && appData.newConvList && appData.newConvList.length) {
+    newConvInfo = appData.newConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?';
+  }
   
   html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
     '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + existingConvInfo + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + newConvInfo + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Backup per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Yes' + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') : 'No') + '</span></div>' +
     '</div>';
   
   html += '<div class="summary-section"><div class="summary-title">Equipment</div>' +
     '<div class="summary-row"><span class="summary-label">Monitors</span><span class="summary-value">' + (appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : appData.touchScreens === 'customer' ? 'Customer' : appData.monitorSize + '"') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Encryption Impl</span><span class="summary-value">' + (appData.encryptionImpl ? appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) : '—') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + (appData.encryption.join(', ') || 'None') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
     '</div>';
@@ -1214,14 +1249,11 @@ function generateSummary() {
   
   var exportData = { v:'4.0', t:Date.now(), d:appData };
   var code = btoa(JSON.stringify(exportData));
-  document.getElementById('exportCode').textContent = 'AXS-' + code.substring(0,24).toUpperCase();
+  var codeValue = 'AXS-' + code.substring(0,24).toUpperCase();
+  document.getElementById('exportCode').textContent = codeValue;
+  document.getElementById('codeSubtext').textContent = codeValue;
 }
 
-function copyCode() {
-  var code = document.getElementById('exportCode').textContent;
-  if (navigator.clipboard) navigator.clipboard.writeText(code).then(function() { alert('Copied!'); });
-  else prompt('Copy:', code);
-}
 
 async function shareReport() {
   var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
@@ -1265,14 +1297,27 @@ async function shareReport() {
   if (appData.existingConvChannels === 'yes' || appData.newConvRadios === 'yes' || appData.backupRadiosPerOP === 'yes') {
     lines.push('');
     lines.push('--- CHANNELS & RADIOS ---');
-    if (appData.existingConvChannels === 'yes') {
-      lines.push('Existing Conv Channels: ' + appData.existingConvCount + ' (' + appData.existingConvTypes + ')');
-    }
-    if (appData.newConvRadios === 'yes') {
-      lines.push('New Conv Radios Needed: ' + appData.newConvCount + ' (' + appData.newConvTypes + ')');
-    }
+    if (appData.existingConvChannels === 'yes' && appData.existingConvList) {
+    appData.existingConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+      lines.push('Existing Conv Channel: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+    });
+  }
+  if (appData.newConvRadios === 'yes' && appData.newConvList) {
+    appData.newConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+      lines.push('New Conv Radio: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+    });
+  }
     if (appData.backupRadiosPerOP === 'yes') lines.push('Backup Radios per OP: Yes');
     if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
+  }
+
+  // Antenna Systems
+  if (appData.antennaSystem === 'yes') {
+    lines.push('');
+    lines.push('--- ANTENNA SYSTEMS ---');
+    lines.push('Existing Antenna System: Yes');
+    if (appData.antennaCombining) lines.push('Combining/Details: ' + appData.antennaCombining);
+    if ((appData.photosAnt||[]).length) lines.push('Antenna Photos: ' + appData.photosAnt.length);
   }
   
   // Equipment
@@ -1286,6 +1331,7 @@ async function shareReport() {
   }
   if (appData.speakersPerPosition) lines.push('Speakers per Position: ' + appData.speakersPerPosition);
   if (appData.irrRequired === 'yes') lines.push('IRR: Yes');
+  if (appData.encryptionImpl) lines.push('Encryption Implementation: ' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1));
   if (appData.encryption && appData.encryption.length > 0 && appData.encryption[0] !== 'None') {
     lines.push('Encryption: ' + appData.encryption.join(', '));
   }
@@ -1331,6 +1377,7 @@ async function shareReport() {
   if (appData.photos2.length) photoCounts.push('Operator Position: ' + appData.photos2.length);
   if (appData.photos3.length) photoCounts.push('Dispatch Room: ' + appData.photos3.length);
   if (appData.photos6.length) photoCounts.push('Conv Equipment: ' + appData.photos6.length);
+  if ((appData.photosAnt||[]).length) photoCounts.push('Antenna Systems: ' + appData.photosAnt.length);
   if (appData.photos7.length) photoCounts.push('Interface/Power: ' + appData.photos7.length);
   if (appData.photos8.length) photoCounts.push('Backroom: ' + appData.photos8.length);
   if (photoCounts.length > 0) {
@@ -1349,8 +1396,9 @@ async function shareReport() {
     { key: 'photos2', name: '1_Operator_Position' },
     { key: 'photos3', name: '2_Dispatch_Room' },
     { key: 'photos6', name: '3_Conv_Equipment' },
-    { key: 'photos7', name: '4_Interface_Power' },
-    { key: 'photos8', name: '5_Backroom' }
+    { key: 'photosAnt', name: '4_Antenna_Systems' },
+    { key: 'photos7', name: '5_Interface_Power' },
+    { key: 'photos8', name: '6_Backroom' }
   ];
   
   var customerSlug = appData.customerName.replace(/[^a-z0-9]/gi, '_') || 'capture';
@@ -1442,6 +1490,67 @@ function discardAndReturn() {
 function goBackFromSummary() {
   currentScreen = 8;
   showScreen(8);
+}
+
+function renderConvRows(which) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  if (!list || list.length === 0) list = [{count:'', type:''}];
+  var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  var html = '';
+  list.forEach(function(row, i) {
+    html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">' +
+      '<div style="flex:0.4;">' +
+        (i === 0 ? '<label class="field-label field-sublabel">Count</label>' : '') +
+        '<input type="number" min="1" placeholder="0" value="' + (row.count || '') + '" ' +
+          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'count\',this.value)" ' +
+          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;">' +
+      '</div>' +
+      '<div style="flex:1;">' +
+        (i === 0 ? '<label class="field-label field-sublabel">Radio Type</label>' : '') +
+        '<input type="text" placeholder="e.g., VHF, UHF, 800MHz" value="' + (row.type || '') + '" ' +
+          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'type\',this.value)" ' +
+          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;" ' +
+          'placeholder="e.g., VHF Analog, P25 APX Consolette, Multiband...">' +
+      '</div>' +
+      (list.length > 1
+        ? '<button type="button" onclick="removeConvRow(\'' + which + '\',' + i + ')" ' +
+            'style="flex:none; width:34px; height:42px; ' + (i === 0 ? 'margin-top:20px;' : '') + ' background:#fee2e2; color:#ef4444; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; line-height:1;">×</button>'
+        : '<div style="width:34px;' + (i === 0 ? ' margin-top:20px;' : '') + '"></div>') +
+    '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateConvRow(which, index, field, value) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  if (list[index]) list[index][field] = value;
+}
+
+function addConvRow(which) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  list.push({count:'', type:''});
+  renderConvRows(which);
+}
+
+function removeConvRow(which, index) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  list.splice(index, 1);
+  renderConvRows(which);
+}
+
+function getConvRows(which) {
+  var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
+  var container = document.getElementById(containerId);
+  if (!container) return [{count:'',type:''}];
+  var rows = container.querySelectorAll('div[style*="display:flex"]');
+  var list = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) list.push({count: inputs[0].value, type: inputs[1].value});
+  });
+  return list.length ? list : [{count:'',type:''}];
 }
 
 // Close dropdowns when clicking outside
