@@ -605,6 +605,54 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
+        <label class="field-label">Backhaul Links</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('backhaulType','na'); showBackhaulDetails(false); showBackhaulRedundancy(false);">
+            <input type="radio" name="backhaulType" value="na">
+            <span class="option-label">N/A</span>
+          </div>
+          <div class="option" onclick="selectRadio('backhaulType','new_microwave'); showBackhaulDetails('microwave'); showBackhaulRedundancy(true);">
+            <input type="radio" name="backhaulType" value="new_microwave">
+            <span class="option-label">New Microwave Required</span>
+          </div>
+          <div class="option" onclick="selectRadio('backhaulType','existing'); showBackhaulDetails('existing'); showBackhaulRedundancy(true);">
+            <input type="radio" name="backhaulType" value="existing">
+            <span class="option-label">Existing to be Reused</span>
+          </div>
+          <div class="option" onclick="selectRadio('backhaulType','other'); showBackhaulDetails('other'); showBackhaulRedundancy(true);">
+            <input type="radio" name="backhaulType" value="other">
+            <span class="option-label">Other</span>
+          </div>
+        </div>
+
+        <div id="backhaulMicrowaveDetails" style="display:none; margin-top:8px;">
+          <input type="text" id="backhaulMicrowaveData" placeholder="e.g., point-to-point, vendor, frequency band...">
+        </div>
+        <div id="backhaulExistingDetails" style="display:none; margin-top:8px;">
+          <input type="text" id="backhaulExistingData" placeholder="e.g., existing fiber, leased line, details...">
+        </div>
+        <div id="backhaulOtherDetails" style="display:none; margin-top:8px;">
+          <input type="text" id="backhaulOtherData" placeholder="e.g., ACS, carrier ethernet, MPLS...">
+        </div>
+      </div>
+
+      <div class="field-group" id="backhaulRedundancyGroup" style="display:none;">
+        <label class="field-label">Backhaul Redundancy</label>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('backhaulRedundancy','redundant')">
+            <input type="radio" name="backhaulRedundancy" value="redundant">
+            <span class="option-label">Redundant</span>
+          </div>
+          <div class="option" onclick="selectRadio('backhaulRedundancy','non_redundant')">
+            <input type="radio" name="backhaulRedundancy" value="non_redundant">
+            <span class="option-label">Non-Redundant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
         <label class="field-label">Backup Power / UPS</label>
         <select id="backupPower">
           <option value="">Select...</option>
@@ -824,7 +872,7 @@ var appData = {
   existingConvChannels:'', existingConvList:[{count:'',type:''}],
   newConvRadios:'', newConvList:[{count:'',type:''}],
   backupRadiosPerOP:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
-  auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
+  auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
   loggingRecorder:'', cadAPI:'', cadVendorName:'',
   fireAlerting:'', fireAlertingType:'',
   otherInterfaces:'', otherInterfacesDetails:'',
@@ -889,7 +937,7 @@ function startNew() {
     existingConvChannels:'', existingConvList:[{count:'',type:''}],
     newConvRadios:'', newConvList:[{count:'',type:''}],
     backupRadiosPerOP:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
-    auxInputs:'', auxOutputs:'', backupPower:'', camRequired:'',
+    auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
     loggingRecorder:'', cadAPI:'', cadVendorName:'',
     fireAlerting:'', fireAlertingType:'',
     otherInterfaces:'', otherInterfacesDetails:'',
@@ -949,6 +997,12 @@ function showMonitorSize(show) { document.getElementById('monitorSizeGroup').sty
 function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
 function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('new'); }
 function showAntennaDetails(show) { document.getElementById('antennaDetails').style.display = show ? 'block' : 'none'; }
+function showBackhaulDetails(which) {
+  ['microwave','existing','other'].forEach(function(t) {
+    document.getElementById('backhaul' + t.charAt(0).toUpperCase() + t.slice(1) + 'Details').style.display = (which === t) ? 'block' : 'none';
+  });
+}
+function showBackhaulRedundancy(show) { document.getElementById('backhaulRedundancyGroup').style.display = show ? 'block' : 'none'; }
 function showParallelSpace(show) { document.getElementById('parallelSpaceGroup').style.display = show ? 'block' : 'none'; }
 
 function toggleMultiselect(id) {
@@ -997,6 +1051,9 @@ function collectScreenData() {
   } else if (currentScreen === 7) {
     appData.auxInputs = document.getElementById('auxInputs').value;
     appData.auxOutputs = document.getElementById('auxOutputs').value;
+    appData.backhaulMicrowaveData = document.getElementById('backhaulMicrowaveData').value;
+    appData.backhaulExistingData = document.getElementById('backhaulExistingData').value;
+    appData.backhaulOtherData = document.getElementById('backhaulOtherData').value;
     appData.backupPower = document.getElementById('backupPower').value;
     appData.cadAPI = document.getElementById('cadAPI').value;
     appData.cadVendorName = document.getElementById('cadVendorName').value;
@@ -1069,6 +1126,13 @@ function restoreForm() {
   document.getElementById('antennaCombining').value = appData.antennaCombining || '';
   document.getElementById('auxInputs').value = appData.auxInputs || '';
   document.getElementById('auxOutputs').value = appData.auxOutputs || '';
+  document.getElementById('backhaulMicrowaveData').value = appData.backhaulMicrowaveData || '';
+  document.getElementById('backhaulExistingData').value = appData.backhaulExistingData || '';
+  document.getElementById('backhaulOtherData').value = appData.backhaulOtherData || '';
+  if (appData.backhaulType && appData.backhaulType !== 'na') {
+    showBackhaulDetails(appData.backhaulType === 'new_microwave' ? 'microwave' : appData.backhaulType);
+    showBackhaulRedundancy(true);
+  }
   document.getElementById('backupPower').value = appData.backupPower || '';
   document.getElementById('cadAPI').value = appData.cadAPI || '';
   document.getElementById('cadVendorName').value = appData.cadVendorName || '';
@@ -1079,7 +1143,7 @@ function restoreForm() {
   document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
   
-  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','antennaSystem'].forEach(function(name) {
+  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','antennaSystem','backhaulType','backhaulRedundancy'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
@@ -1231,6 +1295,7 @@ function generateSummary() {
     '<div class="summary-row"><span class="summary-label">Encryption Impl</span><span class="summary-value">' + (appData.encryptionImpl ? appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) : '—') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + (appData.encryption.join(', ') || 'None') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
+    (appData.backhaulType && appData.backhaulType !== 'na' ? '<div class="summary-row"><span class="summary-label">Backhaul</span><span class="summary-value">' + (appData.backhaulType === 'new_microwave' ? 'New Microwave' : appData.backhaulType === 'existing' ? 'Existing Reused' : 'Other') + (appData.backhaulRedundancy ? ' / ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant') : '') + '</span></div>' : '') +
     '</div>';
   
   html += '<div class="summary-section"><div class="summary-title">Training</div>' +
@@ -1343,6 +1408,12 @@ async function shareReport() {
     lines.push('Backup Power: ' + (upsLabels[appData.backupPower] || appData.backupPower));
   }
   if (appData.camRequired === 'yes') lines.push('CAM: Yes');
+  if (appData.backhaulType && appData.backhaulType !== 'na') {
+    var bhLabel = appData.backhaulType === 'new_microwave' ? 'New Microwave Required' : appData.backhaulType === 'existing' ? 'Existing to be Reused' : 'Other';
+    var bhData = appData.backhaulType === 'new_microwave' ? appData.backhaulMicrowaveData : appData.backhaulType === 'existing' ? appData.backhaulExistingData : appData.backhaulOtherData;
+    lines.push('Backhaul: ' + bhLabel + (bhData ? ' — ' + bhData : ''));
+    if (appData.backhaulRedundancy) lines.push('Backhaul Redundancy: ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant'));
+  }
   if (appData.loggingRecorder === 'yes') lines.push('Logging Recorder: Yes');
   if (appData.cadAPI === 'yes') lines.push('CAD API: Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : ''));
   if (appData.fireAlerting === 'yes') lines.push('Fire Station Alerting: Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : ''));
