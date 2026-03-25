@@ -17,7 +17,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 .header p { font-size:12px; opacity:0.9; margin-top:3px; }
 .progress { height:4px; background:rgba(0,0,0,0.1); }
 .progress-bar { height:100%; background:#10b981; width:0%; transition:width 0.3s; }
-.content { padding:20px; min-height:400px; padding-bottom:190px; }
+.content { padding:20px; min-height:400px; padding-bottom:240px; }
 .screen { display:none; }
 .screen.active { display:block; }
 .section-badge { display:inline-block; background:#003e7e; color:white; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:600; margin-bottom:12px; text-transform:uppercase; }
@@ -257,8 +257,6 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Console Type</label><button class="tip-icon" data-tip="tip-s2-console" onclick="toggleTip('tip-s2-console')">?</button></div>
         <div class="tip-bubble" id="tip-s2-console"><strong>Cannot mix console types at the same dispatch center</strong>AXS = Motorola's current platform, recommended for new projects. MCC7500E CCHUB = previous gen hardware, still supported. MCC7500E USB with Laptop = lightweight/remote option. If unsure, default to AXS.</div>
-          <div class="help-text">Cannot mix different console types at same dispatch center</div>
-        </div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('consoleType','AXS')">
             <input type="radio" name="consoleType" value="AXS">
