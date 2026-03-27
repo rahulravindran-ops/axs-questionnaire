@@ -1658,8 +1658,26 @@ async function shareReport(downloadOnly) {
         document.body.removeChild(a);
         setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 
+        // Show reminder before share sheet opens — it'll be visible as Gmail loads
+        if (isAndroid) {
+          await new Promise(function(resolve) {
+            var modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            modal.innerHTML = '<div style="background:white;border-radius:12px;padding:24px;width:100%;max-width:340px;text-align:center;">' +
+              '<div style="font-size:32px;margin-bottom:12px;">📎</div>' +
+              '<div style="font-weight:700;font-size:16px;color:#1f2937;margin-bottom:8px;">Report Downloaded</div>' +
+              '<div style="font-size:14px;color:#6b7280;line-height:1.5;margin-bottom:20px;">Your ZIP report has been saved to <strong style="color:#1f2937;">Downloads</strong>. After sending the email, remember to attach it.</div>' +
+              '<button style="width:100%;padding:13px;background:#003e7e;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">OK — Open Share Sheet</button>' +
+              '</div>';
+            modal.querySelector('button').addEventListener('click', function() {
+              document.body.removeChild(modal);
+              resolve();
+            });
+            document.body.appendChild(modal);
+          });
+        }
+
         await navigator.share({ title: shareTitle, text: 'CODE: ' + code });
-        if (isAndroid) showToast('📎 Remember to attach the ZIP from your Downloads folder', 5000);
         return;
       } catch(e) {
         if (e.name === 'AbortError') return;
