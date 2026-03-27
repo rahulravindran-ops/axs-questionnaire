@@ -20,6 +20,23 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 .content { padding:20px; min-height:400px; padding-bottom:240px; }
 .screen { display:none; }
 .screen.active { display:block; }
+@media (min-width:768px) {
+  body { background:#003e7e; }
+  .app { max-width:700px; box-shadow:0 4px 32px rgba(0,0,0,0.25); min-height:100vh; }
+  .header { padding:20px 32px; display:flex; align-items:center; justify-content:space-between; text-align:left; }
+  .header h1 { font-size:22px; }
+  .header p { font-size:13px; margin-top:0; margin-left:12px; }
+  .content { padding:32px; padding-bottom:180px; }
+  .screen-title { font-size:24px; }
+  .option { padding:14px 16px; }
+  .nav-buttons { max-width:700px; padding:12px 32px; }
+  .nav-buttons .btn { font-size:16px; padding:16px; }
+  #buttonBg { max-width:700px; }
+  #saveExitBtn { max-width:700px; padding:0 32px 28px; }
+  input[type="text"], input[type="number"], select, textarea { font-size:15px; }
+  .action-btn { font-size:15px; padding:16px; }
+  .summary-row { font-size:13px; }
+}
 .section-badge { display:inline-block; background:#003e7e; color:white; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:600; margin-bottom:12px; text-transform:uppercase; }
 .screen-title { font-size:20px; font-weight:bold; color:#1f2937; margin-bottom:16px; }
 .field-group { margin-bottom:16px; }
@@ -79,6 +96,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 .saved-btn { flex:1; padding:8px; font-size:12px; font-weight:600; border-radius:6px; cursor:pointer; border:2px solid; }
 .saved-btn.resume { background:#003e7e; color:white; border-color:#003e7e; }
 .saved-btn.delete { background:white; color:#ef4444; border-color:#ef4444; }
+.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#1f2937; color:white; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:600; z-index:9999; text-align:center; max-width:320px; width:90%; opacity:0; transition:opacity 0.3s; pointer-events:none; line-height:1.4; }
+.toast.show { opacity:1; }
 .tip-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
 .tip-row .field-label { margin-bottom:0; }
 .tip-icon { width:20px; height:20px; border-radius:50%; background:#e8f0fb; color:#185FA5; border:none; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
@@ -532,8 +551,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           </div>
         </div>
         <div id="existingConvDetails" style="display:none; margin-bottom:12px;">
-          <label class="field-label field-sublabel">How many conventional channels?</label>
-          <input type="number" id="existingConvCount" placeholder="0" min="1" style="margin-top:4px;">
+          <div id="existingConvRows"></div>
+          <button type="button" onclick="addConvRow('existing')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
         </div>
 
         <!-- New Conventional Radios -->
@@ -552,8 +571,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           </div>
         </div>
         <div id="newConvDetails" style="display:none; margin-bottom:12px;">
-          <label class="field-label field-sublabel">How many new conventional radios?</label>
-          <input type="number" id="newConvCount" placeholder="0" min="1" style="margin-top:4px;">
+          <div id="newConvRows"></div>
+          <button type="button" onclick="addConvRow('new')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
         </div>
       </div>
 
@@ -905,7 +924,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <button class="action-btn primary" onclick="shareReport()">📧 Email Report</button>
       <div id="codeSubtext" style="text-align:center; font-size:11px; color:#9ca3af; margin:-4px 0 12px; font-family:monospace; word-break:break-all;"></div>
-      
+
+      <button class="action-btn secondary" onclick="downloadReport()">⬇️ Download Report</button>
+
       <button class="action-btn secondary" id="downloadPhotosBtn" onclick="downloadAllPhotos()" style="display:none;">📸 Download All Photos</button>
       
       <div class="divider"></div>
@@ -927,9 +948,23 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
   <div id="saveExitBtn" style="position:fixed; bottom:0; left:0; right:0; text-align:center; padding:0px 20px 28px 20px; background:transparent; max-width:500px; margin:0 auto; z-index:10;">
     <button onclick="saveAndExit()" style="width:100%; padding:11px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">💾 Save & Exit</button>
   </div>
+  <div id="toast" class="toast"></div>
 </div>
 
 <script>
+function showToast(msg, duration) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, duration || 4000);
+}
+
+function downloadReport() {
+  var customerSlug = appData.customerName.replace(/[^a-z0-9]/gi, '_') || 'capture';
+  var fileName = customerSlug + '_AXS_Report.zip';
+  shareReport(true);
+}
+
 function toggleTip(id) {
   var el = document.getElementById(id);
   var btn = document.querySelector('[data-tip="' + id + '"]');
@@ -950,8 +985,8 @@ var appData = {
   outsideRNI:'', orniCount:'', existingORNIType:'None',
   touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
   reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
-  existingConvChannels:'', existingConvCount:'',
-  newConvRadios:'', newConvCount:'',
+  existingConvChannels:'', existingConvList:[{count:'',type:''}],
+  newConvRadios:'', newConvList:[{count:'',type:''}],
   backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
   auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
   loggingRecorder:'', cadAPI:'', cadVendorName:'',
@@ -1015,8 +1050,8 @@ function startNew() {
     outsideRNI:'', orniCount:'', existingORNIType:'None',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
     reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
-    existingConvChannels:'', existingConvCount:'',
-    newConvRadios:'', newConvCount:'',
+    existingConvChannels:'', existingConvList:[{count:'',type:''}],
+    newConvRadios:'', newConvList:[{count:'',type:''}],
     backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
     auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
     loggingRecorder:'', cadAPI:'', cadVendorName:'',
@@ -1075,8 +1110,8 @@ function selectRadio(name, value) {
 function showORNIDetails(show) { document.getElementById('orniDetails').style.display = show ? 'block' : 'none'; }
 function showExistingSystem(show) { document.getElementById('existingSystemGroup').style.display = show ? 'block' : 'none'; }
 function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
-function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; }
-function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; }
+function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
+function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('new'); }
 function showAntennaDetails(show) { document.getElementById('antennaDetails').style.display = show ? 'block' : 'none'; }
 function showBackhaulDetails(which) {
   ['microwave','existing','other'].forEach(function(t) {
@@ -1129,8 +1164,8 @@ function collectScreenData() {
     appData.reuseHeadsets = document.getElementById('reuseHeadsets').value;
     appData.encryptionImpl = document.getElementById('encryptionImpl').value;
   } else if (currentScreen === 6) {
-    appData.existingConvCount = document.getElementById('existingConvCount') ? document.getElementById('existingConvCount').value : '';
-    appData.newConvCount = document.getElementById('newConvCount') ? document.getElementById('newConvCount').value : '';
+    appData.existingConvList = getConvRows('existing');
+    appData.newConvList = getConvRows('new');
     appData.screen6Notes = document.getElementById('screen6Notes').value;
     appData.antennaCombining = document.getElementById('antennaCombining').value;
   } else if (currentScreen === 7) {
@@ -1206,8 +1241,8 @@ function restoreForm() {
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
   document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
   document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
-  if (appData.existingConvCount) document.getElementById('existingConvCount').value = appData.existingConvCount;
-  if (appData.newConvCount) document.getElementById('newConvCount').value = appData.newConvCount;
+  if (appData.existingConvList) renderConvRows('existing');
+  if (appData.newConvList) renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
   document.getElementById('antennaCombining').value = appData.antennaCombining || '';
   document.getElementById('auxInputs').value = appData.auxInputs || '';
@@ -1363,8 +1398,8 @@ function generateSummary() {
     '</div>';
 
   html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
-    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' ? (appData.existingConvCount || '?') : 'No') + '</span></div>' : '') +
-    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' ? (appData.newConvCount || '?') : 'No') + '</span></div>' : '') +
+    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' && appData.existingConvList ? appData.existingConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
+    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' && appData.newConvList ? appData.newConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
     '<div class="summary-row"><span class="summary-label">Backup Radios per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">MCD Desksets per OP</span><span class="summary-value">' + (appData.mcdDesksets === 'yes' ? 'Yes' : 'No') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Yes' + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') : 'No') + '</span></div>' +
@@ -1400,7 +1435,7 @@ function generateSummary() {
 }
 
 
-async function shareReport() {
+async function shareReport(downloadOnly) {
   var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
   var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
   
@@ -1444,8 +1479,16 @@ async function shareReport() {
   if (appData.existingConvChannels === 'yes' || appData.newConvRadios === 'yes' || appData.backupRadiosPerOP === 'yes' || appData.mcdDesksets === 'yes') {
     lines.push('');
     lines.push('--- CHANNELS & RADIOS ---');
-    if (appData.existingConvChannels === 'yes') lines.push('Existing Conv Channels: ' + (appData.existingConvCount || '?'));
-    if (appData.newConvRadios === 'yes') lines.push('New Conv Radios: ' + (appData.newConvCount || '?'));
+    if (appData.existingConvChannels === 'yes' && appData.existingConvList) {
+      appData.existingConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+        lines.push('Existing Conv Channel: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+      });
+    }
+    if (appData.newConvRadios === 'yes' && appData.newConvList) {
+      appData.newConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+        lines.push('New Conv Radio: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+      });
+    }
     if (appData.backupRadiosPerOP === 'yes') lines.push('Backup Radios per OP: Yes');
     if (appData.mcdDesksets === 'yes') lines.push('MCD Desksets per OP: Yes');
     if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
@@ -1579,20 +1622,32 @@ async function shareReport() {
     var zipBlob = await zip.generateAsync({type: 'blob'});
     var zipFile = new File([zipBlob], fileName, { type: 'application/zip' });
     var shareTitle = 'AXS Requirements - ' + appData.customerName;
+    var isAndroid = /android/i.test(navigator.userAgent);
 
-    // Tier 1: Web Share API with file attachment (iOS + Android Chrome browser)
-    // Note: fails on Android PWA (home screen) due to Play Services — caught below
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [zipFile] })) {
+    // Download only mode (triggered by Download Report button)
+    if (downloadOnly) {
+      var dlUrl = URL.createObjectURL(zipBlob);
+      var dlA = document.createElement('a');
+      dlA.href = dlUrl; dlA.download = fileName;
+      document.body.appendChild(dlA); dlA.click();
+      document.body.removeChild(dlA);
+      setTimeout(function() { URL.revokeObjectURL(dlUrl); }, 1000);
+      showToast('Report downloaded ✓', 3000);
+      return;
+    }
+
+    // Tier 1: Web Share API with file attachment — iOS only
+    // Android skipped entirely: OS shows Play Services error before JS can catch it
+    if (!isAndroid && navigator.share && navigator.canShare && navigator.canShare({ files: [zipFile] })) {
       try {
         await navigator.share({ files: [zipFile], title: shareTitle, text: 'CODE: ' + code });
         return;
       } catch(e) {
         if (e.name === 'AbortError') return;
-        // Any other error (incl. Play Services) — fall through to Tier 2
       }
     }
 
-    // Tier 2: ZIP download + text-only share sheet (Android PWA fallback)
+    // Tier 2: Android — download ZIP then open share sheet with code only
     if (navigator.share) {
       try {
         var url = URL.createObjectURL(zipBlob);
@@ -1602,7 +1657,8 @@ async function shareReport() {
         document.body.removeChild(a);
         setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 
-        await navigator.share({ title: shareTitle, text: text + '\n\nCODE: ' + code });
+        await navigator.share({ title: shareTitle, text: 'CODE: ' + code });
+        if (isAndroid) showToast('📎 Remember to attach the ZIP from your Downloads folder', 5000);
         return;
       } catch(e) {
         if (e.name === 'AbortError') return;
@@ -1658,6 +1714,67 @@ function discardAndReturn() {
 function goBackFromSummary() {
   currentScreen = 8;
   showScreen(8);
+}
+
+function renderConvRows(which) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  if (!list || list.length === 0) list = [{count:'', type:''}];
+  var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  var html = '';
+  list.forEach(function(row, i) {
+    html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">' +
+      '<div style="flex:0.4;">' +
+        (i === 0 ? '<label class="field-label field-sublabel">Count</label>' : '') +
+        '<input type="number" min="1" placeholder="0" value="' + (row.count || '') + '" ' +
+          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'count\',this.value)" ' +
+          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;">' +
+      '</div>' +
+      '<div style="flex:1;">' +
+        (i === 0 ? '<label class="field-label field-sublabel">Radio Type</label>' : '') +
+        '<input type="text" value="' + (row.type || '') + '" ' +
+          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'type\',this.value)" ' +
+          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;" ' +
+          'placeholder="e.g., VHF Analog, P25 APX Consolette...">' +
+      '</div>' +
+      (list.length > 1
+        ? '<button type="button" onclick="removeConvRow(\'' + which + '\',' + i + ')" ' +
+            'style="flex:none; width:34px; height:42px;' + (i === 0 ? ' margin-top:20px;' : '') + ' background:#fee2e2; color:#ef4444; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; line-height:1;">×</button>'
+        : '<div style="width:34px;' + (i === 0 ? ' margin-top:20px;' : '') + '"></div>') +
+    '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateConvRow(which, index, field, value) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  if (list[index]) list[index][field] = value;
+}
+
+function addConvRow(which) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  list.push({count:'', type:''});
+  renderConvRows(which);
+}
+
+function removeConvRow(which, index) {
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  list.splice(index, 1);
+  renderConvRows(which);
+}
+
+function getConvRows(which) {
+  var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
+  var container = document.getElementById(containerId);
+  if (!container) return [{count:'',type:''}];
+  var rows = container.querySelectorAll('div[style*="display:flex"]');
+  var list = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) list.push({count: inputs[0].value, type: inputs[1].value});
+  });
+  return list.length ? list : [{count:'',type:''}];
 }
 
 // Close dropdowns when clicking outside
