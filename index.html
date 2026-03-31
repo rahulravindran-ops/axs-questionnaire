@@ -141,7 +141,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
     <!-- ==================== SCREEN 1: BASIC INFO ==================== -->
     <div class="screen" id="screen1">
-      <div class="section-badge">Screen 1 of 8</div>
+      <div class="section-badge">Screen 1 of 7</div>
       <div class="screen-title">Basic Information</div>
       
       <div class="field-group">
@@ -197,7 +197,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
     <!-- ==================== SCREEN 2: PROJECT CONFIG ==================== -->
     <div class="screen" id="screen2">
-      <div class="section-badge">Screen 2 of 8</div>
+      <div class="section-badge">Screen 2 of 7</div>
       <div class="screen-title">Project Configuration</div>
       
       <div class="field-group">
@@ -237,33 +237,45 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <div class="tip-row"><label class="field-label">Total Operator Positions</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-op"><strong>Ask: "How many dispatchers work simultaneously on your busiest shift?"</strong>Count active consoles, not total workstations in the room. Typical range is 4–24. Under 4 or over 30 is unusual — verify before moving on.<span class="tip-example">A 4-position center might only staff 2 overnight — count peak, not overnight.</span></div>
-        <input type="number" class="big-input" id="opPositions" placeholder="0" min="1">
-        <div id="opWarning" class="warning" style="display:none;">
+        <div class="tip-row"><label class="field-label">Operator Position Breakdown</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-op"><strong>Break down positions by type — total will calculate automatically</strong>AXS = standard backroom-connected positions inside the RNI. Remote Inside RNI = laptop-based positions within the network boundary. Remote Outside RNI = positions beyond the RNI requiring customer-provided VPN/connectivity. Typical total range is 4–24.<span class="tip-example">Ask: "How many standard console positions, and are any of them remote or outside your main building?"</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+          <div class="inline-fields" style="align-items:center;">
+            <div style="flex:1;"><label class="field-label field-sublabel">AXS (inside RNI)</label>
+              <input type="number" id="opAxs" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
+            </div>
+            <div style="flex:1;"><label class="field-label field-sublabel">Remote AXS — inside RNI</label>
+              <input type="number" id="opRemoteRNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
+            </div>
+            <div style="flex:1;"><label class="field-label field-sublabel">Remote AXS — outside RNI</label>
+              <input type="number" id="opRemoteORNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px; padding:10px 14px;">
+            <span style="font-size:13px; font-weight:600; color:#374151;">Total Positions</span>
+            <span id="opTotal" style="font-size:22px; font-weight:bold; color:#003e7e;">0</span>
+          </div>
+        </div>
+        <div id="opWarning" class="warning" style="display:none; margin-top:8px;">
           <div class="warning-text">⚠️ Most projects have 4-24 positions</div>
         </div>
       </div>
-      
+
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Proposed Console Type</label><button class="tip-icon" data-tip="tip-s2-console" onclick="toggleTip('tip-s2-console')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-console"><strong>Cannot mix console types at the same dispatch center</strong>AXS = Motorola's current platform, recommended for new projects. MCC7500E CCHUB = previous gen hardware, still supported. Remote options use laptop-based positions outside the RNI. If unsure, default to AXS.</div>
+        <div class="tip-bubble" id="tip-s2-console"><strong>AXS is the current Motorola platform for all new projects</strong>Standard AXS = full backroom-connected positions inside the RNI. Remote AXS with Laptop = lightweight positions for remote or outside-RNI use. MCC7500E is discontinued and should not be quoted for new projects.</div>
         <div class="radio-group">
           <div class="option" onclick="selectRadio('consoleType','AXS'); updateEncryptionVisibility();">
             <input type="radio" name="consoleType" value="AXS">
             <span class="option-label">AXS</span>
           </div>
-          <div class="option" onclick="selectRadio('consoleType','MCC7500E CCHUB'); updateEncryptionVisibility();">
-            <input type="radio" name="consoleType" value="MCC7500E CCHUB">
-            <span class="option-label">MCC7500E CCHUB</span>
-          </div>
-          <div class="option" onclick="selectRadio('consoleType','Remote MCC7500E'); updateEncryptionVisibility();">
-            <input type="radio" name="consoleType" value="Remote MCC7500E">
-            <span class="option-label">Remote MCC7500E with Laptop</span>
-          </div>
           <div class="option" onclick="selectRadio('consoleType','Remote AXS'); updateEncryptionVisibility();">
             <input type="radio" name="consoleType" value="Remote AXS">
             <span class="option-label">Remote AXS with Laptop</span>
+          </div>
+          <div class="option" onclick="selectRadio('consoleType','AXS + Remote AXS'); updateEncryptionVisibility();">
+            <input type="radio" name="consoleType" value="AXS + Remote AXS">
+            <span class="option-label">AXS + Remote AXS (Mixed)</span>
           </div>
         </div>
       </div>
@@ -279,7 +291,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
     <!-- ==================== SCREEN 3: SITE LAYOUT ==================== -->
     <div class="screen" id="screen3">
-      <div class="section-badge">Screen 3 of 8</div>
+      <div class="section-badge">Screen 3 of 7</div>
       <div class="screen-title">Site Layout & Cabling</div>
       
       <div class="field-group">
@@ -384,56 +396,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 4: OUTSIDE RNI ==================== -->
+    <!-- ==================== SCREEN 4: EQUIPMENT ==================== -->
     <div class="screen" id="screen4">
-      <div class="section-badge">Screen 4 of 8</div>
-      <div class="screen-title">Outside RNI Positions</div>
-      
-      <div class="help-box">
-        <div class="help-text">Positions outside Radio Network Infrastructure. Customer responsible for remote connectivity including VPN.</div>
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Any Positions Outside RNI?</label><button class="tip-icon" data-tip="tip-s4-orni" onclick="toggleTip('tip-s4-orni')">?</button></div>
-        <div class="tip-bubble" id="tip-s4-orni"><strong>ORNI = positions outside the Radio Network Infrastructure</strong>Typically supervisor offices, EOCs, or remote command posts. The customer is responsible for VPN/network connectivity to these positions — Motorola doesn't provide that path.<span class="tip-example">Ask: "Are any of your dispatch positions located outside the main dispatch center building?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('outsideRNI','yes'); showORNIDetails(true);">
-            <input type="radio" name="outsideRNI" value="yes">
-            <span class="option-label">Yes</span>
-          </div>
-          <div class="option" onclick="selectRadio('outsideRNI','no'); showORNIDetails(false);">
-            <input type="radio" name="outsideRNI" value="no">
-            <span class="option-label">No</span>
-          </div>
-        </div>
-      </div>
-      
-      <div id="orniDetails" style="display:none;">
-        <div class="divider"></div>
-        
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Number of Outside RNI Positions</label><button class="tip-icon" data-tip="tip-s4-count" onclick="toggleTip('tip-s4-count')">?</button></div>
-          <div class="tip-bubble" id="tip-s4-count"><strong>Each outside position needs its own licensed network path</strong>More ORNI positions increases network complexity and cost. Confirm each position's location — some may share a building and only need one connection.</div>
-          <input type="number" class="big-input" id="orniCount" placeholder="0" min="1">
-        </div>
-        
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Existing ORNI Position Type</label><button class="tip-icon" data-tip="tip-s4-type" onclick="toggleTip('tip-s4-type')">?</button></div>
-          <div class="tip-bubble" id="tip-s4-type"><strong>Existing hardware may carry forward licenses or config</strong>MCC7100 and MCC7500E USB positions have different upgrade paths to AXS. "None — All New" means we're providing everything from scratch.</div>
-          <select id="existingORNIType">
-            <option value="None">None - All New</option>
-            <option value="MCC7100">MCC7100</option>
-            <option value="MCC7500E AIM">MCC7500E AIM</option>
-            <option value="MCC7500E USB">MCC7500E USB</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== SCREEN 5: EQUIPMENT ==================== -->
-    <div class="screen" id="screen5">
-      <div class="section-badge">Screen 5 of 8</div>
+      <div class="section-badge">Screen 4 of 7</div>
       <div class="screen-title">Equipment & Features</div>
       
       <div class="field-group">
@@ -530,9 +495,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 6: CHANNELS & RADIOS ==================== -->
-    <div class="screen" id="screen6">
-      <div class="section-badge">Screen 6 of 8</div>
+    <!-- ==================== SCREEN 5: CHANNELS & RADIOS ==================== -->
+    <div class="screen" id="screen5">
+      <div class="section-badge">Screen 5 of 7</div>
       <div class="screen-title">Channels & Radios</div>
       
       <!-- Existing Conventional Channels — hidden for Expansion -->
@@ -661,9 +626,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 7: INTERFACES & POWER ==================== -->
-    <div class="screen" id="screen7">
-      <div class="section-badge">Screen 7 of 8</div>
+    <!-- ==================== SCREEN 6: INTERFACES & POWER ==================== -->
+    <div class="screen" id="screen6">
+      <div class="section-badge">Screen 6 of 7</div>
       <div class="screen-title">Interfaces & Power</div>
       
       <div class="hideForExpansion">
@@ -838,9 +803,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 8: OPERATIONAL & TRAINING ==================== -->
-    <div class="screen" id="screen8">
-      <div class="section-badge">Screen 8 of 8</div>
+    <!-- ==================== SCREEN 7: OPERATIONAL & TRAINING ==================== -->
+    <div class="screen" id="screen7">
+      <div class="section-badge">Screen 7 of 7</div>
       <div class="screen-title">Operational & Training</div>
       
       <div class="field-group">
@@ -914,8 +879,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 9: SUMMARY ==================== -->
-    <div class="screen" id="screen9">
+    <!-- ==================== SCREEN 8: SUMMARY ==================== -->
+    <div class="screen" id="screen8">
       <div class="success-icon">✓</div>
       <div class="screen-title" style="text-align:center;">Capture Complete!</div>
       
@@ -976,14 +941,13 @@ function toggleTip(id) {
 }
 
 
-var totalScreens = 10;
+var totalScreens = 9;
 var currentCaptureId = null;
 
 var appData = {
   customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-  projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', consoleType:'',
+  projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'', consoleType:'',
   colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
-  outsideRNI:'', orniCount:'', existingORNIType:'None',
   touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
   reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
   existingConvChannels:'', existingConvList:[{count:'',type:''}],
@@ -1017,7 +981,7 @@ function loadSavedList() {
 function getSaved() { var s = localStorage.getItem('axsV4'); return s ? JSON.parse(s) : []; }
 
 function saveCapture() {
-  if (currentScreen === 0 || currentScreen === 9) return;
+  if (currentScreen === 0 || currentScreen === 8) return;
   var caps = getSaved();
   if (!currentCaptureId) currentCaptureId = 'c' + Date.now();
   caps = caps.filter(function(c) { return c.id !== currentCaptureId; });
@@ -1046,9 +1010,8 @@ function startNew() {
   currentCaptureId = null;
   appData = {
     customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-    projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', consoleType:'',
+    projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'', consoleType:'',
     colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
-    outsideRNI:'', orniCount:'', existingORNIType:'None',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
     reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
     existingConvChannels:'', existingConvList:[{count:'',type:''}],
@@ -1076,7 +1039,7 @@ function showScreen(n) {
   var nav = document.getElementById('navButtons');
   var saveBtn = document.getElementById('saveExitBtn');
   var buttonBg = document.getElementById('buttonBg');
-  if (n === 0 || n === 9) {
+  if (n === 0 || n === 8) {
     nav.style.display = 'none';
     if (saveBtn) saveBtn.style.display = 'none';
     if (buttonBg) buttonBg.style.display = 'none';
@@ -1086,7 +1049,7 @@ function showScreen(n) {
     if (saveBtn) saveBtn.style.display = 'block';
     if (buttonBg) buttonBg.style.display = 'block';
     document.getElementById('backBtn').style.display = n > 1 ? 'block' : 'none';
-    document.getElementById('nextBtn').textContent = n === 8 ? 'Finish →' : 'Next →';
+    document.getElementById('nextBtn').textContent = n === 7 ? 'Finish →' : 'Next →';
   }
   
   updateProgress();
@@ -1095,7 +1058,7 @@ function showScreen(n) {
 }
 
 function updateProgress() {
-  var p = currentScreen === 0 ? 0 : ((currentScreen) / 8) * 100;
+  var p = currentScreen === 0 ? 0 : ((currentScreen) / 7) * 100;
   document.getElementById('progressBar').style.width = Math.min(p, 100) + '%';
 }
 
@@ -1108,7 +1071,6 @@ function selectRadio(name, value) {
   if (sel) { sel.checked = true; sel.parentElement.classList.add('selected'); }
 }
 
-function showORNIDetails(show) { document.getElementById('orniDetails').style.display = show ? 'block' : 'none'; }
 function showExistingSystem(show) { document.getElementById('existingSystemGroup').style.display = show ? 'block' : 'none'; }
 function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
 function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
@@ -1126,9 +1088,23 @@ function checkDistance(val) {
   document.getElementById('distanceWarning').style.display = (val && parseInt(val) > 300) ? 'block' : 'none';
 }
 
+function updateOpTotal() {
+  var axs = parseInt(document.getElementById('opAxs').value) || 0;
+  var rni = parseInt(document.getElementById('opRemoteRNI').value) || 0;
+  var orni = parseInt(document.getElementById('opRemoteORNI').value) || 0;
+  var total = axs + rni + orni;
+  document.getElementById('opTotal').textContent = total;
+  appData.opAxs = axs || '';
+  appData.opRemoteRNI = rni || '';
+  appData.opRemoteORNI = orni || '';
+  appData.opPositions = total || '';
+  var warn = document.getElementById('opWarning');
+  if (warn) warn.style.display = (total > 0 && (total < 4 || total > 24)) ? 'block' : 'none';
+}
+
 function updateEncryptionVisibility() {
   var ct = appData.consoleType;
-  var hide = (ct === 'AXS' || ct === 'Remote AXS' || ct === 'MCC7500E CCHUB' || ct === 'Remote MCC7500E');
+  var hide = (ct === 'AXS' || ct === 'Remote AXS' || ct === 'AXS + Remote AXS');
   document.getElementById('encryptionGroup').style.display = hide ? 'none' : 'block';
 }
 
@@ -1150,15 +1126,12 @@ function collectScreenData() {
     appData.city = document.getElementById('city').value;
     appData.regionalSystem = document.getElementById('regionalSystem').value;
   } else if (currentScreen === 2) {
-    appData.opPositions = document.getElementById('opPositions').value;
     appData.existingSystemDetails = document.getElementById('existingSystemDetails').value;
+    updateOpTotal();
   } else if (currentScreen === 3) {
     appData.layoutNotes = document.getElementById('layoutNotes').value;
     appData.backroomDistance = document.getElementById('backroomDistance').value;
   } else if (currentScreen === 4) {
-    appData.orniCount = document.getElementById('orniCount').value;
-    appData.existingORNIType = document.getElementById('existingORNIType').value;
-  } else if (currentScreen === 5) {
     appData.monitorSize = document.getElementById('monitorSize').value;
     appData.speakersPerPosition = document.getElementById('speakersPerPosition').value;
     appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
@@ -1182,7 +1155,7 @@ function collectScreenData() {
     appData.fireAlertingType = document.getElementById('fireAlertingType').value;
     appData.otherInterfaces = document.getElementById('otherInterfaces').value;
     appData.otherInterfacesDetails = document.getElementById('otherInterfacesDetails').value;
-  } else if (currentScreen === 8) {
+  } else if (currentScreen === 7) {
     appData.supervisorTraining = document.getElementById('supervisorTraining').value;
     appData.operatorTraining = document.getElementById('operatorTraining').value;
   }
@@ -1191,7 +1164,7 @@ function collectScreenData() {
 function goNext() {
   collectScreenData();
   
-  if (currentScreen === 8) {
+  if (currentScreen === 7) {
     generateSummary();
   }
   
@@ -1230,13 +1203,15 @@ function restoreForm() {
   document.getElementById('state').value = appData.state || '';
   document.getElementById('city').value = appData.city || '';
   document.getElementById('regionalSystem').value = appData.regionalSystem || '';
-  document.getElementById('opPositions').value = appData.opPositions || '';
+  document.getElementById('opPositions') && (document.getElementById('opPositions').value = appData.opPositions || '');
+  document.getElementById('opAxs').value = appData.opAxs || '';
+  document.getElementById('opRemoteRNI').value = appData.opRemoteRNI || '';
+  document.getElementById('opRemoteORNI').value = appData.opRemoteORNI || '';
+  if (appData.opAxs || appData.opRemoteRNI || appData.opRemoteORNI) updateOpTotal();
   document.getElementById('existingSystemDetails').value = appData.existingSystemDetails || '';
   document.getElementById('layoutNotes').value = appData.layoutNotes || '';
   document.getElementById('backroomDistance').value = appData.backroomDistance || '';
   if (appData.backroomDistance && parseInt(appData.backroomDistance) > 300) checkDistance(appData.backroomDistance);
-  document.getElementById('orniCount').value = appData.orniCount || '';
-  document.getElementById('existingORNIType').value = appData.existingORNIType || 'None';
   document.getElementById('monitorSize').value = appData.monitorSize || '';
   document.getElementById('speakersPerPosition').value = appData.speakersPerPosition || '';
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
@@ -1265,14 +1240,13 @@ function restoreForm() {
   document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
   
-  ['projectType','consoleType','colocated','existingCabling','conduitsExist','outsideRNI','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','backhaulType','backhaulRedundancy','rackType'].forEach(function(name) {
+  ['projectType','consoleType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','backhaulType','backhaulRedundancy','rackType'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
     }
   });
   
-  if (appData.outsideRNI === 'yes') showORNIDetails(true);
   if (appData.projectType === 'replace' || appData.projectType === 'expansion') showExistingSystem(true);
   if (appData.projectType) updateScreensForProjectType(appData.projectType);
   if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
@@ -1391,9 +1365,8 @@ function generateSummary() {
   html += '<div class="summary-section"><div class="summary-title">Configuration</div>' +
     '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (typeLabels[appData.projectType] || appData.projectType) + '</span></div>' +
     (existingInfo ? '<div class="summary-row"><span class="summary-label">Existing System</span><span class="summary-value">' + existingInfo + '</span></div>' : '') +
-    '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + appData.opPositions + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + (appData.opPositions || '0') + ' total' + (appData.opAxs ? ' (' + appData.opAxs + ' AXS' + (appData.opRemoteRNI ? ', ' + appData.opRemoteRNI + ' Remote-RNI' : '') + (appData.opRemoteORNI ? ', ' + appData.opRemoteORNI + ' Remote-ORNI' : '') + ')' : '') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Proposed Console</span><span class="summary-value">' + appData.consoleType + '</span></div>' +
-    '<div class="summary-row"><span class="summary-label">Outside RNI</span><span class="summary-value">' + (appData.outsideRNI === 'yes' ? appData.orniCount : 'No') + '</span></div>' +
     (appData.rackType ? '<div class="summary-row"><span class="summary-label">Racks</span><span class="summary-value">' + (rackLabels[appData.rackType] || appData.rackType) + '</span></div>' : '') +
     (appData.backroomDistance ? '<div class="summary-row"><span class="summary-label">Backroom Distance</span><span class="summary-value">' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' ⚠️' : '') + '</span></div>' : '') +
     '</div>';
@@ -1460,9 +1433,13 @@ async function shareReport(downloadOnly) {
     if (appData.existingSystemDetails) existing += ' (' + appData.existingSystemDetails + ')';
     lines.push('Existing System: ' + existing);
   }
-  if (appData.opPositions) lines.push('OP Positions: ' + appData.opPositions);
+  if (appData.opPositions) {
+    lines.push('OP Positions: ' + appData.opPositions + ' total');
+    if (appData.opAxs) lines.push('  AXS (inside RNI): ' + appData.opAxs);
+    if (appData.opRemoteRNI) lines.push('  Remote AXS (inside RNI): ' + appData.opRemoteRNI);
+    if (appData.opRemoteORNI) lines.push('  Remote AXS (outside RNI): ' + appData.opRemoteORNI);
+  }
   if (appData.consoleType) lines.push('Console Type: ' + appData.consoleType);
-  if (appData.outsideRNI === 'yes') lines.push('Outside RNI: ' + appData.orniCount + ' positions');
   
   // Site Layout
   if (appData.colocated || appData.existingCabling || appData.conduitsExist || appData.rackType || appData.backroomDistance) {
@@ -1737,7 +1714,7 @@ function discardAndReturn() {
 
 function goBackFromSummary() {
   currentScreen = 8;
-  showScreen(8);
+  showScreen(7);
 }
 
 function renderConvRows(which) {
