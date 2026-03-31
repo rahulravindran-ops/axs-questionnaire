@@ -210,7 +210,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           </div>
           <div class="option" onclick="selectRadio('projectType','replace'); showExistingSystem(true); updateScreensForProjectType('replace');">
             <input type="radio" name="projectType" value="replace">
-            <span class="option-label">Replace Existing</span>
+            <span class="option-label">Replace Existing MCC Consoles (Platform Migration)</span>
           </div>
           <div class="option" onclick="selectRadio('projectType','expansion'); showExistingSystem(true); updateScreensForProjectType('expansion');">
             <input type="radio" name="projectType" value="expansion">
@@ -237,31 +237,6 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
       
       <div class="field-group">
-        <div class="tip-row"><label class="field-label">Operator Position Breakdown</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-op"><strong>Break down positions by type — total will calculate automatically</strong>AXS = standard backroom-connected positions inside the RNI. Remote Inside RNI = laptop-based positions within the network boundary. Remote Outside RNI = positions beyond the RNI requiring customer-provided VPN/connectivity. Typical total range is 4–24.<span class="tip-example">Ask: "How many standard console positions, and are any of them remote or outside your main building?"</span></div>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-          <div class="inline-fields" style="align-items:center;">
-            <div style="flex:1;"><label class="field-label field-sublabel">AXS (inside RNI)</label>
-              <input type="number" id="opAxs" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
-            </div>
-            <div style="flex:1;"><label class="field-label field-sublabel">Remote AXS — inside RNI</label>
-              <input type="number" id="opRemoteRNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
-            </div>
-            <div style="flex:1;"><label class="field-label field-sublabel">Remote AXS — outside RNI</label>
-              <input type="number" id="opRemoteORNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
-            </div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px; padding:10px 14px;">
-            <span style="font-size:13px; font-weight:600; color:#374151;">Total Positions</span>
-            <span id="opTotal" style="font-size:22px; font-weight:bold; color:#003e7e;">0</span>
-          </div>
-        </div>
-        <div id="opWarning" class="warning" style="display:none; margin-top:8px;">
-          <div class="warning-text">⚠️ Most projects have 4-24 positions</div>
-        </div>
-      </div>
-
-      <div class="field-group">
         <div class="tip-row"><label class="field-label">Proposed Console Type</label><button class="tip-icon" data-tip="tip-s2-console" onclick="toggleTip('tip-s2-console')">?</button></div>
         <div class="tip-bubble" id="tip-s2-console"><strong>AXS is the current Motorola platform for all new projects</strong>Standard AXS = full backroom-connected positions inside the RNI. Remote AXS with Laptop = lightweight positions for remote or outside-RNI use. MCC7500E is discontinued and should not be quoted for new projects.</div>
         <div class="radio-group">
@@ -273,10 +248,32 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
             <input type="radio" name="consoleType" value="Remote AXS">
             <span class="option-label">Remote AXS with Laptop</span>
           </div>
-          <div class="option" onclick="selectRadio('consoleType','AXS + Remote AXS'); updateEncryptionVisibility();">
-            <input type="radio" name="consoleType" value="AXS + Remote AXS">
-            <span class="option-label">AXS + Remote AXS (Mixed)</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">Operator Position Breakdown</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-op"><strong>Break down positions by type — total will calculate automatically</strong>AXS = standard backroom-connected positions inside the RNI. Remote Inside RNI = laptop-based positions within the network boundary. Remote Outside RNI = positions beyond the RNI requiring customer-provided VPN/connectivity. Typical total range is 4–24.<span class="tip-example">Ask: "How many standard console positions, and are any of them remote or outside your main building?"</span></div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+          <div>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">AXS (inside RNI)</label>
+            <input type="number" id="opAxs" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
           </div>
+          <div>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">Remote AXS — inside RNI</label>
+            <input type="number" id="opRemoteRNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
+          </div>
+          <div>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">Remote AXS — outside RNI</label>
+            <input type="number" id="opRemoteORNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px; padding:10px 14px;">
+            <span style="font-size:13px; font-weight:600; color:#374151;">Total Positions</span>
+            <span id="opTotal" style="font-size:22px; font-weight:bold; color:#003e7e;">0</span>
+          </div>
+        </div>
+        <div id="opWarning" class="warning" style="display:none; margin-top:8px;">
+          <div class="warning-text">⚠️ Most projects have 4-24 positions</div>
         </div>
       </div>
       
@@ -1104,7 +1101,7 @@ function updateOpTotal() {
 
 function updateEncryptionVisibility() {
   var ct = appData.consoleType;
-  var hide = (ct === 'AXS' || ct === 'Remote AXS' || ct === 'AXS + Remote AXS');
+  var hide = (ct === 'AXS' || ct === 'Remote AXS');
   document.getElementById('encryptionGroup').style.display = hide ? 'none' : 'block';
 }
 
