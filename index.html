@@ -193,6 +193,17 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="tip-bubble" id="tip-s1-regional"><strong>Shared radio infrastructure</strong>Many agencies share a regional system (e.g. a county or COG). This can affect channel counts, licensing, and who manages the backhaul.<span class="tip-example">e.g. "North Central Texas COG (NCTCOG)" or "Harris County ODEM"</span></div>
         <input type="text" id="regionalSystem" placeholder="e.g., North Texas Regional System">
       </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">Customer Contact <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s1-contact" onclick="toggleTip('tip-s1-contact')">?</button></div>
+        <div class="tip-bubble" id="tip-s1-contact"><strong>Capture the primary point of contact at the agency</strong>This person will typically be the one following up on requirements and approving the quote. Having their details in the report saves time later.<span class="tip-example">Usually the IT Director, Comm Center Manager, or designated project lead.</span></div>
+        <input type="text" id="contactName" placeholder="Full name" style="margin-bottom:8px;">
+        <input type="text" id="contactTitle" placeholder="Title / role" style="margin-bottom:8px;">
+        <input type="text" id="contactPhone" placeholder="Phone number" style="margin-bottom:8px;">
+        <input type="email" id="contactEmail" placeholder="Email address">
+      </div>
     </div>
 
     <!-- ==================== SCREEN 2: PROJECT CONFIG ==================== -->
@@ -202,69 +213,75 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Project Type</label><button class="tip-icon" data-tip="tip-s2-type" onclick="toggleTip('tip-s2-type')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-type"><strong>Sets the scope of the entire project</strong>New = greenfield, no existing system. Replace = ripping out old consoles and installing new. Expansion = adding positions to an existing AXS or MCC system.<span class="tip-example">Ask: "Is this a brand new center or are you replacing what you have today?"</span></div>
+        <div class="tip-bubble" id="tip-s2-type"><strong>Sets the scope of the entire project</strong>New Dispatch = brand new center or facility. Platform Migration = replacing MCC consoles with AXS. Expansion = adding positions to an existing AXS system.<span class="tip-example">Ask: "Is this a brand new center, or are you replacing existing consoles?"</span></div>
         <div class="radio-group">
-          <div class="option" onclick="selectRadio('projectType','new'); showExistingSystem(false); updateScreensForProjectType('new');">
+          <div class="option" onclick="selectRadio('projectType','new'); updateScreensForProjectType('new');">
             <input type="radio" name="projectType" value="new">
-            <span class="option-label">New Dispatch Center</span>
+            <span class="option-label">New Dispatch</span>
           </div>
-          <div class="option" onclick="selectRadio('projectType','replace'); showExistingSystem(true); updateScreensForProjectType('replace');">
-            <input type="radio" name="projectType" value="replace">
-            <span class="option-label">Replace Existing MCC Consoles (Platform Migration)</span>
+          <div class="option" onclick="selectRadio('projectType','migration'); updateScreensForProjectType('migration');">
+            <input type="radio" name="projectType" value="migration">
+            <span class="option-label">Platform Migration Only</span>
           </div>
-          <div class="option" onclick="selectRadio('projectType','expansion'); showExistingSystem(true); updateScreensForProjectType('expansion');">
+          <div class="option" onclick="selectRadio('projectType','migration_scope'); updateScreensForProjectType('migration_scope');">
+            <input type="radio" name="projectType" value="migration_scope">
+            <span class="option-label">Platform Migration + Additional Scope</span>
+          </div>
+          <div class="option" onclick="selectRadio('projectType','expansion'); updateScreensForProjectType('expansion');">
             <input type="radio" name="projectType" value="expansion">
             <span class="option-label">Expansion / OP Add-on</span>
           </div>
         </div>
       </div>
-      
-      <div class="field-group" id="existingSystemGroup" style="display:none;">
-        <div class="tip-row"><label class="field-label">Existing Console System</label><button class="tip-icon" data-tip="tip-s2-existing" onclick="toggleTip('tip-s2-existing')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-existing"><strong>Knowing the platform helps plan the cutover</strong>MCC = previous Motorola gen. AXS = current platform. This affects licensing, reuse opportunities, and migration complexity. If replacing a 3rd party system, treat as New Dispatch Center instead.</div>
+
+      <!-- New Dispatch: building type -->
+      <div class="field-group" id="newDispatchBuildingGroup" style="display:none;">
+        <div class="tip-row"><label class="field-label">Building Type</label><button class="tip-icon" data-tip="tip-s2-building" onclick="toggleTip('tip-s2-building')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-building"><strong>Affects cutover planning and whether any existing equipment can be leveraged</strong>New building = greenfield, nothing to work around. Existing facility = there may be cabling, racks, or infrastructure already in place.<span class="tip-example">Ask: "Is this a brand new building, or are you moving into or upgrading an existing facility?"</span></div>
         <div class="radio-group">
-          <div class="option" onclick="selectRadio('existingSystem','MCC')">
-            <input type="radio" name="existingSystem" value="MCC">
-            <span class="option-label">MCC</span>
+          <div class="option" onclick="selectRadio('buildingType','new_building'); updateCutoverVisibility();">
+            <input type="radio" name="buildingType" value="new_building">
+            <span class="option-label">New building — no existing equipment</span>
           </div>
-          <div class="option" onclick="selectRadio('existingSystem','AXS')">
-            <input type="radio" name="existingSystem" value="AXS">
-            <span class="option-label">AXS</span>
+          <div class="option" onclick="selectRadio('buildingType','existing_facility'); showNewDispatchExisting(true); updateCutoverVisibility();">
+            <input type="radio" name="buildingType" value="existing_facility">
+            <span class="option-label">Existing facility — replacing existing equipment</span>
           </div>
         </div>
-        <label class="field-label" style="margin-top:10px;">Details <span class="field-sublabel">(model, version, etc.)</span></label>
-        <input type="text" id="existingSystemDetails" placeholder="e.g., MCC7500 VPM, Commander, etc.">
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Proposed Console Type</label><button class="tip-icon" data-tip="tip-s2-console" onclick="toggleTip('tip-s2-console')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-console"><strong>AXS is the current Motorola platform for all new projects</strong>Standard AXS = full backroom-connected positions inside the RNI. Remote AXS with Laptop = lightweight positions for remote or outside-RNI use. MCC7500E is discontinued and should not be quoted for new projects.</div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('consoleType','AXS'); updateEncryptionVisibility();">
-            <input type="radio" name="consoleType" value="AXS">
-            <span class="option-label">AXS</span>
-          </div>
-          <div class="option" onclick="selectRadio('consoleType','Remote AXS'); updateEncryptionVisibility();">
-            <input type="radio" name="consoleType" value="Remote AXS">
-            <span class="option-label">Remote AXS with Laptop</span>
-          </div>
+        <div id="newDispatchExistingDetails" style="display:none; margin-top:8px;">
+          <input type="text" id="existingFacilityDetails" placeholder="e.g., existing vendor, model, approximate age...">
         </div>
       </div>
 
+      <!-- Migration: additional scope checkbox -->
+      <div class="field-group" id="migrationScopeGroup" style="display:none;">
+        <div class="tip-row"><label class="field-label">Additional Scope Details</label><button class="tip-icon" data-tip="tip-s2-scope" onclick="toggleTip('tip-s2-scope')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-scope"><strong>Capture any scope beyond the console swap itself</strong>Examples include new backroom radios, backhaul links, conventional channel gateways, or interface upgrades.</div>
+        <textarea id="migrationScopeDetails" placeholder="e.g., new CCGW for conventional channels, backhaul link upgrade, additional interfaces..."></textarea>
+      </div>
+
+      <!-- Existing Console Notes (all project types) -->
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">Existing Console Notes <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s2-consoleNotes" onclick="toggleTip('tip-s2-consoleNotes')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-consoleNotes"><strong>Note any relevant details about what's currently installed</strong>Useful for migration and expansion projects. Capture model, version, approximate age, or anything unusual about the existing setup.<span class="tip-example">e.g. "MCC7500 VPM, ~8 years old" or "3rd party Zetron, customer wants full replacement"</span></div>
+        <textarea id="existingConsoleNotes" placeholder="e.g., MCC7500 VPM, 3rd party Zetron, mixed fleet..."></textarea>
+      </div>
+
+      <!-- OP Position Breakdown -->
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Operator Position Breakdown</label><button class="tip-icon" data-tip="tip-s2-op" onclick="toggleTip('tip-s2-op')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-op"><strong>Break down positions by type — total will calculate automatically</strong>AXS = standard backroom-connected positions inside the RNI. Remote Inside RNI = laptop-based positions within the network boundary. Remote Outside RNI = positions beyond the RNI requiring customer-provided VPN/connectivity. Typical total range is 4–24.<span class="tip-example">Ask: "How many standard console positions, and are any of them remote or outside your main building?"</span></div>
+        <div class="tip-bubble" id="tip-s2-op"><strong>Break down positions by type — total will calculate automatically</strong>Standard AXS = full backroom-connected positions inside the RNI. Laptop inside RNI = remote positions within the network boundary. Laptop outside RNI = positions requiring customer-provided VPN/connectivity. Typical total range is 4–24.<span class="tip-example">Ask: "How many standard console positions, and are any of them remote or outside your main building?"</span></div>
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
           <div>
-            <label class="field-label field-sublabel" style="margin-bottom:4px;">AXS (inside RNI)</label>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">Standard AXS Position</label>
             <input type="number" id="opAxs" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
           </div>
           <div>
-            <label class="field-label field-sublabel" style="margin-bottom:4px;">Remote AXS — inside RNI</label>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">Laptop AXS Position (inside Radio Network)</label>
             <input type="number" id="opRemoteRNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
           </div>
           <div>
-            <label class="field-label field-sublabel" style="margin-bottom:4px;">Remote AXS — outside RNI</label>
+            <label class="field-label field-sublabel" style="margin-bottom:4px;">Laptop AXS Position (Outside Radio Network)</label>
             <input type="number" id="opRemoteORNI" placeholder="0" min="0" oninput="updateOpTotal()" style="text-align:center; font-size:20px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; padding:10px; width:100%;">
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px; padding:10px 14px;">
@@ -397,97 +414,160 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
     <div class="screen" id="screen4">
       <div class="section-badge">Screen 4 of 7</div>
       <div class="screen-title">Equipment & Features</div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Touch Screen Monitors</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
-        <div class="tip-bubble" id="tip-s5-touch"><strong>Touch screens add ~$800/position to the quote</strong>If the customer already has monitors they want to keep, select "Customer Providing" — this removes them from pricing. Confirm monitor brand/model if reusing, as not all are compatible.<span class="tip-example">Ask: "Are you planning to reuse your existing monitors?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('touchScreens','yes'); showMonitorSize(true);">
-            <input type="radio" name="touchScreens" value="yes">
-            <span class="option-label">Yes - Include Touch Screens</span>
-          </div>
-          <div class="option" onclick="selectRadio('touchScreens','customer'); showMonitorSize(false);">
-            <input type="radio" name="touchScreens" value="customer">
-            <span class="option-label">No - Customer Providing</span>
-          </div>
-          <div class="option" onclick="selectRadio('touchScreens','nontouch'); showMonitorSize(true);">
-            <input type="radio" name="touchScreens" value="nontouch">
-            <span class="option-label">No - Need Non-Touch</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="field-group" id="monitorSizeGroup" style="display:none;">
-        <div class="tip-row"><label class="field-label">Monitor Size</label><button class="tip-icon" data-tip="tip-s5-monsize" onclick="toggleTip('tip-s5-monsize')">?</button></div>
-        <div class="tip-bubble" id="tip-s5-monsize"><strong>24" is the most common choice for new installs</strong>27" is popular for supervisors or agencies wanting more real estate. 19" is typically only for legacy replacements where desk space is tight.</div>
-        <select id="monitorSize">
-          <option value="">Select size...</option>
-          <option value="19">19"</option>
-          <option value="22">22"</option>
-          <option value="24">24"</option>
-          <option value="27">27"</option>
-        </select>
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label><button class="tip-icon" data-tip="tip-s5-speakers" onclick="toggleTip('tip-s5-speakers')">?</button></div>
-        <div class="tip-bubble" id="tip-s5-speakers"><strong>Most positions use 1–2 speakers</strong>Dispatcher audio separation (e.g. left speaker = fire, right = police) requires 2 speakers. Ask if they use audio separation today — if yes, they'll want 2.<span class="tip-example">Ask: "Do your dispatchers currently split audio channels between speakers?"</span></div>
-        <input type="number" id="speakersPerPosition" placeholder="0" min="0">
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr" onclick="toggleTip('tip-s5-irr')">?</button></div>
-        <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local, per-position, for "I didn't catch that" moments. Logging is agency-wide and long-term. Many agencies want both.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('irrRequired','yes')">
-            <input type="radio" name="irrRequired" value="yes">
-            <span class="option-label">Yes - Include IRR</span>
-          </div>
-          <div class="option" onclick="selectRadio('irrRequired','no')">
-            <input type="radio" name="irrRequired" value="no">
-            <span class="option-label">No IRR</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="divider"></div>
 
-      <div id="mccMigrationGroup">
+      <!-- Migration-only questions (shown for Platform Migration Only, hidden for all others) -->
+      <div id="migrationOnlyFields" style="display:none;">
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">MCC-AXS Migration</label><button class="tip-icon" data-tip="tip-s5-migration" onclick="toggleTip('tip-s5-migration')">?</button></div>
-          <div class="tip-bubble" id="tip-s5-migration"><strong>Only applies when replacing MCC consoles with AXS</strong>Some MCC footswitches and headset jacks are compatible and can be reused, saving cost.</div>
-          <div class="inline-fields">
-            <div>
-              <label class="field-label field-sublabel">Reuse Footswitches?</label>
-              <select id="reuseFootswitches">
-                <option value="">Select...</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-                <option value="na">N/A</option>
-              </select>
+          <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr" onclick="toggleTip('tip-s5-irr')">?</button></div>
+          <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position. Many migration customers want to add IRR during the upgrade.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('irrRequired','yes')">
+              <input type="radio" name="irrRequired" value="yes">
+              <span class="option-label">Yes - Include IRR</span>
             </div>
-            <div>
-              <label class="field-label field-sublabel">Reuse Headset Jacks?</label>
-              <select id="reuseHeadsets">
-                <option value="">Select...</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-                <option value="na">N/A</option>
-              </select>
+            <div class="option" onclick="selectRadio('irrRequired','no')">
+              <input type="radio" name="irrRequired" value="no">
+              <span class="option-label">No IRR</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="encryptionGroup">
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s5-encrimpl" onclick="toggleTip('tip-s5-encrimpl')">?</button></div>
-          <div class="tip-bubble" id="tip-s5-encrimpl"><strong>AXS and MCC7500E bundle encryption — no separate type selection needed</strong>For other configurations, confirm whether the customer's radio system uses software encryption or none at all.</div>
-          <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value;">
+          <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s4-encr-mig" onclick="toggleTip('tip-s4-encr-mig')">?</button></div>
+          <div class="tip-bubble" id="tip-s4-encr-mig"><strong>Confirm the encryption type in use on the existing system</strong>Hardware encryption uses a physical module — common in older MCC installs. Software is license-based. Knowing this upfront avoids surprises during migration.<span class="tip-example">Ask: "Does your current system use hardware encryption modules, or is it software-based?"</span></div>
+          <select id="encryptionImplMig" onchange="appData.encryptionImpl = this.value;">
             <option value="">Select...</option>
+            <option value="hardware">Hardware</option>
             <option value="software">Software</option>
             <option value="none">None</option>
           </select>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Conventional Radio Interfaces / CCGW</label><button class="tip-icon" data-tip="tip-s4-ccgw" onclick="toggleTip('tip-s4-ccgw')">?</button></div>
+          <div class="tip-bubble" id="tip-s4-ccgw"><strong>Determines whether conventional channel gateways need to be migrated or replaced</strong>A CCGW interfaces conventional radios to the console system. If the customer has one today, it may need to be carried over or replaced as part of the migration.<span class="tip-example">Ask: "Does your current system interface to any conventional radios, or do you have a conventional channel gateway installed?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('hasCCGW','yes')">
+              <input type="radio" name="hasCCGW" value="yes">
+              <span class="option-label">Yes — has conventional radios or CCGW today</span>
+            </div>
+            <div class="option" onclick="selectRadio('hasCCGW','no')">
+              <input type="radio" name="hasCCGW" value="no">
+              <span class="option-label">No</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Encryption Key Management</label><button class="tip-icon" data-tip="tip-s4-keyupdate" onclick="toggleTip('tip-s4-keyupdate')">?</button></div>
+          <div class="tip-bubble" id="tip-s4-keyupdate"><strong>Affects how encryption key infrastructure is scoped in the migration</strong>Central key management (KMF) requires network infrastructure. Per-position updates mean someone physically touches each console to load keys — common in smaller agencies.<span class="tip-example">Ask: "How are your encryption keys updated today — is it done centrally over the network, or does someone have to update each position individually?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('keyUpdate','central')">
+              <input type="radio" name="keyUpdate" value="central">
+              <span class="option-label">Centrally over the network</span>
+            </div>
+            <div class="option" onclick="selectRadio('keyUpdate','individual')">
+              <input type="radio" name="keyUpdate" value="individual">
+              <span class="option-label">Individually at each position</span>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <!-- Standard equipment fields (hidden for Platform Migration Only) -->
+      <div class="hideForMigration">
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Touch Screen Monitors</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
+          <div class="tip-bubble" id="tip-s5-touch"><strong>Touch screens add ~$800/position to the quote</strong>If the customer already has monitors they want to keep, select "Customer Providing" — this removes them from pricing. Confirm monitor brand/model if reusing, as not all are compatible.<span class="tip-example">Ask: "Are you planning to reuse your existing monitors?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('touchScreens','yes'); showMonitorSize(true);">
+              <input type="radio" name="touchScreens" value="yes">
+              <span class="option-label">Yes - Include Touch Screens</span>
+            </div>
+            <div class="option" onclick="selectRadio('touchScreens','customer'); showMonitorSize(false);">
+              <input type="radio" name="touchScreens" value="customer">
+              <span class="option-label">No - Customer Providing</span>
+            </div>
+            <div class="option" onclick="selectRadio('touchScreens','nontouch'); showMonitorSize(true);">
+              <input type="radio" name="touchScreens" value="nontouch">
+              <span class="option-label">No - Need Non-Touch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="monitorSizeGroup" style="display:none;">
+          <div class="tip-row"><label class="field-label">Monitor Size</label><button class="tip-icon" data-tip="tip-s5-monsize" onclick="toggleTip('tip-s5-monsize')">?</button></div>
+          <div class="tip-bubble" id="tip-s5-monsize"><strong>24" is the most common choice for new installs</strong>27" is popular for supervisors or agencies wanting more real estate. 19" is typically only for legacy replacements where desk space is tight.</div>
+          <select id="monitorSize">
+            <option value="">Select size...</option>
+            <option value="19">19"</option>
+            <option value="22">22"</option>
+            <option value="24">24"</option>
+            <option value="27">27"</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label><button class="tip-icon" data-tip="tip-s5-speakers" onclick="toggleTip('tip-s5-speakers')">?</button></div>
+          <div class="tip-bubble" id="tip-s5-speakers"><strong>Most positions use 1–2 speakers</strong>Dispatcher audio separation requires 2 speakers. Ask if they use audio separation today — if yes, they'll want 2.<span class="tip-example">Ask: "Do your dispatchers currently split audio channels between speakers?"</span></div>
+          <input type="number" id="speakersPerPosition" placeholder="0" min="0">
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr-std" onclick="toggleTip('tip-s5-irr-std')">?</button></div>
+          <div class="tip-bubble" id="tip-s5-irr-std"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('irrRequired','yes')">
+              <input type="radio" name="irrRequired" value="yes">
+              <span class="option-label">Yes - Include IRR</span>
+            </div>
+            <div class="option" onclick="selectRadio('irrRequired','no')">
+              <input type="radio" name="irrRequired" value="no">
+              <span class="option-label">No IRR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="mccMigrationGroup">
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">MCC-AXS Migration</label><button class="tip-icon" data-tip="tip-s5-migration" onclick="toggleTip('tip-s5-migration')">?</button></div>
+            <div class="tip-bubble" id="tip-s5-migration"><strong>Only applies when replacing MCC consoles with AXS</strong>Some MCC footswitches and headset jacks are compatible and can be reused, saving cost.</div>
+            <div class="inline-fields">
+              <div>
+                <label class="field-label field-sublabel">Reuse Footswitches?</label>
+                <select id="reuseFootswitches">
+                  <option value="">Select...</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="na">N/A</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label field-sublabel">Reuse Headset Jacks?</label>
+                <select id="reuseHeadsets">
+                  <option value="">Select...</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="na">N/A</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="encryptionGroup">
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s5-encrimpl" onclick="toggleTip('tip-s5-encrimpl')">?</button></div>
+            <div class="tip-bubble" id="tip-s5-encrimpl"><strong>AXS bundles encryption — confirm type in use or required</strong>Software is most common for state/local. Hardware is required for some federal/DoD customers.</div>
+            <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value;">
+              <option value="">Select...</option>
+              <option value="software">Software</option>
+              <option value="none">None</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -820,21 +900,23 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         </div>
       </div>
       
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Can One Console Be Removed for Cutover?</label><button class="tip-icon" data-tip="tip-s8-cutover" onclick="toggleTip('tip-s8-cutover')">?</button></div>
-        <div class="tip-bubble" id="tip-s8-cutover"><strong>This is one of the most critical logistics questions for the install team</strong>Remove & Replace = swap one position at a time while others stay live — cleanest approach. "Cannot Remove" means we need to install new consoles alongside existing ones before cutting over — requires extra space and planning.<span class="tip-example">Ask: "During the installation, can we take one console offline at a time while your dispatchers use the others?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('removeForCutover','yes'); showParallelSpace(false);">
-            <input type="radio" name="removeForCutover" value="yes">
-            <span class="option-label">Yes - Remove & Replace One at a Time</span>
-          </div>
-          <div class="option" onclick="selectRadio('removeForCutover','no'); showParallelSpace(true);">
-            <input type="radio" name="removeForCutover" value="no">
-            <span class="option-label">No - Cannot Remove</span>
+      <div id="cutoverGroup">
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Can One Console Be Removed for Cutover?</label><button class="tip-icon" data-tip="tip-s8-cutover" onclick="toggleTip('tip-s8-cutover')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-cutover"><strong>This is one of the most critical logistics questions for the install team</strong>Remove & Replace = swap one position at a time while others stay live — cleanest approach. "Cannot Remove" means we need to install new consoles alongside existing ones before cutting over — requires extra space and planning.<span class="tip-example">Ask: "During the installation, can we take one console offline at a time while your dispatchers use the others?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('removeForCutover','yes'); showParallelSpace(false);">
+              <input type="radio" name="removeForCutover" value="yes">
+              <span class="option-label">Yes - Remove & Replace One at a Time</span>
+            </div>
+            <div class="option" onclick="selectRadio('removeForCutover','no'); showParallelSpace(true);">
+              <input type="radio" name="removeForCutover" value="no">
+              <span class="option-label">No - Cannot Remove</span>
+            </div>
           </div>
         </div>
       </div>
-      
+
       <div class="field-group" id="parallelSpaceGroup" style="display:none;">
         <div class="tip-row"><label class="field-label">Space for Parallel Console Installation?</label><button class="tip-icon" data-tip="tip-s8-parallel" onclick="toggleTip('tip-s8-parallel')">?</button></div>
         <div class="tip-bubble" id="tip-s8-parallel"><strong>Parallel install requires temporary floor space — typically 3–4 ft per position</strong>If no space is available, the project needs a different cutover strategy (e.g. a maintenance window or temporary dispatch relocation). Flag "No Space" as a risk item — it adds complexity and cost.<span class="tip-example">Walk the room and look for open wall space, unused desks, or staging areas near the existing positions.</span></div>
@@ -865,6 +947,12 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
             <input type="number" id="operatorTraining" placeholder="0" min="0">
           </div>
         </div>
+      </div>
+
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">OP Positions Available for Training</label><button class="tip-icon" data-tip="tip-s8-trainpos" onclick="toggleTip('tip-s8-trainpos')">?</button></div>
+        <div class="tip-bubble" id="tip-s8-trainpos"><strong>How many positions can be taken offline simultaneously for training purposes</strong>Affects how training sessions are structured and how many trainees can be accommodated at once. A center that can only spare 1 position will need more training sessions than one that can spare 4.<span class="tip-example">Ask: "During business hours, how many console positions could you make available for our trainers to use without impacting operations?"</span></div>
+        <input type="number" id="trainingPositions" placeholder="0" min="0">
       </div>
       
       <div class="photo-section">
@@ -943,10 +1031,12 @@ var currentCaptureId = null;
 
 var appData = {
   customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-  projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'', consoleType:'',
+  contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
+  projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
+  opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
   colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
   touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-  reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
+  reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
   existingConvChannels:'', existingConvList:[{count:'',type:''}],
   newConvRadios:'', newConvList:[{count:'',type:''}],
   backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
@@ -955,7 +1045,7 @@ var appData = {
   fireAlerting:'', fireAlertingType:'',
   otherInterfaces:'', otherInterfacesDetails:'',
   allShifts:'', removeForCutover:'', parallelSpace:'',
-  supervisorTraining:'', operatorTraining:'',
+  supervisorTraining:'', operatorTraining:'', trainingPositions:'',
   photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
 };
 
@@ -1007,10 +1097,12 @@ function startNew() {
   currentCaptureId = null;
   appData = {
     customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-    projectType:'', existingSystem:'', existingSystemDetails:'', opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'', consoleType:'',
+    contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
+    projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
+    opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
     colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-    reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'',
+    reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
     existingConvChannels:'', existingConvList:[{count:'',type:''}],
     newConvRadios:'', newConvList:[{count:'',type:''}],
     backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
@@ -1019,7 +1111,7 @@ function startNew() {
     fireAlerting:'', fireAlertingType:'',
     otherInterfaces:'', otherInterfacesDetails:'',
     allShifts:'', removeForCutover:'', parallelSpace:'',
-    supervisorTraining:'', operatorTraining:'',
+    supervisorTraining:'', operatorTraining:'', trainingPositions:'',
     photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
   };
   currentScreen = 1;
@@ -1068,7 +1160,6 @@ function selectRadio(name, value) {
   if (sel) { sel.checked = true; sel.parentElement.classList.add('selected'); }
 }
 
-function showExistingSystem(show) { document.getElementById('existingSystemGroup').style.display = show ? 'block' : 'none'; }
 function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
 function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
 function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('new'); }
@@ -1100,17 +1191,49 @@ function updateOpTotal() {
 }
 
 function updateEncryptionVisibility() {
-  var ct = appData.consoleType;
-  var hide = (ct === 'AXS' || ct === 'Remote AXS');
-  document.getElementById('encryptionGroup').style.display = hide ? 'none' : 'block';
+  var encGroup = document.getElementById('encryptionGroup');
+  if (encGroup) encGroup.style.display = 'block';
+}
+
+function showNewDispatchExisting(show) { document.getElementById('newDispatchExistingDetails').style.display = show ? 'block' : 'none'; }
+
+function updateCutoverVisibility() {
+  var hide = appData.buildingType === 'new_building';
+  document.getElementById('cutoverGroup').style.display = hide ? 'none' : 'block';
 }
 
 function updateScreensForProjectType(type) {
   var isExpansion = type === 'expansion';
+  var isMigrationOnly = type === 'migration';
+  var isMigrationScope = type === 'migration_scope';
+  var isNewDispatch = type === 'new';
+
+  // Show/hide expansion-conditional fields
   document.querySelectorAll('.hideForExpansion').forEach(function(el) {
     el.style.display = isExpansion ? 'none' : 'block';
   });
-  document.getElementById('mccMigrationGroup').style.display = (type === 'replace') ? 'block' : 'none';
+
+  // Show/hide migration-only fields on Screen 4
+  var migOnlyFields = document.getElementById('migrationOnlyFields');
+  if (migOnlyFields) migOnlyFields.style.display = isMigrationOnly ? 'block' : 'none';
+
+  // Show/hide standard equipment fields on Screen 4
+  document.querySelectorAll('.hideForMigration').forEach(function(el) {
+    el.style.display = isMigrationOnly ? 'none' : 'block';
+  });
+
+  // Hide screens 3, 5, 6 for migration only — handled via screen navigation
+  appData._skipScreens = isMigrationOnly ? [3, 5, 6] : [];
+
+  // Show/hide Screen 2 conditional groups
+  document.getElementById('newDispatchBuildingGroup').style.display = isNewDispatch ? 'block' : 'none';
+  document.getElementById('migrationScopeGroup').style.display = isMigrationScope ? 'block' : 'none';
+
+  // MCC migration footswitch/headset: show only for migration types
+  var mccGroup = document.getElementById('mccMigrationGroup');
+  if (mccGroup) mccGroup.style.display = (isMigrationOnly || isMigrationScope) ? 'block' : 'none';
+
+  // UPS label
   var upsLabel = document.getElementById('upsLabel');
   if (upsLabel) upsLabel.textContent = isExpansion ? 'UPS Required for New OP Positions?' : 'Backup Power / UPS';
 }
@@ -1122,8 +1245,14 @@ function collectScreenData() {
     appData.state = document.getElementById('state').value;
     appData.city = document.getElementById('city').value;
     appData.regionalSystem = document.getElementById('regionalSystem').value;
+    appData.contactName = document.getElementById('contactName').value;
+    appData.contactTitle = document.getElementById('contactTitle').value;
+    appData.contactPhone = document.getElementById('contactPhone').value;
+    appData.contactEmail = document.getElementById('contactEmail').value;
   } else if (currentScreen === 2) {
-    appData.existingSystemDetails = document.getElementById('existingSystemDetails').value;
+    appData.existingConsoleNotes = document.getElementById('existingConsoleNotes').value;
+    appData.existingFacilityDetails = document.getElementById('existingFacilityDetails') ? document.getElementById('existingFacilityDetails').value : '';
+    appData.migrationScopeDetails = document.getElementById('migrationScopeDetails') ? document.getElementById('migrationScopeDetails').value : '';
     updateOpTotal();
   } else if (currentScreen === 3) {
     appData.layoutNotes = document.getElementById('layoutNotes').value;
@@ -1133,7 +1262,9 @@ function collectScreenData() {
     appData.speakersPerPosition = document.getElementById('speakersPerPosition').value;
     appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
     appData.reuseHeadsets = document.getElementById('reuseHeadsets').value;
-    appData.encryptionImpl = document.getElementById('encryptionImpl').value;
+    var migEncr = document.getElementById('encryptionImplMig');
+    var stdEncr = document.getElementById('encryptionImpl');
+    appData.encryptionImpl = (migEncr && migEncr.value) ? migEncr.value : (stdEncr ? stdEncr.value : '');
   } else if (currentScreen === 6) {
     appData.existingConvList = getConvRows('existing');
     appData.newConvList = getConvRows('new');
@@ -1155,17 +1286,17 @@ function collectScreenData() {
   } else if (currentScreen === 7) {
     appData.supervisorTraining = document.getElementById('supervisorTraining').value;
     appData.operatorTraining = document.getElementById('operatorTraining').value;
+    appData.trainingPositions = document.getElementById('trainingPositions').value;
   }
 }
 
 function goNext() {
   collectScreenData();
-  
-  if (currentScreen === 7) {
-    generateSummary();
-  }
-  
-  currentScreen++;
+  if (currentScreen === 7) { generateSummary(); }
+  var skip = appData._skipScreens || [];
+  var next = currentScreen + 1;
+  while (skip.indexOf(next) !== -1) next++;
+  currentScreen = next;
   saveCapture();
   showScreen(currentScreen);
 }
@@ -1181,7 +1312,10 @@ function goBack() {
     }
     return;
   }
-  currentScreen--;
+  var skip = appData._skipScreens || [];
+  var prev = currentScreen - 1;
+  while (skip.indexOf(prev) !== -1) prev--;
+  currentScreen = prev;
   showScreen(currentScreen);
 }
 
@@ -1200,12 +1334,17 @@ function restoreForm() {
   document.getElementById('state').value = appData.state || '';
   document.getElementById('city').value = appData.city || '';
   document.getElementById('regionalSystem').value = appData.regionalSystem || '';
-  document.getElementById('opPositions') && (document.getElementById('opPositions').value = appData.opPositions || '');
+  document.getElementById('contactName').value = appData.contactName || '';
+  document.getElementById('contactTitle').value = appData.contactTitle || '';
+  document.getElementById('contactPhone').value = appData.contactPhone || '';
+  document.getElementById('contactEmail').value = appData.contactEmail || '';
+  document.getElementById('existingConsoleNotes').value = appData.existingConsoleNotes || '';
+  if (document.getElementById('existingFacilityDetails')) document.getElementById('existingFacilityDetails').value = appData.existingFacilityDetails || '';
+  if (document.getElementById('migrationScopeDetails')) document.getElementById('migrationScopeDetails').value = appData.migrationScopeDetails || '';
   document.getElementById('opAxs').value = appData.opAxs || '';
   document.getElementById('opRemoteRNI').value = appData.opRemoteRNI || '';
   document.getElementById('opRemoteORNI').value = appData.opRemoteORNI || '';
   if (appData.opAxs || appData.opRemoteRNI || appData.opRemoteORNI) updateOpTotal();
-  document.getElementById('existingSystemDetails').value = appData.existingSystemDetails || '';
   document.getElementById('layoutNotes').value = appData.layoutNotes || '';
   document.getElementById('backroomDistance').value = appData.backroomDistance || '';
   if (appData.backroomDistance && parseInt(appData.backroomDistance) > 300) checkDistance(appData.backroomDistance);
@@ -1214,6 +1353,8 @@ function restoreForm() {
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
   document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
   document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
+  var migEncr = document.getElementById('encryptionImplMig');
+  if (migEncr) migEncr.value = appData.encryptionImpl || '';
   if (appData.existingConvList) renderConvRows('existing');
   if (appData.newConvList) renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
@@ -1236,19 +1377,28 @@ function restoreForm() {
   document.getElementById('otherInterfacesDetails').value = appData.otherInterfacesDetails || '';
   document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
-  
-  ['projectType','consoleType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingSystem','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','backhaulType','backhaulRedundancy','rackType'].forEach(function(name) {
+  document.getElementById('trainingPositions').value = appData.trainingPositions || '';
+
+  ['projectType','buildingType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','backhaulType','backhaulRedundancy','rackType','hasCCGW','keyUpdate'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
     }
   });
-  
-  if (appData.projectType === 'replace' || appData.projectType === 'expansion') showExistingSystem(true);
+
   if (appData.projectType) updateScreensForProjectType(appData.projectType);
+  if (appData.buildingType === 'existing_facility') showNewDispatchExisting(true);
+  updateCutoverVisibility();
   if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
   if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
   if (appData.newConvRadios === 'yes') showNewConvDetails(true);
+  if (appData.antennaSystem === 'yes') showAntennaDetails(true);
+  if (appData.removeForCutover === 'no') showParallelSpace(true);
+  if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
+  if (appData.fireAlerting === 'yes') document.getElementById('fireAlertingType').style.display = 'block';
+  if (appData.otherInterfaces === 'yes') document.getElementById('otherInterfacesDetails').style.display = 'block';
+  updateEncryptionVisibility();
+}
   if (appData.antennaSystem === 'yes') showAntennaDetails(true);
   if (appData.removeForCutover === 'no') showParallelSpace(true);
   if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
@@ -1343,50 +1493,60 @@ function downloadAllPhotos() {
 }
 
 function generateSummary() {
-  var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
+  var typeLabels = { 'new':'New Dispatch', 'migration':'Platform Migration Only', 'migration_scope':'Platform Migration + Additional Scope', 'expansion':'Expansion / OP Add-on' };
   var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
   var rackLabels = { existing:'Space in existing racks', '7ft':"7' rack", '7.5ft':"7½' rack", '7ftcab':"7' cabinet" };
-
-  var existingInfo = '';
-  if (appData.projectType === 'replace' || appData.projectType === 'expansion') {
-    existingInfo = appData.existingSystem || '';
-    if (appData.existingSystemDetails) existingInfo += ' - ' + appData.existingSystemDetails;
-  }
+  var keyLabels = { central:'Centrally over network', individual:'Individually per position' };
 
   var html = '<div class="summary-section"><div class="summary-title">Basic Info</div>' +
     '<div class="summary-row"><span class="summary-label">Customer</span><span class="summary-value">' + appData.customerName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Project</span><span class="summary-value">' + appData.projectName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Location</span><span class="summary-value">' + appData.city + ', ' + appData.state + '</span></div>' +
+    (appData.contactName ? '<div class="summary-row"><span class="summary-label">Contact</span><span class="summary-value">' + appData.contactName + (appData.contactTitle ? ', ' + appData.contactTitle : '') + '</span></div>' : '') +
+    (appData.contactPhone ? '<div class="summary-row"><span class="summary-label">Phone</span><span class="summary-value">' + appData.contactPhone + '</span></div>' : '') +
+    (appData.contactEmail ? '<div class="summary-row"><span class="summary-label">Email</span><span class="summary-value">' + appData.contactEmail + '</span></div>' : '') +
     '</div>';
 
   html += '<div class="summary-section"><div class="summary-title">Configuration</div>' +
     '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (typeLabels[appData.projectType] || appData.projectType) + '</span></div>' +
-    (existingInfo ? '<div class="summary-row"><span class="summary-label">Existing System</span><span class="summary-value">' + existingInfo + '</span></div>' : '') +
-    '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + (appData.opPositions || '0') + ' total' + (appData.opAxs ? ' (' + appData.opAxs + ' AXS' + (appData.opRemoteRNI ? ', ' + appData.opRemoteRNI + ' Remote-RNI' : '') + (appData.opRemoteORNI ? ', ' + appData.opRemoteORNI + ' Remote-ORNI' : '') + ')' : '') + '</span></div>' +
-    '<div class="summary-row"><span class="summary-label">Proposed Console</span><span class="summary-value">' + appData.consoleType + '</span></div>' +
+    (appData.buildingType ? '<div class="summary-row"><span class="summary-label">Building Type</span><span class="summary-value">' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : '') + '</span></div>' : '') +
+    (appData.migrationScopeDetails ? '<div class="summary-row"><span class="summary-label">Add\'l Scope</span><span class="summary-value">' + appData.migrationScopeDetails.substring(0,50) + (appData.migrationScopeDetails.length > 50 ? '…' : '') + '</span></div>' : '') +
+    (appData.existingConsoleNotes ? '<div class="summary-row"><span class="summary-label">Existing Console</span><span class="summary-value">' + appData.existingConsoleNotes.substring(0,40) + (appData.existingConsoleNotes.length > 40 ? '…' : '') + '</span></div>' : '') +
+    '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + (appData.opPositions || '0') + ' total' + (appData.opAxs ? ' (' + appData.opAxs + ' Std' + (appData.opRemoteRNI ? ', ' + appData.opRemoteRNI + ' Laptop-RNI' : '') + (appData.opRemoteORNI ? ', ' + appData.opRemoteORNI + ' Laptop-ORNI' : '') + ')' : '') + '</span></div>' +
     (appData.rackType ? '<div class="summary-row"><span class="summary-label">Racks</span><span class="summary-value">' + (rackLabels[appData.rackType] || appData.rackType) + '</span></div>' : '') +
     (appData.backroomDistance ? '<div class="summary-row"><span class="summary-label">Backroom Distance</span><span class="summary-value">' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' ⚠️' : '') + '</span></div>' : '') +
     '</div>';
 
-  html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
-    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' && appData.existingConvList ? appData.existingConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
-    (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' && appData.newConvList ? appData.newConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
-    '<div class="summary-row"><span class="summary-label">Backup Radios per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
-    '<div class="summary-row"><span class="summary-label">MCD Desksets per OP</span><span class="summary-value">' + (appData.mcdDesksets === 'yes' ? 'Yes' : 'No') + '</span></div>' +
-    '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Yes' + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') : 'No') + '</span></div>' +
-    '</div>';
+  var isMigration = appData.projectType === 'migration';
+  if (isMigration) {
+    html += '<div class="summary-section"><div class="summary-title">Migration Details</div>' +
+      '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+      (appData.encryptionImpl ? '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) + '</span></div>' : '') +
+      (appData.hasCCGW ? '<div class="summary-row"><span class="summary-label">Conv / CCGW</span><span class="summary-value">' + (appData.hasCCGW === 'yes' ? 'Yes' : 'No') + '</span></div>' : '') +
+      (appData.keyUpdate ? '<div class="summary-row"><span class="summary-label">Key Update</span><span class="summary-value">' + (keyLabels[appData.keyUpdate] || appData.keyUpdate) + '</span></div>' : '') +
+      '</div>';
+  } else {
+    html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
+      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' && appData.existingConvList ? appData.existingConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
+      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' && appData.newConvList ? appData.newConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
+      '<div class="summary-row"><span class="summary-label">Backup Radios per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+      '<div class="summary-row"><span class="summary-label">MCD Desksets per OP</span><span class="summary-value">' + (appData.mcdDesksets === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+      '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Yes' + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') : 'No') + '</span></div>' +
+      '</div>';
 
-  html += '<div class="summary-section"><div class="summary-title">Equipment</div>' +
-    '<div class="summary-row"><span class="summary-label">Monitors</span><span class="summary-value">' + (appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : appData.touchScreens === 'customer' ? 'Customer' : appData.monitorSize + '"') + '</span></div>' +
-    '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
-    (appData.encryptionImpl ? '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) + '</span></div>' : '') +
-    '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
-    (appData.backhaulType && appData.backhaulType !== 'na' ? '<div class="summary-row"><span class="summary-label">Backhaul</span><span class="summary-value">' + (appData.backhaulType === 'new_microwave' ? 'New Microwave' : appData.backhaulType === 'existing' ? 'Existing Reused' : 'Other') + (appData.backhaulRedundancy ? ' / ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant') : '') + '</span></div>' : '') +
-    '</div>';
+    html += '<div class="summary-section"><div class="summary-title">Equipment</div>' +
+      '<div class="summary-row"><span class="summary-label">Monitors</span><span class="summary-value">' + (appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : appData.touchScreens === 'customer' ? 'Customer' : appData.monitorSize + '"') + '</span></div>' +
+      '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
+      (appData.encryptionImpl ? '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) + '</span></div>' : '') +
+      '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
+      (appData.backhaulType && appData.backhaulType !== 'na' ? '<div class="summary-row"><span class="summary-label">Backhaul</span><span class="summary-value">' + (appData.backhaulType === 'new_microwave' ? 'New Microwave' : appData.backhaulType === 'existing' ? 'Existing Reused' : 'Other') + (appData.backhaulRedundancy ? ' / ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant') : '') + '</span></div>' : '') +
+      '</div>';
+  }
 
   html += '<div class="summary-section"><div class="summary-title">Training</div>' +
     '<div class="summary-row"><span class="summary-label">Supervisors</span><span class="summary-value">' + (appData.supervisorTraining || '0') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Operators</span><span class="summary-value">' + (appData.operatorTraining || '0') + '</span></div>' +
+    (appData.trainingPositions ? '<div class="summary-row"><span class="summary-label">Positions for Training</span><span class="summary-value">' + appData.trainingPositions + '</span></div>' : '') +
     '</div>';
 
   var photoCount = getTotalPhotoCount();
@@ -1407,7 +1567,6 @@ function generateSummary() {
 
 
 async function shareReport(downloadOnly) {
-  var typeLabels = { 'new':'New Dispatch Center', replace:'Replace Existing', expansion:'Expansion / OP Add-on' };
   var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
   
   // Build clean text summary - only include fields with values
@@ -1420,118 +1579,127 @@ async function shareReport(downloadOnly) {
   if (appData.projectName) lines.push('Project: ' + appData.projectName);
   if (appData.city && appData.state) lines.push('Location: ' + appData.city + ', ' + appData.state);
   if (appData.regionalSystem) lines.push('Regional System: ' + appData.regionalSystem);
-  
+  if (appData.contactName) lines.push('Contact: ' + appData.contactName + (appData.contactTitle ? ', ' + appData.contactTitle : ''));
+  if (appData.contactPhone) lines.push('Phone: ' + appData.contactPhone);
+  if (appData.contactEmail) lines.push('Email: ' + appData.contactEmail);
+
   // Project Config
   lines.push('');
   lines.push('--- PROJECT ---');
-  if (appData.projectType) lines.push('Type: ' + (typeLabels[appData.projectType] || appData.projectType));
-  if (appData.existingSystem) {
-    var existing = appData.existingSystem;
-    if (appData.existingSystemDetails) existing += ' (' + appData.existingSystemDetails + ')';
-    lines.push('Existing System: ' + existing);
-  }
+  var typeLabels2 = { 'new':'New Dispatch', 'migration':'Platform Migration Only', 'migration_scope':'Platform Migration + Additional Scope', 'expansion':'Expansion / OP Add-on' };
+  if (appData.projectType) lines.push('Type: ' + (typeLabels2[appData.projectType] || appData.projectType));
+  if (appData.buildingType) lines.push('Building: ' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : ''));
+  if (appData.migrationScopeDetails) lines.push('Additional Scope: ' + appData.migrationScopeDetails);
+  if (appData.existingConsoleNotes) lines.push('Existing Console Notes: ' + appData.existingConsoleNotes);
   if (appData.opPositions) {
     lines.push('OP Positions: ' + appData.opPositions + ' total');
-    if (appData.opAxs) lines.push('  AXS (inside RNI): ' + appData.opAxs);
-    if (appData.opRemoteRNI) lines.push('  Remote AXS (inside RNI): ' + appData.opRemoteRNI);
-    if (appData.opRemoteORNI) lines.push('  Remote AXS (outside RNI): ' + appData.opRemoteORNI);
+    if (appData.opAxs) lines.push('  Standard AXS: ' + appData.opAxs);
+    if (appData.opRemoteRNI) lines.push('  Laptop AXS (inside RN): ' + appData.opRemoteRNI);
+    if (appData.opRemoteORNI) lines.push('  Laptop AXS (outside RN): ' + appData.opRemoteORNI);
   }
-  if (appData.consoleType) lines.push('Console Type: ' + appData.consoleType);
-  
-  // Site Layout
-  if (appData.colocated || appData.existingCabling || appData.conduitsExist || appData.rackType || appData.backroomDistance) {
+
+  var isMigOnly = appData.projectType === 'migration';
+  var isExpansion = appData.projectType === 'expansion';
+
+  // Migration-only section
+  if (isMigOnly) {
+    lines.push('');
+    lines.push('--- MIGRATION DETAILS ---');
+    lines.push('IRR: ' + (appData.irrRequired === 'yes' ? 'Yes' : appData.irrRequired === 'no' ? 'No' : 'Not answered'));
+    lines.push('Encryption: ' + (appData.encryptionImpl ? appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) : 'Not answered'));
+    lines.push('Conventional Radios / CCGW: ' + (appData.hasCCGW === 'yes' ? 'Yes' : appData.hasCCGW === 'no' ? 'No' : 'Not answered'));
+    lines.push('Key Update Method: ' + (appData.keyUpdate === 'central' ? 'Centrally over network' : appData.keyUpdate === 'individual' ? 'Individually per position' : 'Not answered'));
+  }
+
+  // Site Layout (not shown for migration only)
+  if (!isMigOnly) {
     lines.push('');
     lines.push('--- SITE LAYOUT ---');
-    if (appData.colocated) lines.push('Co-located: ' + (appData.colocated === 'yes' ? 'Yes' : 'No'));
-    if (appData.existingCabling) lines.push('Existing Cabling: ' + (appData.existingCabling === 'yes' ? 'Yes' : 'No'));
+    lines.push('Positions Co-located: ' + (appData.colocated === 'yes' ? 'Yes' : appData.colocated === 'no' ? 'No' : 'Not answered'));
+    lines.push('Existing Cabling Reusable: ' + (appData.existingCabling === 'yes' ? 'Yes' : appData.existingCabling === 'no' ? 'No' : 'Not answered'));
     if (appData.conduitsExist && appData.conduitsExist !== 'na') lines.push('Conduits Available: ' + (appData.conduitsExist === 'yes' ? 'Yes' : 'No'));
     if (appData.rackType) { var rackLabels = { existing:'Space in existing racks', '7ft':"7' rack required", '7.5ft':"7.5' rack required", '7ftcab':"7' cabinet required" }; lines.push('Equipment Racks: ' + (rackLabels[appData.rackType] || appData.rackType)); }
     if (appData.backroomDistance) lines.push('Backroom Distance: ' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' — OVER 300FT: converters/patch panels required' : ''));
     if (appData.layoutNotes) lines.push('Notes: ' + appData.layoutNotes);
   }
 
-  // Channels & Radios
-  if (appData.existingConvChannels === 'yes' || appData.newConvRadios === 'yes' || appData.backupRadiosPerOP === 'yes' || appData.mcdDesksets === 'yes') {
+  // Equipment (not shown for migration only)
+  if (!isMigOnly) {
     lines.push('');
-    lines.push('--- CHANNELS & RADIOS ---');
-    if (appData.existingConvChannels === 'yes' && appData.existingConvList) {
-      appData.existingConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
-        lines.push('Existing Conv Channel: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
-      });
+    lines.push('--- EQUIPMENT ---');
+    if (appData.touchScreens) {
+      var monitorText = appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' :
+                        appData.touchScreens === 'customer' ? 'Customer Providing' :
+                        appData.monitorSize ? appData.monitorSize + '" Non-Touch' : 'Non-Touch (size TBD)';
+      lines.push('Monitors: ' + monitorText);
+    } else { lines.push('Monitors: Not answered'); }
+    lines.push('Speakers per Position: ' + (appData.speakersPerPosition || 'Not answered'));
+    lines.push('IRR: ' + (appData.irrRequired === 'yes' ? 'Yes' : appData.irrRequired === 'no' ? 'No' : 'Not answered'));
+    lines.push('Encryption: ' + (appData.encryptionImpl ? appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) : 'Not answered'));
+    if (appData.projectType === 'migration_scope' || appData.projectType === 'new') {
+      lines.push('Reuse Footswitches: ' + (appData.reuseFootswitches === 'yes' ? 'Yes' : appData.reuseFootswitches === 'no' ? 'No' : appData.reuseFootswitches === 'na' ? 'N/A' : 'Not answered'));
+      lines.push('Reuse Headset Jacks: ' + (appData.reuseHeadsets === 'yes' ? 'Yes' : appData.reuseHeadsets === 'no' ? 'No' : appData.reuseHeadsets === 'na' ? 'N/A' : 'Not answered'));
     }
-    if (appData.newConvRadios === 'yes' && appData.newConvList) {
-      appData.newConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
-        lines.push('New Conv Radio: ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
-      });
-    }
-    if (appData.backupRadiosPerOP === 'yes') lines.push('Backup Radios per OP: Yes');
-    if (appData.mcdDesksets === 'yes') lines.push('MCD Desksets per OP: Yes');
-    if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
   }
 
-  // Antenna Systems
-  if (appData.antennaSystem === 'yes') {
+  // Channels & Radios (not shown for migration only or expansion)
+  if (!isMigOnly) {
     lines.push('');
-    lines.push('--- ANTENNA SYSTEMS ---');
-    lines.push('Existing Antenna System: Yes');
-    if (appData.antennaCombining) lines.push('Combining/Details: ' + appData.antennaCombining);
-    if ((appData.photosAnt||[]).length) lines.push('Antenna Photos: ' + appData.photosAnt.length);
-  }
-  
-  // Equipment
-  lines.push('');
-  lines.push('--- EQUIPMENT ---');
-  if (appData.touchScreens) {
-    var monitorText = appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : 
-                      appData.touchScreens === 'customer' ? 'Customer Providing' : 
-                      appData.monitorSize ? appData.monitorSize + '" Non-Touch' : 'TBD';
-    lines.push('Monitors: ' + monitorText);
-  }
-  if (appData.speakersPerPosition) lines.push('Speakers per Position: ' + appData.speakersPerPosition);
-  if (appData.irrRequired === 'yes') lines.push('IRR: Yes');
-  if (appData.encryptionImpl && appData.encryptionImpl !== 'none') lines.push('Encryption: ' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1));
-  if (appData.reuseFootswitches === 'yes') lines.push('Reuse Footswitches: Yes');
-  if (appData.reuseHeadsets === 'yes') lines.push('Reuse Headset Jacks: Yes');
-  
-  // Power & Interfaces
-  if (appData.backupPower && appData.backupPower !== 'none') {
-    lines.push('Backup Power: ' + (upsLabels[appData.backupPower] || appData.backupPower));
-  }
-  if (appData.camRequired === 'yes') lines.push('CAM: Yes');
-  if (appData.backhaulType && appData.backhaulType !== 'na') {
-    var bhLabel = appData.backhaulType === 'new_microwave' ? 'New Microwave Required' : appData.backhaulType === 'existing' ? 'Existing to be Reused' : 'Other';
-    var bhData = appData.backhaulType === 'new_microwave' ? appData.backhaulMicrowaveData : appData.backhaulType === 'existing' ? appData.backhaulExistingData : appData.backhaulOtherData;
-    lines.push('Backhaul: ' + bhLabel + (bhData ? ' — ' + bhData : ''));
-    if (appData.backhaulRedundancy) lines.push('Backhaul Redundancy: ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant'));
-  }
-  if (appData.loggingRecorder === 'yes') lines.push('Logging Recorder: Yes');
-  if (appData.cadAPI === 'yes') lines.push('CAD API: Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : ''));
-  if (appData.fireAlerting === 'yes') lines.push('Fire Station Alerting: Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : ''));
-  if (appData.otherInterfaces === 'yes') lines.push('Other Interfaces: ' + appData.otherInterfacesDetails);
-  if (appData.auxInputs || appData.auxOutputs) {
-    lines.push('Aux I/O: ' + (appData.auxInputs || '0') + ' inputs, ' + (appData.auxOutputs || '0') + ' outputs');
-  }
-  
-  // Operational
-  if (appData.allShifts || appData.removeForCutover) {
-    lines.push('');
-    lines.push('--- OPERATIONAL ---');
-    if (appData.allShifts) lines.push('All Shifts Utilized: ' + (appData.allShifts === 'yes' ? 'Yes' : 'No'));
-    if (appData.removeForCutover) {
-      lines.push('Cutover Method: ' + (appData.removeForCutover === 'yes' ? 'Remove & Replace' : 'Parallel Install'));
-      if (appData.removeForCutover === 'no' && appData.parallelSpace) {
-        lines.push('Parallel Space Available: ' + (appData.parallelSpace === 'yes' ? 'Yes' : 'No'));
+    lines.push('--- CHANNELS & RADIOS ---');
+    if (!isExpansion) {
+      lines.push('Existing Conv Channels: ' + (appData.existingConvChannels === 'yes' ? 'Yes' : appData.existingConvChannels === 'no' ? 'No' : 'Not answered'));
+      if (appData.existingConvChannels === 'yes' && appData.existingConvList) {
+        appData.existingConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+          lines.push('  ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+        });
+      }
+      lines.push('New Conv Radios Needed: ' + (appData.newConvRadios === 'yes' ? 'Yes' : appData.newConvRadios === 'no' ? 'No' : 'Not answered'));
+      if (appData.newConvRadios === 'yes' && appData.newConvList) {
+        appData.newConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
+          lines.push('  ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+        });
       }
     }
+    lines.push('Backup Radios per OP: ' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : appData.backupRadiosPerOP === 'no' ? 'No' : 'Not answered'));
+    lines.push('MCD Desksets per OP: ' + (appData.mcdDesksets === 'yes' ? 'Yes' : appData.mcdDesksets === 'no' ? 'No' : 'Not answered'));
+    if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
+    lines.push('Existing Antenna System: ' + (appData.antennaSystem === 'yes' ? 'Yes' : appData.antennaSystem === 'no' ? 'No' : 'Not answered'));
+    if (appData.antennaSystem === 'yes') {
+      if (appData.antennaCombining) lines.push('Antenna Details: ' + appData.antennaCombining);
+      if ((appData.photosAnt||[]).length) lines.push('Antenna Photos: ' + appData.photosAnt.length);
+    }
   }
-  
-  // Training
-  if (appData.supervisorTraining || appData.operatorTraining) {
+
+  // Interfaces & Power (not shown for migration only)
+  if (!isMigOnly) {
     lines.push('');
-    lines.push('--- TRAINING ---');
-    if (appData.supervisorTraining) lines.push('Supervisors: ' + appData.supervisorTraining);
-    if (appData.operatorTraining) lines.push('Operators: ' + appData.operatorTraining);
+    lines.push('--- INTERFACES & POWER ---');
+    if (appData.auxInputs || appData.auxOutputs) lines.push('Aux I/O: ' + (appData.auxInputs || '0') + ' inputs, ' + (appData.auxOutputs || '0') + ' outputs');
+    lines.push('Backhaul: ' + (appData.backhaulType === 'na' ? 'N/A' : appData.backhaulType === 'new_microwave' ? 'New Microwave Required' + (appData.backhaulMicrowaveData ? ' — ' + appData.backhaulMicrowaveData : '') : appData.backhaulType === 'existing' ? 'Existing Reused' + (appData.backhaulExistingData ? ' — ' + appData.backhaulExistingData : '') : appData.backhaulType === 'other' ? 'Other' + (appData.backhaulOtherData ? ' — ' + appData.backhaulOtherData : '') : 'Not answered'));
+    if (appData.backhaulType && appData.backhaulType !== 'na' && appData.backhaulType !== '') lines.push('Backhaul Redundancy: ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : appData.backhaulRedundancy === 'non_redundant' ? 'Non-Redundant' : 'Not answered'));
+    lines.push('Backup Power / UPS: ' + (appData.backupPower ? (upsLabels[appData.backupPower] || appData.backupPower) : 'Not answered'));
+    lines.push('CAM: ' + (appData.camRequired === 'yes' ? 'Yes' : appData.camRequired === 'no' ? 'No' : 'Not answered'));
+    lines.push('Logging Recorder: ' + (appData.loggingRecorder === 'yes' ? 'Yes' : appData.loggingRecorder === 'no' ? 'No' : 'Not answered'));
+    lines.push('CAD API: ' + (appData.cadAPI === 'yes' ? 'Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : '') : appData.cadAPI === 'no' ? 'No' : 'Not answered'));
+    lines.push('Fire Station Alerting: ' + (appData.fireAlerting === 'yes' ? 'Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : '') : appData.fireAlerting === 'no' ? 'No' : 'Not answered'));
+    lines.push('Other 3rd Party Interfaces: ' + (appData.otherInterfaces === 'yes' ? 'Yes' + (appData.otherInterfacesDetails ? ' — ' + appData.otherInterfacesDetails : '') : appData.otherInterfaces === 'no' ? 'No' : 'Not answered'));
   }
+
+  // Operational
+  lines.push('');
+  lines.push('--- OPERATIONAL ---');
+  lines.push('All Shifts Utilized: ' + (appData.allShifts === 'yes' ? 'Yes' : appData.allShifts === 'no' ? 'No' : 'Not answered'));
+  if (appData.buildingType !== 'new_building') {
+    lines.push('Console Removable for Cutover: ' + (appData.removeForCutover === 'yes' ? 'Yes — Remove & Replace' : appData.removeForCutover === 'no' ? 'No — Parallel Install' : 'Not answered'));
+    if (appData.removeForCutover === 'no') lines.push('Space for Parallel Install: ' + (appData.parallelSpace === 'yes' ? 'Yes' : appData.parallelSpace === 'no' ? 'No' : 'Not answered'));
+  }
+
+  // Training
+  lines.push('');
+  lines.push('--- TRAINING ---');
+  lines.push('Supervisors: ' + (appData.supervisorTraining || '0'));
+  lines.push('Operators: ' + (appData.operatorTraining || '0'));
+  lines.push('Positions Available for Training: ' + (appData.trainingPositions || 'Not answered'));
   
   // Photo counts
   var photoCounts = [];
