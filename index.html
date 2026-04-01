@@ -296,6 +296,13 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       
       <div class="photo-section">
         <div class="photo-section-title">📸 Operator Position Photos</div>
+        <div class="help-box" style="margin-bottom:10px;">
+          <div class="help-text">📷 Capture the following for <strong>1 typical position</strong>:<br>
+            <strong>1.</strong> Full desk layout showing all equipment<br>
+            <strong>2.</strong> Accessories — headsets, footswitches, speakers, any peripherals<br>
+            <strong>3.</strong> Console screen showing active resources / channel layout
+          </div>
+        </div>
         <input type="file" id="photo2" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos2')">
         <button class="photo-btn" onclick="document.getElementById('photo2').click()">📸 Add Photos</button>
         <div class="photo-grid" id="photoGrid2"></div>
@@ -1026,6 +1033,7 @@ function toggleTip(id) {
 }
 
 
+var currentScreen = 0;
 var totalScreens = 9;
 var currentCaptureId = null;
 
@@ -1392,13 +1400,6 @@ function restoreForm() {
   if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
   if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
   if (appData.newConvRadios === 'yes') showNewConvDetails(true);
-  if (appData.antennaSystem === 'yes') showAntennaDetails(true);
-  if (appData.removeForCutover === 'no') showParallelSpace(true);
-  if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
-  if (appData.fireAlerting === 'yes') document.getElementById('fireAlertingType').style.display = 'block';
-  if (appData.otherInterfaces === 'yes') document.getElementById('otherInterfacesDetails').style.display = 'block';
-  updateEncryptionVisibility();
-}
   if (appData.antennaSystem === 'yes') showAntennaDetails(true);
   if (appData.removeForCutover === 'no') showParallelSpace(true);
   if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
