@@ -215,17 +215,18 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="tip-row"><label class="field-label">Project Type</label><button class="tip-icon" data-tip="tip-s2-type" onclick="toggleTip('tip-s2-type')">?</button></div>
         <div class="tip-bubble" id="tip-s2-type"><strong>Sets the scope of the entire project</strong>New Dispatch = brand new center or facility. Platform Migration = replacing MCC consoles with AXS. Expansion = adding positions to an existing AXS system.<span class="tip-example">Ask: "Is this a brand new center, or are you replacing existing consoles?"</span></div>
         <div class="radio-group">
-          <div class="option" onclick="selectRadio('projectType','new'); updateScreensForProjectType('new');">
-            <input type="radio" name="projectType" value="new">
-            <span class="option-label">New Dispatch</span>
-          </div>
-          <div class="option" onclick="selectRadio('projectType','migration'); updateScreensForProjectType('migration');">
+          <div class="option" onclick="selectRadio('projectType','migration'); updateScreensForProjectType('migration');" style="border-color:#10b981; background:#f0fdf4;">
             <input type="radio" name="projectType" value="migration">
-            <span class="option-label">Platform Migration Only</span>
+            <span class="option-label">Platform Migration Only <span style="background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; margin-left:6px; vertical-align:middle;">RECOMMENDED</span></span>
+            <div style="font-size:12px; color:#374151; margin-top:4px; font-weight:normal;">Fastest path to close — minimal requirements, locks in AXS platform.</div>
           </div>
           <div class="option" onclick="selectRadio('projectType','migration_scope'); updateScreensForProjectType('migration_scope');">
             <input type="radio" name="projectType" value="migration_scope">
             <span class="option-label">Platform Migration + Additional Scope</span>
+          </div>
+          <div class="option" onclick="selectRadio('projectType','new'); updateScreensForProjectType('new');">
+            <input type="radio" name="projectType" value="new">
+            <span class="option-label">New Dispatch</span>
           </div>
           <div class="option" onclick="selectRadio('projectType','expansion'); updateScreensForProjectType('expansion');">
             <input type="radio" name="projectType" value="expansion">
@@ -390,6 +391,12 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
             <span class="option-label">7' cabinet required</span>
           </div>
         </div>
+      </div>
+
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">Additional Circuits / Electrical Work <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s3-electrical" onclick="toggleTip('tip-s3-electrical')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-electrical"><strong>Note any electrical requirements beyond standard console installation</strong>Examples: dedicated circuits needed, panel capacity concerns, generator tie-in, UPS outlet requirements, or any electrician work that may need to be scoped separately.<span class="tip-example">e.g. "Needs 2 dedicated 20A circuits for backroom" or "Existing panel at capacity — electrician required"</span></div>
+        <textarea id="electricalNotes" placeholder="e.g., dedicated circuits needed, panel upgrade required, generator tie-in..."></textarea>
       </div>
 
       <div class="field-group">
@@ -815,14 +822,17 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           <div class="tip-row"><label class="field-label">Logging Recorder (New or Expand)?</label><button class="tip-icon" data-tip="tip-s7-logging" onclick="toggleTip('tip-s7-logging')">?</button></div>
           <div class="tip-bubble" id="tip-s7-logging"><strong>Logging recorders capture all radio and phone audio for compliance and investigations</strong>Different from IRR — logging is long-term, agency-wide storage. Ask if they have an existing recorder and whether it needs to be replaced or just expanded with new channels.</div>
           <div class="radio-group">
-            <div class="option" onclick="selectRadio('loggingRecorder','yes')">
+            <div class="option" onclick="selectRadio('loggingRecorder','yes'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
               <input type="radio" name="loggingRecorder" value="yes">
               <span class="option-label">Yes</span>
             </div>
-            <div class="option" onclick="selectRadio('loggingRecorder','no')">
+            <div class="option" onclick="selectRadio('loggingRecorder','no'); document.getElementById('loggingRecorderBrandGroup').style.display='none';">
               <input type="radio" name="loggingRecorder" value="no">
               <span class="option-label">No</span>
             </div>
+          </div>
+          <div id="loggingRecorderBrandGroup" style="display:none; margin-top:8px;">
+            <input type="text" id="loggingRecorderBrand" placeholder="Brand / model (e.g. Eventide, Nice, Motorola...)">
           </div>
         </div>
 
@@ -1042,14 +1052,14 @@ var appData = {
   contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
   projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
   opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
-  colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
+  colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
   touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
   reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
   existingConvChannels:'', existingConvList:[{count:'',type:''}],
   newConvRadios:'', newConvList:[{count:'',type:''}],
   backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
   auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
-  loggingRecorder:'', cadAPI:'', cadVendorName:'',
+  loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
   fireAlerting:'', fireAlertingType:'',
   otherInterfaces:'', otherInterfacesDetails:'',
   allShifts:'', removeForCutover:'', parallelSpace:'',
@@ -1108,14 +1118,14 @@ function startNew() {
     contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
     projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
     opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
-    colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', backroomDistance:'',
+    colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
     reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
     existingConvChannels:'', existingConvList:[{count:'',type:''}],
     newConvRadios:'', newConvList:[{count:'',type:''}],
     backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
     auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
-    loggingRecorder:'', cadAPI:'', cadVendorName:'',
+    loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
     fireAlerting:'', fireAlertingType:'',
     otherInterfaces:'', otherInterfacesDetails:'',
     allShifts:'', removeForCutover:'', parallelSpace:'',
@@ -1264,6 +1274,7 @@ function collectScreenData() {
     updateOpTotal();
   } else if (currentScreen === 3) {
     appData.layoutNotes = document.getElementById('layoutNotes').value;
+    appData.electricalNotes = document.getElementById('electricalNotes').value;
     appData.backroomDistance = document.getElementById('backroomDistance').value;
   } else if (currentScreen === 4) {
     appData.monitorSize = document.getElementById('monitorSize').value;
@@ -1291,6 +1302,7 @@ function collectScreenData() {
     appData.fireAlertingType = document.getElementById('fireAlertingType').value;
     appData.otherInterfaces = document.getElementById('otherInterfaces').value;
     appData.otherInterfacesDetails = document.getElementById('otherInterfacesDetails').value;
+    appData.loggingRecorderBrand = document.getElementById('loggingRecorderBrand') ? document.getElementById('loggingRecorderBrand').value : '';
   } else if (currentScreen === 7) {
     appData.supervisorTraining = document.getElementById('supervisorTraining').value;
     appData.operatorTraining = document.getElementById('operatorTraining').value;
@@ -1354,6 +1366,7 @@ function restoreForm() {
   document.getElementById('opRemoteORNI').value = appData.opRemoteORNI || '';
   if (appData.opAxs || appData.opRemoteRNI || appData.opRemoteORNI) updateOpTotal();
   document.getElementById('layoutNotes').value = appData.layoutNotes || '';
+  document.getElementById('electricalNotes').value = appData.electricalNotes || '';
   document.getElementById('backroomDistance').value = appData.backroomDistance || '';
   if (appData.backroomDistance && parseInt(appData.backroomDistance) > 300) checkDistance(appData.backroomDistance);
   document.getElementById('monitorSize').value = appData.monitorSize || '';
@@ -1372,6 +1385,10 @@ function restoreForm() {
   document.getElementById('backhaulMicrowaveData').value = appData.backhaulMicrowaveData || '';
   document.getElementById('backhaulExistingData').value = appData.backhaulExistingData || '';
   document.getElementById('backhaulOtherData').value = appData.backhaulOtherData || '';
+  if (appData.loggingRecorderBrand && document.getElementById('loggingRecorderBrand')) {
+    document.getElementById('loggingRecorderBrand').value = appData.loggingRecorderBrand;
+    document.getElementById('loggingRecorderBrandGroup').style.display = 'block';
+  }
   if (appData.backhaulType && appData.backhaulType !== 'na') {
     showBackhaulDetails(appData.backhaulType === 'new_microwave' ? 'microwave' : appData.backhaulType);
     showBackhaulRedundancy(true);
@@ -1573,6 +1590,7 @@ async function shareReport(downloadOnly) {
   // Build clean text summary - only include fields with values
   var lines = [];
   lines.push('AXS REQUIREMENTS CAPTURE');
+  lines.push('Date: ' + new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) + ' ' + new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' }));
   lines.push('');
   
   // Basic Info
@@ -1620,6 +1638,7 @@ async function shareReport(downloadOnly) {
     lines.push('Existing Cabling Reusable: ' + (appData.existingCabling === 'yes' ? 'Yes' : appData.existingCabling === 'no' ? 'No' : 'Not answered'));
     if (appData.conduitsExist && appData.conduitsExist !== 'na') lines.push('Conduits Available: ' + (appData.conduitsExist === 'yes' ? 'Yes' : 'No'));
     if (appData.rackType) { var rackLabels = { existing:'Space in existing racks', '7ft':"7' rack required", '7.5ft':"7.5' rack required", '7ftcab':"7' cabinet required" }; lines.push('Equipment Racks: ' + (rackLabels[appData.rackType] || appData.rackType)); }
+    if (appData.electricalNotes) lines.push('Electrical / Circuits: ' + appData.electricalNotes);
     if (appData.backroomDistance) lines.push('Backroom Distance: ' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' — OVER 300FT: converters/patch panels required' : ''));
     if (appData.layoutNotes) lines.push('Notes: ' + appData.layoutNotes);
   }
@@ -1680,7 +1699,7 @@ async function shareReport(downloadOnly) {
     if (appData.backhaulType && appData.backhaulType !== 'na' && appData.backhaulType !== '') lines.push('Backhaul Redundancy: ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : appData.backhaulRedundancy === 'non_redundant' ? 'Non-Redundant' : 'Not answered'));
     lines.push('Backup Power / UPS: ' + (appData.backupPower ? (upsLabels[appData.backupPower] || appData.backupPower) : 'Not answered'));
     lines.push('CAM: ' + (appData.camRequired === 'yes' ? 'Yes' : appData.camRequired === 'no' ? 'No' : 'Not answered'));
-    lines.push('Logging Recorder: ' + (appData.loggingRecorder === 'yes' ? 'Yes' : appData.loggingRecorder === 'no' ? 'No' : 'Not answered'));
+    lines.push('Logging Recorder: ' + (appData.loggingRecorder === 'yes' ? 'Yes' + (appData.loggingRecorderBrand ? ' — ' + appData.loggingRecorderBrand : '') : appData.loggingRecorder === 'no' ? 'No' : 'Not answered'));
     lines.push('CAD API: ' + (appData.cadAPI === 'yes' ? 'Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : '') : appData.cadAPI === 'no' ? 'No' : 'Not answered'));
     lines.push('Fire Station Alerting: ' + (appData.fireAlerting === 'yes' ? 'Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : '') : appData.fireAlerting === 'no' ? 'No' : 'Not answered'));
     lines.push('Other 3rd Party Interfaces: ' + (appData.otherInterfaces === 'yes' ? 'Yes' + (appData.otherInterfacesDetails ? ' — ' + appData.otherInterfacesDetails : '') : appData.otherInterfaces === 'no' ? 'No' : 'Not answered'));
