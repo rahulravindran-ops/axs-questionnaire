@@ -1086,7 +1086,7 @@ function loadSavedList() {
 function getSaved() { var s = localStorage.getItem('axsV4'); return s ? JSON.parse(s) : []; }
 
 function saveCapture() {
-  if (currentScreen === 0 || currentScreen === 8) return;
+  if (currentScreen === 0) return;
   var caps = getSaved();
   if (!currentCaptureId) currentCaptureId = 'c' + Date.now();
   caps = caps.filter(function(c) { return c.id !== currentCaptureId; });
@@ -1312,11 +1312,11 @@ function collectScreenData() {
 
 function goNext() {
   collectScreenData();
-  if (currentScreen === 7) { generateSummary(); }
   var skip = appData._skipScreens || [];
   var next = currentScreen + 1;
   while (skip.indexOf(next) !== -1) next++;
   currentScreen = next;
+  if (currentScreen === 8) { generateSummary(); }
   saveCapture();
   showScreen(currentScreen);
 }
