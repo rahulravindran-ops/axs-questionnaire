@@ -194,6 +194,16 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <input type="text" id="regionalSystem" placeholder="e.g., North Texas Regional System">
       </div>
 
+      <div class="field-group">
+        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px; background:#eff6ff; border:2px solid #93c5fd; border-radius:10px;">
+          <input type="checkbox" id="isKCore" onchange="appData.isKCore = this.checked;" style="width:22px; height:22px; accent-color:#003e7e; flex-shrink:0;">
+          <span>
+            <strong style="font-size:14px; color:#003e7e; display:block;">Conventional K-Core System</strong>
+            <span style="font-size:12px; color:#374151;">Check if this agency runs a conventional K-core configuration</span>
+          </span>
+        </label>
+      </div>
+
       <div class="divider"></div>
 
       <div class="field-group">
@@ -202,7 +212,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <input type="text" id="contactName" placeholder="Full name" style="margin-bottom:8px;">
         <input type="text" id="contactTitle" placeholder="Title / role" style="margin-bottom:8px;">
         <input type="text" id="contactPhone" placeholder="Phone number" style="margin-bottom:8px;">
-        <input type="email" id="contactEmail" placeholder="Email address">
+        <input type="text" id="contactEmail" placeholder="Email address">
       </div>
     </div>
 
@@ -240,7 +250,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="tip-row"><label class="field-label">Building Type</label><button class="tip-icon" data-tip="tip-s2-building" onclick="toggleTip('tip-s2-building')">?</button></div>
         <div class="tip-bubble" id="tip-s2-building"><strong>Affects cutover planning and whether any existing equipment can be leveraged</strong>New building = greenfield, nothing to work around. Existing facility = there may be cabling, racks, or infrastructure already in place.<span class="tip-example">Ask: "Is this a brand new building, or are you moving into or upgrading an existing facility?"</span></div>
         <div class="radio-group">
-          <div class="option" onclick="selectRadio('buildingType','new_building'); updateCutoverVisibility();">
+          <div class="option" onclick="selectRadio('buildingType','new_building'); updateCutoverVisibility(); showNewDispatchExisting(false);">
             <input type="radio" name="buildingType" value="new_building">
             <span class="option-label">New building — no existing equipment</span>
           </div>
@@ -249,23 +259,47 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
             <span class="option-label">Existing facility — replacing existing equipment</span>
           </div>
         </div>
-        <div id="newDispatchExistingDetails" style="display:none; margin-top:8px;">
-          <input type="text" id="existingFacilityDetails" placeholder="e.g., existing vendor, model, approximate age...">
-        </div>
       </div>
 
-      <!-- Migration: additional scope checkbox -->
+      <!-- New Dispatch + Existing Facility: vendor info -->
+      <div class="field-group" id="newDispatchExistingDetails" style="display:none;">
+        <div class="tip-row"><label class="field-label">Existing Equipment Details <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s2-existingfac" onclick="toggleTip('tip-s2-existingfac')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-existingfac"><strong>Note the existing vendor, model, and approximate age</strong>Helps scope any demo/removal work and flags potential compatibility considerations.<span class="tip-example">e.g. "Zetron Acom, ~10 years old" or "Motorola MCC7500, installed 2014"</span></div>
+        <input type="text" id="existingFacilityDetails" placeholder="e.g., existing vendor, model, approximate age...">
+      </div>
+
+      <!-- Migration: additional scope -->
       <div class="field-group" id="migrationScopeGroup" style="display:none;">
         <div class="tip-row"><label class="field-label">Additional Scope Details</label><button class="tip-icon" data-tip="tip-s2-scope" onclick="toggleTip('tip-s2-scope')">?</button></div>
         <div class="tip-bubble" id="tip-s2-scope"><strong>Capture any scope beyond the console swap itself</strong>Examples include new backroom radios, backhaul links, conventional channel gateways, or interface upgrades.</div>
         <textarea id="migrationScopeDetails" placeholder="e.g., new CCGW for conventional channels, backhaul link upgrade, additional interfaces..."></textarea>
       </div>
 
-      <!-- Existing Console Notes (all project types) -->
-      <div class="field-group">
+      <!-- Migration: AIM vs CCHUB -->
+      <div class="field-group" id="migrationHardwareGroup" style="display:none;">
+        <div class="tip-row"><label class="field-label">Existing MCC Hardware Type</label><button class="tip-icon" data-tip="tip-s2-hardware" onclick="toggleTip('tip-s2-hardware')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-hardware"><strong>AIM and CCHUB are two different MCC7500 backroom hardware configurations</strong>CCHUB = Consolidated Channel Hub, a rack-mounted backroom unit. AIM = Audio Interface Module, used in earlier MCC installations. Knowing which is installed affects migration planning and what can be reused.<span class="tip-example">Ask: "What backroom hardware do you have today — do you know if it's a CCHUB or AIM configuration?"</span></div>
+        <div class="radio-group">
+          <div class="option" onclick="selectRadio('mccHardwareType','cchub')">
+            <input type="radio" name="mccHardwareType" value="cchub">
+            <span class="option-label">MCC7500E CCHUB</span>
+          </div>
+          <div class="option" onclick="selectRadio('mccHardwareType','aim')">
+            <input type="radio" name="mccHardwareType" value="aim">
+            <span class="option-label">MCC7500E AIM</span>
+          </div>
+          <div class="option" onclick="selectRadio('mccHardwareType','unknown')">
+            <input type="radio" name="mccHardwareType" value="unknown">
+            <span class="option-label">Unknown / Not Sure</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Existing Console Notes — migration and expansion only -->
+      <div class="field-group" id="migrationConsoleNotesGroup" style="display:none;">
         <div class="tip-row"><label class="field-label">Existing Console Notes <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s2-consoleNotes" onclick="toggleTip('tip-s2-consoleNotes')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-consoleNotes"><strong>Note any relevant details about what's currently installed</strong>Useful for migration and expansion projects. Capture model, version, approximate age, or anything unusual about the existing setup.<span class="tip-example">e.g. "MCC7500 VPM, ~8 years old" or "3rd party Zetron, customer wants full replacement"</span></div>
-        <textarea id="existingConsoleNotes" placeholder="e.g., MCC7500 VPM, 3rd party Zetron, mixed fleet..."></textarea>
+        <div class="tip-bubble" id="tip-s2-consoleNotes"><strong>Note any relevant details about what's currently installed</strong>Capture model, version, approximate age, or anything unusual about the existing setup.<span class="tip-example">e.g. "MCC7500 VPM, ~8 years old" or "mixed fleet, some positions on AIM some on CCHUB"</span></div>
+        <textarea id="existingConsoleNotes" placeholder="e.g., MCC7500 VPM, ~8 years old, mixed fleet..."></textarea>
       </div>
 
       <!-- OP Position Breakdown -->
@@ -435,12 +469,12 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr" onclick="toggleTip('tip-s5-irr')">?</button></div>
           <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position. Many migration customers want to add IRR during the upgrade.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
           <div class="radio-group">
-            <div class="option" onclick="selectRadio('irrRequired','yes')">
-              <input type="radio" name="irrRequired" value="yes">
+            <div class="option" onclick="selectRadio('irrRequired','yes'); appData.irrRequired='yes';">
+              <input type="radio" name="irrRequiredMig" value="yes">
               <span class="option-label">Yes - Include IRR</span>
             </div>
-            <div class="option" onclick="selectRadio('irrRequired','no')">
-              <input type="radio" name="irrRequired" value="no">
+            <div class="option" onclick="selectRadio('irrRequired','no'); appData.irrRequired='no';">
+              <input type="radio" name="irrRequiredMig" value="no">
               <span class="option-label">No IRR</span>
             </div>
           </div>
@@ -575,12 +609,27 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div id="encryptionGroup">
           <div class="field-group">
             <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s5-encrimpl" onclick="toggleTip('tip-s5-encrimpl')">?</button></div>
-            <div class="tip-bubble" id="tip-s5-encrimpl"><strong>AXS bundles encryption — confirm type in use or required</strong>Software is most common for state/local. Hardware is required for some federal/DoD customers.</div>
-            <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value;">
+            <div class="tip-bubble" id="tip-s5-encrimpl"><strong>AXS bundles encryption — confirm type in use or required</strong>Software is most common for state/local. Hardware encryption modules are required for some federal/DoD customers.</div>
+            <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value; var el = document.getElementById('keyUpdateGroup'); if (el) el.style.display = (this.value && this.value !== 'none') ? 'block' : 'none';">
               <option value="">Select...</option>
+              <option value="hardware">Hardware</option>
               <option value="software">Software</option>
               <option value="none">None</option>
             </select>
+          </div>
+          <div class="field-group" id="keyUpdateGroup" style="display:none;">
+            <div class="tip-row"><label class="field-label">Encryption Key Management</label><button class="tip-icon" data-tip="tip-s4-keyupdate-std" onclick="toggleTip('tip-s4-keyupdate-std')">?</button></div>
+            <div class="tip-bubble" id="tip-s4-keyupdate-std"><strong>Affects how encryption key infrastructure is scoped</strong>Central key management (KMF) requires network infrastructure. Per-position updates mean someone physically touches each console to load keys — common in smaller agencies.<span class="tip-example">Ask: "How are your encryption keys updated — is it done centrally over the network, or does someone have to update each position individually?"</span></div>
+            <div class="radio-group">
+              <div class="option" onclick="selectRadio('keyUpdate','central')">
+                <input type="radio" name="keyUpdate" value="central">
+                <span class="option-label">Centrally over the network</span>
+              </div>
+              <div class="option" onclick="selectRadio('keyUpdate','individual')">
+                <input type="radio" name="keyUpdate" value="individual">
+                <span class="option-label">Individually at each position</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -680,13 +729,48 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="tip-row"><label class="field-label">Existing Antenna System(s)?</label><button class="tip-icon" data-tip="tip-s6-antenna" onclick="toggleTip('tip-s6-antenna')">?</button></div>
         <div class="tip-bubble" id="tip-s6-antenna"><strong>Existing antennas may be reusable — this can save significant cost</strong>Capture combiner type, number of ports, and condition. Poor antenna systems cause RF issues that are hard to troubleshoot post-install. Always photograph coax labeling, connectors, and entry points.<span class="tip-example">Ask: "Do you have antennas on the roof or tower currently serving these radios?"</span></div>
         <div class="radio-group">
-          <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true);">
+          <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true); showNewAntennaDetails(false);">
             <input type="radio" name="antennaSystem" value="yes">
-            <span class="option-label">Yes</span>
+            <span class="option-label">Yes — existing antenna system</span>
           </div>
-          <div class="option" onclick="selectRadio('antennaSystem','no'); showAntennaDetails(false);">
+          <div class="option" onclick="selectRadio('antennaSystem','no'); showAntennaDetails(false); showNewAntennaDetails(true);">
             <input type="radio" name="antennaSystem" value="no">
-            <span class="option-label">No</span>
+            <span class="option-label">No — new antenna required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- No existing antenna: new antenna scoping fields -->
+      <div id="newAntennaDetails" style="display:none;">
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Distance — Backroom to Tower / Roof</label><button class="tip-icon" data-tip="tip-s6-antdist" onclick="toggleTip('tip-s6-antdist')">?</button></div>
+          <div class="tip-bubble" id="tip-s6-antdist"><strong>Feedline length affects signal loss and coax sizing</strong>Measure the actual cable run from the radio equipment in the backroom to the antenna mounting point — not a straight line. Runs over 100ft may require low-loss coax or an in-line amplifier. Always walk the route.<span class="tip-example">Include any vertical rise (floor to roof), horizontal runs through ceilings, and any conduit bends.</span></div>
+          <div class="inline-fields">
+            <div style="flex:1;">
+              <input type="number" id="antennaDistance" placeholder="0" min="0" oninput="appData.antennaDistance = this.value;">
+            </div>
+            <div style="flex:0.4; display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:14px; color:#374151; font-weight:600;">feet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Tower / Elevated Structure Available?</label><button class="tip-icon" data-tip="tip-s6-tower" onclick="toggleTip('tip-s6-tower')">?</button></div>
+          <div class="tip-bubble" id="tip-s6-tower"><strong>Determines the antenna mounting approach and additional hardware required</strong>If no tower or raised structure exists, non-penetrating rooftop mounts are typically required — these use ballast weight rather than drilling and are common on flat commercial roofs. Confirm roof type (flat/sloped) and whether roof penetration is permitted by the building owner.<span class="tip-example">Ask: "Is there an existing tower or elevated structure we can mount antennas on, or would we be going straight to the rooftop?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('towerAvailable','yes'); document.getElementById('nonPenMountNote').style.display='none';">
+              <input type="radio" name="towerAvailable" value="yes">
+              <span class="option-label">Yes — tower or elevated structure available</span>
+            </div>
+            <div class="option" onclick="selectRadio('towerAvailable','no'); document.getElementById('nonPenMountNote').style.display='block';">
+              <input type="radio" name="towerAvailable" value="no">
+              <span class="option-label">No — rooftop only</span>
+            </div>
+          </div>
+          <div id="nonPenMountNote" style="display:none; margin-top:10px; background:#fef3c7; border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 12px; font-size:12px; color:#92400e;">
+            <strong style="display:block; margin-bottom:4px;">⚠️ Non-Penetrating Roof Mount Required</strong>
+            A non-penetrating antenna mount (ballast-weighted, no roof drilling) will be needed. Confirm flat roof access, roof load capacity, and whether building management approval is required. Add to scope notes.
           </div>
         </div>
       </div>
@@ -822,9 +906,13 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           <div class="tip-row"><label class="field-label">Logging Recorder (New or Expand)?</label><button class="tip-icon" data-tip="tip-s7-logging" onclick="toggleTip('tip-s7-logging')">?</button></div>
           <div class="tip-bubble" id="tip-s7-logging"><strong>Logging recorders capture all radio and phone audio for compliance and investigations</strong>Different from IRR — logging is long-term, agency-wide storage. Ask if they have an existing recorder and whether it needs to be replaced or just expanded with new channels.</div>
           <div class="radio-group">
-            <div class="option" onclick="selectRadio('loggingRecorder','yes'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
-              <input type="radio" name="loggingRecorder" value="yes">
-              <span class="option-label">Yes</span>
+            <div class="option" onclick="selectRadio('loggingRecorder','new'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
+              <input type="radio" name="loggingRecorder" value="new">
+              <span class="option-label">New</span>
+            </div>
+            <div class="option" onclick="selectRadio('loggingRecorder','expand'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
+              <input type="radio" name="loggingRecorder" value="expand">
+              <span class="option-label">Expand Existing</span>
             </div>
             <div class="option" onclick="selectRadio('loggingRecorder','no'); document.getElementById('loggingRecorderBrandGroup').style.display='none';">
               <input type="radio" name="loggingRecorder" value="no">
@@ -989,11 +1077,21 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       <div class="summary-box" id="summaryBox"></div>
       
       <div id="exportCode" style="display:none;"></div>
-      
-      <button class="action-btn primary mobile-only" onclick="shareReport()">📧 Email Report</button>
-      <div id="codeSubtext" class="mobile-only" style="text-align:center; font-size:11px; color:#9ca3af; margin:-4px 0 12px; font-family:monospace; word-break:break-all;"></div>
 
-      <button class="action-btn secondary" onclick="downloadReport()">⬇️ Download Report</button>
+      <div class="field-group" style="margin-bottom:16px;">
+        <div class="photo-section-title" style="margin-bottom:8px;">📎 Additional Attachments <span class="field-sublabel">(optional)</span></div>
+        <div class="help-box" style="margin-bottom:10px;">
+          <div class="help-text">Attach any supporting documents to include in the report ZIP — floor plans, existing quotes, site surveys, customer-provided specs, etc. Any file type accepted.</div>
+        </div>
+        <input type="file" id="attachmentInput" multiple style="display:none;" onchange="handleAttachment(event)">
+        <button class="photo-btn" onclick="document.getElementById('attachmentInput').click()">📎 Add Files</button>
+        <div id="attachmentList" style="margin-top:8px;"></div>
+      </div>
+      
+      <button class="action-btn primary" onclick="downloadReport()">⬇️ Download Report</button>
+
+      <button class="action-btn secondary mobile-only" onclick="shareReport()">📧 Email Report</button>
+      <div id="codeSubtext" class="mobile-only" style="text-align:center; font-size:11px; color:#9ca3af; margin:-4px 0 12px; font-family:monospace; word-break:break-all;"></div>
 
       <button class="action-btn secondary" id="downloadPhotosBtn" onclick="downloadAllPhotos()" style="display:none;">📸 Download All Photos</button>
       
@@ -1043,29 +1141,66 @@ function toggleTip(id) {
 }
 
 
-var currentScreen = 0;
-var totalScreens = 9;
-var currentCaptureId = null;
+// ── Shared constants ─────────────────────────────────────────────
+var STORAGE_KEY = 'axsV4';
+var APP_VERSION = '4.0';
+var MAX_SAVES   = 10;
+var MAX_PHOTOS  = 5;
+var MAX_ATTACH  = 10;
 
-var appData = {
-  customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-  contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
-  projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
-  opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
-  colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
-  touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-  reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
-  existingConvChannels:'', existingConvList:[{count:'',type:''}],
-  newConvRadios:'', newConvList:[{count:'',type:''}],
-  backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
-  auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
-  loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
-  fireAlerting:'', fireAlertingType:'',
-  otherInterfaces:'', otherInterfacesDetails:'',
-  allShifts:'', removeForCutover:'', parallelSpace:'',
-  supervisorTraining:'', operatorTraining:'', trainingPositions:'',
-  photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
+var TYPE_LABELS = {
+  'new':             'New Dispatch',
+  'migration':       'Platform Migration Only',
+  'migration_scope': 'Platform Migration + Additional Scope',
+  'expansion':       'Expansion / OP Add-on'
 };
+
+var UPS_LABELS  = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
+var RACK_LABELS = { existing:"Space in existing racks", '7ft':"7' rack", '7.5ft':"7½' rack", '7ftcab':"7' cabinet" };
+var KEY_LABELS  = { central:'Centrally over network', individual:'Individually per position' };
+
+// ── Utility helpers ───────────────────────────────────────────────
+/** Safe getElementById — returns null silently instead of throwing */
+function el(id) { return document.getElementById(id); }
+
+/** Show/hide an element by ID safely */
+function showEl(id, show) {
+  var e = el(id);
+  if (e) e.style.display = show ? 'block' : 'none';
+}
+
+// ── Runtime state (not persisted) ────────────────────────────────
+var skipScreens = [];   // screens to skip for current project type
+
+// ── Default appData shape ─────────────────────────────────────────
+function freshAppData() {
+  return {
+    customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
+    isKCore:false, contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
+    projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'', mccHardwareType:'',
+    opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
+    colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
+    touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
+    reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
+    existingConvChannels:'', existingConvList:[{count:'',type:''}],
+    newConvRadios:'', newConvList:[{count:'',type:''}],
+    backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'', antennaDistance:'', towerAvailable:'',
+    auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
+    loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
+    fireAlerting:'', fireAlertingType:'',
+    otherInterfaces:'', otherInterfacesDetails:'',
+    allShifts:'', removeForCutover:'', parallelSpace:'',
+    supervisorTraining:'', operatorTraining:'', trainingPositions:'',
+    photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[], attachments:[]
+  };
+}
+
+
+
+var currentScreen = 0;
+var totalScreens  = 9;
+var currentCaptureId = null;
+var appData = freshAppData();
 
 window.onload = function() { loadSavedList(); };
 
@@ -1083,23 +1218,25 @@ function loadSavedList() {
   list.innerHTML = html;
 }
 
-function getSaved() { var s = localStorage.getItem('axsV4'); return s ? JSON.parse(s) : []; }
+function getSaved() { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : []; }
 
 function saveCapture() {
   if (currentScreen === 0) return;
   var caps = getSaved();
   if (!currentCaptureId) currentCaptureId = 'c' + Date.now();
   caps = caps.filter(function(c) { return c.id !== currentCaptureId; });
-  caps.push({ id: currentCaptureId, timestamp: Date.now(), currentScreen: currentScreen, data: JSON.parse(JSON.stringify(appData)) });
-  if (caps.length > 10) caps = caps.slice(-10);
-  localStorage.setItem('axsV4', JSON.stringify(caps));
+  var snapshot = JSON.parse(JSON.stringify(appData));
+  delete snapshot._skipScreens; // never persist runtime flag
+  caps.push({ id: currentCaptureId, timestamp: Date.now(), currentScreen: currentScreen, data: snapshot });
+  if (caps.length > MAX_SAVES) caps = caps.slice(-MAX_SAVES);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(caps));
 }
 
 function resumeCapture(id) {
   var c = getSaved().find(function(x) { return x.id === id; });
   if (!c) return;
   currentCaptureId = id;
-  appData = JSON.parse(JSON.stringify(c.data));
+  appData = Object.assign(freshAppData(), JSON.parse(JSON.stringify(c.data)));
   restoreForm();
   currentScreen = c.currentScreen;
   showScreen(currentScreen);
@@ -1107,31 +1244,14 @@ function resumeCapture(id) {
 
 function deleteCapture(id) {
   if (!confirm('Delete?')) return;
-  localStorage.setItem('axsV4', JSON.stringify(getSaved().filter(function(c) { return c.id !== id; })));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaved().filter(function(c) { return c.id !== id; })));
   loadSavedList();
 }
 
 function startNew() {
   currentCaptureId = null;
-  appData = {
-    customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
-    contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
-    projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'',
-    opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
-    colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
-    touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
-    reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
-    existingConvChannels:'', existingConvList:[{count:'',type:''}],
-    newConvRadios:'', newConvList:[{count:'',type:''}],
-    backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'',
-    auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
-    loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
-    fireAlerting:'', fireAlertingType:'',
-    otherInterfaces:'', otherInterfacesDetails:'',
-    allShifts:'', removeForCutover:'', parallelSpace:'',
-    supervisorTraining:'', operatorTraining:'', trainingPositions:'',
-    photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[]
-  };
+  appData = freshAppData();
+  skipScreens = [];
   currentScreen = 1;
   showScreen(1);
 }
@@ -1178,17 +1298,19 @@ function selectRadio(name, value) {
   if (sel) { sel.checked = true; sel.parentElement.classList.add('selected'); }
 }
 
-function showMonitorSize(show) { document.getElementById('monitorSizeGroup').style.display = show ? 'block' : 'none'; }
-function showExistingConvDetails(show) { document.getElementById('existingConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('existing'); }
-function showNewConvDetails(show) { document.getElementById('newConvDetails').style.display = show ? 'block' : 'none'; if (show) renderConvRows('new'); }
-function showAntennaDetails(show) { document.getElementById('antennaDetails').style.display = show ? 'block' : 'none'; }
+function showMonitorSize(show) { var el = document.getElementById("monitorSizeGroup"); if (el) el.style.display = show ? "block" : "none"; }
+function showExistingConvDetails(show) { var el = document.getElementById("existingConvDetails"); if (el) { el.style.display = show ? "block" : "none"; if (show) renderConvRows("existing"); } }
+function showNewConvDetails(show) { var el = document.getElementById("newConvDetails"); if (el) { el.style.display = show ? "block" : "none"; if (show) renderConvRows("new"); } }
+function showAntennaDetails(show) { var el = document.getElementById("antennaDetails"); if (el) el.style.display = show ? "block" : "none"; }
+function showNewAntennaDetails(show) { var el = document.getElementById("newAntennaDetails"); if (el) el.style.display = show ? "block" : "none"; }
 function showBackhaulDetails(which) {
   ['microwave','existing','other'].forEach(function(t) {
-    document.getElementById('backhaul' + t.charAt(0).toUpperCase() + t.slice(1) + 'Details').style.display = (which === t) ? 'block' : 'none';
+    var el = document.getElementById('backhaul' + t.charAt(0).toUpperCase() + t.slice(1) + 'Details');
+    if (el) el.style.display = (which === t) ? 'block' : 'none';
   });
 }
-function showBackhaulRedundancy(show) { document.getElementById('backhaulRedundancyGroup').style.display = show ? 'block' : 'none'; }
-function showParallelSpace(show) { document.getElementById('parallelSpaceGroup').style.display = show ? 'block' : 'none'; }
+function showBackhaulRedundancy(show) { var el = document.getElementById("backhaulRedundancyGroup"); if (el) el.style.display = show ? "block" : "none"; }
+function showParallelSpace(show) { var el = document.getElementById("parallelSpaceGroup"); if (el) el.style.display = show ? "block" : "none"; }
 
 function checkDistance(val) {
   document.getElementById('distanceWarning').style.display = (val && parseInt(val) > 300) ? 'block' : 'none';
@@ -1213,46 +1335,44 @@ function updateEncryptionVisibility() {
   if (encGroup) encGroup.style.display = 'block';
 }
 
-function showNewDispatchExisting(show) { document.getElementById('newDispatchExistingDetails').style.display = show ? 'block' : 'none'; }
+function showNewDispatchExisting(show) { showEl('newDispatchExistingDetails', show); }
 
-function updateCutoverVisibility() {
-  var hide = appData.buildingType === 'new_building';
-  document.getElementById('cutoverGroup').style.display = hide ? 'none' : 'block';
-}
+function updateCutoverVisibility() { showEl('cutoverGroup', appData.buildingType !== 'new_building'); }
 
 function updateScreensForProjectType(type) {
-  var isExpansion = type === 'expansion';
-  var isMigrationOnly = type === 'migration';
+  var isExpansion    = type === 'expansion';
+  var isMigrationOnly  = type === 'migration';
   var isMigrationScope = type === 'migration_scope';
-  var isNewDispatch = type === 'new';
+  var isNewDispatch    = type === 'new';
 
   // Show/hide expansion-conditional fields
-  document.querySelectorAll('.hideForExpansion').forEach(function(el) {
-    el.style.display = isExpansion ? 'none' : 'block';
+  document.querySelectorAll('.hideForExpansion').forEach(function(e) {
+    e.style.display = isExpansion ? 'none' : 'block';
   });
 
   // Show/hide migration-only fields on Screen 4
-  var migOnlyFields = document.getElementById('migrationOnlyFields');
-  if (migOnlyFields) migOnlyFields.style.display = isMigrationOnly ? 'block' : 'none';
+  showEl('migrationOnlyFields', isMigrationOnly);
 
   // Show/hide standard equipment fields on Screen 4
-  document.querySelectorAll('.hideForMigration').forEach(function(el) {
-    el.style.display = isMigrationOnly ? 'none' : 'block';
+  document.querySelectorAll('.hideForMigration').forEach(function(e) {
+    e.style.display = isMigrationOnly ? 'none' : 'block';
   });
 
-  // Hide screens 3, 5, 6 for migration only — handled via screen navigation
-  appData._skipScreens = isMigrationOnly ? [3, 5, 6] : [];
+  // Update runtime skip list (not stored in appData)
+  skipScreens = isMigrationOnly ? [3, 5, 6] : [];
 
-  // Show/hide Screen 2 conditional groups
-  document.getElementById('newDispatchBuildingGroup').style.display = isNewDispatch ? 'block' : 'none';
-  document.getElementById('migrationScopeGroup').style.display = isMigrationScope ? 'block' : 'none';
+  // Screen 2 conditional groups
+  showEl('newDispatchBuildingGroup',  isNewDispatch);
+  showEl('newDispatchExistingDetails', false); // reset; shown by buildingType selection
+  showEl('migrationScopeGroup',       isMigrationScope);
+  showEl('migrationHardwareGroup',    isMigrationOnly || isMigrationScope);
+  showEl('migrationConsoleNotesGroup', isMigrationOnly || isMigrationScope || isExpansion);
 
-  // MCC migration footswitch/headset: show only for migration types
-  var mccGroup = document.getElementById('mccMigrationGroup');
-  if (mccGroup) mccGroup.style.display = (isMigrationOnly || isMigrationScope) ? 'block' : 'none';
+  // MCC migration footswitch/headset group
+  showEl('mccMigrationGroup', isMigrationOnly || isMigrationScope);
 
   // UPS label
-  var upsLabel = document.getElementById('upsLabel');
+  var upsLabel = el('upsLabel');
   if (upsLabel) upsLabel.textContent = isExpansion ? 'UPS Required for New OP Positions?' : 'Backup Power / UPS';
 }
 
@@ -1263,6 +1383,7 @@ function collectScreenData() {
     appData.state = document.getElementById('state').value;
     appData.city = document.getElementById('city').value;
     appData.regionalSystem = document.getElementById('regionalSystem').value;
+    appData.isKCore = document.getElementById('isKCore').checked;
     appData.contactName = document.getElementById('contactName').value;
     appData.contactTitle = document.getElementById('contactTitle').value;
     appData.contactPhone = document.getElementById('contactPhone').value;
@@ -1284,11 +1405,12 @@ function collectScreenData() {
     var migEncr = document.getElementById('encryptionImplMig');
     var stdEncr = document.getElementById('encryptionImpl');
     appData.encryptionImpl = (migEncr && migEncr.value) ? migEncr.value : (stdEncr ? stdEncr.value : '');
-  } else if (currentScreen === 6) {
+  } else if (currentScreen === 5) {
     appData.existingConvList = getConvRows('existing');
     appData.newConvList = getConvRows('new');
     appData.screen6Notes = document.getElementById('screen6Notes').value;
-    appData.antennaCombining = document.getElementById('antennaCombining').value;
+    appData.antennaCombining = document.getElementById('antennaCombining') ? document.getElementById('antennaCombining').value : '';
+    appData.antennaDistance = document.getElementById('antennaDistance') ? document.getElementById('antennaDistance').value : '';
   } else if (currentScreen === 6) {
     appData.auxInputs = document.getElementById('auxInputs').value;
     appData.auxOutputs = document.getElementById('auxOutputs').value;
@@ -1312,9 +1434,8 @@ function collectScreenData() {
 
 function goNext() {
   collectScreenData();
-  var skip = appData._skipScreens || [];
   var next = currentScreen + 1;
-  while (skip.indexOf(next) !== -1) next++;
+  while (skipScreens.indexOf(next) !== -1) next++;
   currentScreen = next;
   if (currentScreen === 8) { generateSummary(); }
   saveCapture();
@@ -1332,9 +1453,8 @@ function goBack() {
     }
     return;
   }
-  var skip = appData._skipScreens || [];
   var prev = currentScreen - 1;
-  while (skip.indexOf(prev) !== -1) prev--;
+  while (skipScreens.indexOf(prev) !== -1) prev--;
   currentScreen = prev;
   showScreen(currentScreen);
 }
@@ -1354,6 +1474,7 @@ function restoreForm() {
   document.getElementById('state').value = appData.state || '';
   document.getElementById('city').value = appData.city || '';
   document.getElementById('regionalSystem').value = appData.regionalSystem || '';
+  document.getElementById('isKCore').checked = appData.isKCore || false;
   document.getElementById('contactName').value = appData.contactName || '';
   document.getElementById('contactTitle').value = appData.contactTitle || '';
   document.getElementById('contactPhone').value = appData.contactPhone || '';
@@ -1376,6 +1497,8 @@ function restoreForm() {
   document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
   var migEncr = document.getElementById('encryptionImplMig');
   if (migEncr) migEncr.value = appData.encryptionImpl || '';
+  var keyUpGrp = document.getElementById('keyUpdateGroup');
+  if (keyUpGrp) keyUpGrp.style.display = (appData.encryptionImpl && appData.encryptionImpl !== 'none') ? 'block' : 'none';
   if (appData.existingConvList) renderConvRows('existing');
   if (appData.newConvList) renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
@@ -1388,6 +1511,9 @@ function restoreForm() {
   if (appData.loggingRecorderBrand && document.getElementById('loggingRecorderBrand')) {
     document.getElementById('loggingRecorderBrand').value = appData.loggingRecorderBrand;
     document.getElementById('loggingRecorderBrandGroup').style.display = 'block';
+  } else if (appData.loggingRecorder === 'new' || appData.loggingRecorder === 'expand') {
+    var bg = document.getElementById('loggingRecorderBrandGroup');
+    if (bg) bg.style.display = 'block';
   }
   if (appData.backhaulType && appData.backhaulType !== 'na') {
     showBackhaulDetails(appData.backhaulType === 'new_microwave' ? 'microwave' : appData.backhaulType);
@@ -1404,7 +1530,7 @@ function restoreForm() {
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
   document.getElementById('trainingPositions').value = appData.trainingPositions || '';
 
-  ['projectType','buildingType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','backhaulType','backhaulRedundancy','rackType','hasCCGW','keyUpdate'].forEach(function(name) {
+  ['projectType','buildingType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','towerAvailable','backhaulType','backhaulRedundancy','rackType','hasCCGW','keyUpdate','mccHardwareType'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
@@ -1412,17 +1538,68 @@ function restoreForm() {
   });
 
   if (appData.projectType) updateScreensForProjectType(appData.projectType);
+  // Restore migration IRR separately since it uses a different radio name
+  if (appData.irrRequired) {
+    var migIrr = document.querySelector('input[name="irrRequiredMig"][value="' + appData.irrRequired + '"]');
+    if (migIrr) { migIrr.checked = true; migIrr.parentElement.classList.add('selected'); }
+  }
   if (appData.buildingType === 'existing_facility') showNewDispatchExisting(true);
   updateCutoverVisibility();
   if (appData.touchScreens && appData.touchScreens !== 'customer') showMonitorSize(true);
   if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
   if (appData.newConvRadios === 'yes') showNewConvDetails(true);
   if (appData.antennaSystem === 'yes') showAntennaDetails(true);
+  if (appData.antennaSystem === 'no') showNewAntennaDetails(true);
+  if (appData.antennaDistance && document.getElementById('antennaDistance')) document.getElementById('antennaDistance').value = appData.antennaDistance;
+  if (appData.towerAvailable === 'no') { var npm = document.getElementById('nonPenMountNote'); if (npm) npm.style.display = 'block'; }
   if (appData.removeForCutover === 'no') showParallelSpace(true);
-  if (appData.cadAPI === 'yes') document.getElementById('cadVendorName').style.display = 'block';
-  if (appData.fireAlerting === 'yes') document.getElementById('fireAlertingType').style.display = 'block';
-  if (appData.otherInterfaces === 'yes') document.getElementById('otherInterfacesDetails').style.display = 'block';
+  if (appData.cadAPI === 'yes') { var cvn = document.getElementById('cadVendorName'); if (cvn) cvn.style.display = 'block'; }
+  if (appData.fireAlerting === 'yes') { var fat = document.getElementById('fireAlertingType'); if (fat) fat.style.display = 'block'; }
+  if (appData.otherInterfaces === 'yes') { var oid = document.getElementById('otherInterfacesDetails'); if (oid) oid.style.display = 'block'; }
   updateEncryptionVisibility();
+}
+
+function handleAttachment(e) {
+  var files = e.target.files;
+  if (!files || files.length === 0) return;
+  var max = 10;
+  if (!appData.attachments) appData.attachments = [];
+  var toAdd = Math.min(files.length, max - appData.attachments.length);
+  if (appData.attachments.length >= max) { alert('Maximum 10 attachments'); return; }
+  var pending = toAdd;
+  for (var i = 0; i < toAdd; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        appData.attachments.push({ id: Date.now() + Math.random(), name: file.name, data: ev.target.result, size: file.size });
+        pending--;
+        if (pending === 0) renderAttachmentList();
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+  e.target.value = '';
+}
+
+function renderAttachmentList() {
+  var list = document.getElementById('attachmentList');
+  if (!list) return;
+  if (!appData.attachments || appData.attachments.length === 0) { list.innerHTML = ''; return; }
+  var html = '';
+  appData.attachments.forEach(function(a) {
+    var kb = Math.round(a.size / 1024);
+    html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:#f9fafb; border-radius:8px; margin-bottom:6px; font-size:13px;">' +
+      '<span style="color:#374151;">📄 ' + a.name + ' <span style="color:#9ca3af;">(' + kb + 'KB)</span></span>' +
+      '<button onclick="deleteAttachment(\'' + a.id + '\')" style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer; padding:0 4px;">×</button>' +
+      '</div>';
+  });
+  html += '<div style="font-size:11px; color:#9ca3af; text-align:right;">' + appData.attachments.length + '/10 files</div>';
+  list.innerHTML = html;
+}
+
+function deleteAttachment(id) {
+  appData.attachments = appData.attachments.filter(function(a) { return String(a.id) !== String(id); });
+  renderAttachmentList();
 }
 
 // Photo handling
@@ -1511,27 +1688,23 @@ function downloadAllPhotos() {
 }
 
 function generateSummary() {
-  var typeLabels = { 'new':'New Dispatch', 'migration':'Platform Migration Only', 'migration_scope':'Platform Migration + Additional Scope', 'expansion':'Expansion / OP Add-on' };
-  var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
-  var rackLabels = { existing:'Space in existing racks', '7ft':"7' rack", '7.5ft':"7½' rack", '7ftcab':"7' cabinet" };
-  var keyLabels = { central:'Centrally over network', individual:'Individually per position' };
-
   var html = '<div class="summary-section"><div class="summary-title">Basic Info</div>' +
     '<div class="summary-row"><span class="summary-label">Customer</span><span class="summary-value">' + appData.customerName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Project</span><span class="summary-value">' + appData.projectName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Location</span><span class="summary-value">' + appData.city + ', ' + appData.state + '</span></div>' +
+    (appData.isKCore ? '<div class="summary-row"><span class="summary-label">K-Core</span><span class="summary-value">Yes — Conventional K-Core</span></div>' : '') +
     (appData.contactName ? '<div class="summary-row"><span class="summary-label">Contact</span><span class="summary-value">' + appData.contactName + (appData.contactTitle ? ', ' + appData.contactTitle : '') + '</span></div>' : '') +
     (appData.contactPhone ? '<div class="summary-row"><span class="summary-label">Phone</span><span class="summary-value">' + appData.contactPhone + '</span></div>' : '') +
     (appData.contactEmail ? '<div class="summary-row"><span class="summary-label">Email</span><span class="summary-value">' + appData.contactEmail + '</span></div>' : '') +
     '</div>';
 
   html += '<div class="summary-section"><div class="summary-title">Configuration</div>' +
-    '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (typeLabels[appData.projectType] || appData.projectType) + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (TYPE_LABELS[appData.projectType] || appData.projectType) + '</span></div>' +
     (appData.buildingType ? '<div class="summary-row"><span class="summary-label">Building Type</span><span class="summary-value">' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : '') + '</span></div>' : '') +
     (appData.migrationScopeDetails ? '<div class="summary-row"><span class="summary-label">Add\'l Scope</span><span class="summary-value">' + appData.migrationScopeDetails.substring(0,50) + (appData.migrationScopeDetails.length > 50 ? '…' : '') + '</span></div>' : '') +
     (appData.existingConsoleNotes ? '<div class="summary-row"><span class="summary-label">Existing Console</span><span class="summary-value">' + appData.existingConsoleNotes.substring(0,40) + (appData.existingConsoleNotes.length > 40 ? '…' : '') + '</span></div>' : '') +
     '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + (appData.opPositions || '0') + ' total' + (appData.opAxs ? ' (' + appData.opAxs + ' Std' + (appData.opRemoteRNI ? ', ' + appData.opRemoteRNI + ' Laptop-RNI' : '') + (appData.opRemoteORNI ? ', ' + appData.opRemoteORNI + ' Laptop-ORNI' : '') + ')' : '') + '</span></div>' +
-    (appData.rackType ? '<div class="summary-row"><span class="summary-label">Racks</span><span class="summary-value">' + (rackLabels[appData.rackType] || appData.rackType) + '</span></div>' : '') +
+    (appData.rackType ? '<div class="summary-row"><span class="summary-label">Racks</span><span class="summary-value">' + (RACK_LABELS[appData.rackType] || appData.rackType) + '</span></div>' : '') +
     (appData.backroomDistance ? '<div class="summary-row"><span class="summary-label">Backroom Distance</span><span class="summary-value">' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' ⚠️' : '') + '</span></div>' : '') +
     '</div>';
 
@@ -1541,7 +1714,7 @@ function generateSummary() {
       '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
       (appData.encryptionImpl ? '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) + '</span></div>' : '') +
       (appData.hasCCGW ? '<div class="summary-row"><span class="summary-label">Conv / CCGW</span><span class="summary-value">' + (appData.hasCCGW === 'yes' ? 'Yes' : 'No') + '</span></div>' : '') +
-      (appData.keyUpdate ? '<div class="summary-row"><span class="summary-label">Key Update</span><span class="summary-value">' + (keyLabels[appData.keyUpdate] || appData.keyUpdate) + '</span></div>' : '') +
+      (appData.keyUpdate ? '<div class="summary-row"><span class="summary-label">Key Update</span><span class="summary-value">' + (KEY_LABELS[appData.keyUpdate] || appData.keyUpdate) + '</span></div>' : '') +
       '</div>';
   } else {
     html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
@@ -1556,7 +1729,7 @@ function generateSummary() {
       '<div class="summary-row"><span class="summary-label">Monitors</span><span class="summary-value">' + (appData.touchScreens === 'yes' ? appData.monitorSize + '" Touch' : appData.touchScreens === 'customer' ? 'Customer' : appData.monitorSize + '"') + '</span></div>' +
       '<div class="summary-row"><span class="summary-label">IRR</span><span class="summary-value">' + (appData.irrRequired === 'yes' ? 'Yes' : 'No') + '</span></div>' +
       (appData.encryptionImpl ? '<div class="summary-row"><span class="summary-label">Encryption</span><span class="summary-value">' + appData.encryptionImpl.charAt(0).toUpperCase() + appData.encryptionImpl.slice(1) + '</span></div>' : '') +
-      '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (upsLabels[appData.backupPower] || 'None') + '</span></div>' +
+      '<div class="summary-row"><span class="summary-label">UPS</span><span class="summary-value">' + (UPS_LABELS[appData.backupPower] || 'None') + '</span></div>' +
       (appData.backhaulType && appData.backhaulType !== 'na' ? '<div class="summary-row"><span class="summary-label">Backhaul</span><span class="summary-value">' + (appData.backhaulType === 'new_microwave' ? 'New Microwave' : appData.backhaulType === 'existing' ? 'Existing Reused' : 'Other') + (appData.backhaulRedundancy ? ' / ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : 'Non-Redundant') : '') + '</span></div>' : '') +
       '</div>';
   }
@@ -1575,6 +1748,7 @@ function generateSummary() {
 
   document.getElementById('summaryBox').innerHTML = html;
   document.getElementById('downloadPhotosBtn').style.display = photoCount > 0 ? 'block' : 'none';
+  renderAttachmentList();
 
   var exportData = { v:'4.0', t:Date.now(), d:appData };
   var code = btoa(JSON.stringify(exportData));
@@ -1585,7 +1759,6 @@ function generateSummary() {
 
 
 async function shareReport(downloadOnly) {
-  var upsLabels = { none:'None', op:'UPS per OP', backroom:'UPS Backroom', both:'Both' };
   
   // Build clean text summary - only include fields with values
   var lines = [];
@@ -1598,6 +1771,7 @@ async function shareReport(downloadOnly) {
   if (appData.projectName) lines.push('Project: ' + appData.projectName);
   if (appData.city && appData.state) lines.push('Location: ' + appData.city + ', ' + appData.state);
   if (appData.regionalSystem) lines.push('Regional System: ' + appData.regionalSystem);
+  if (appData.isKCore) lines.push('Conventional K-Core: Yes');
   if (appData.contactName) lines.push('Contact: ' + appData.contactName + (appData.contactTitle ? ', ' + appData.contactTitle : ''));
   if (appData.contactPhone) lines.push('Phone: ' + appData.contactPhone);
   if (appData.contactEmail) lines.push('Email: ' + appData.contactEmail);
@@ -1605,11 +1779,11 @@ async function shareReport(downloadOnly) {
   // Project Config
   lines.push('');
   lines.push('--- PROJECT ---');
-  var typeLabels2 = { 'new':'New Dispatch', 'migration':'Platform Migration Only', 'migration_scope':'Platform Migration + Additional Scope', 'expansion':'Expansion / OP Add-on' };
-  if (appData.projectType) lines.push('Type: ' + (typeLabels2[appData.projectType] || appData.projectType));
+  if (appData.projectType) lines.push('Type: ' + (TYPE_LABELS[appData.projectType] || appData.projectType));
   if (appData.buildingType) lines.push('Building: ' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : ''));
   if (appData.migrationScopeDetails) lines.push('Additional Scope: ' + appData.migrationScopeDetails);
-  if (appData.existingConsoleNotes) lines.push('Existing Console Notes: ' + appData.existingConsoleNotes);
+  if (appData.mccHardwareType) lines.push('MCC Hardware Type: ' + (appData.mccHardwareType === 'cchub' ? 'MCC7500E CCHUB' : appData.mccHardwareType === 'aim' ? 'MCC7500E AIM' : 'Unknown'));
+  if (appData.existingConsoleNotes && appData.projectType !== 'new') lines.push('Existing Console Notes: ' + appData.existingConsoleNotes);
   if (appData.opPositions) {
     lines.push('OP Positions: ' + appData.opPositions + ' total');
     if (appData.opAxs) lines.push('  Standard AXS: ' + appData.opAxs);
@@ -1637,7 +1811,7 @@ async function shareReport(downloadOnly) {
     lines.push('Positions Co-located: ' + (appData.colocated === 'yes' ? 'Yes' : appData.colocated === 'no' ? 'No' : 'Not answered'));
     lines.push('Existing Cabling Reusable: ' + (appData.existingCabling === 'yes' ? 'Yes' : appData.existingCabling === 'no' ? 'No' : 'Not answered'));
     if (appData.conduitsExist && appData.conduitsExist !== 'na') lines.push('Conduits Available: ' + (appData.conduitsExist === 'yes' ? 'Yes' : 'No'));
-    if (appData.rackType) { var rackLabels = { existing:'Space in existing racks', '7ft':"7' rack required", '7.5ft':"7.5' rack required", '7ftcab':"7' cabinet required" }; lines.push('Equipment Racks: ' + (rackLabels[appData.rackType] || appData.rackType)); }
+    if (appData.rackType) lines.push('Equipment Racks: ' + (RACK_LABELS[appData.rackType] || appData.rackType));
     if (appData.electricalNotes) lines.push('Electrical / Circuits: ' + appData.electricalNotes);
     if (appData.backroomDistance) lines.push('Backroom Distance: ' + appData.backroomDistance + 'ft' + (parseInt(appData.backroomDistance) > 300 ? ' — OVER 300FT: converters/patch panels required' : ''));
     if (appData.layoutNotes) lines.push('Notes: ' + appData.layoutNotes);
@@ -1683,10 +1857,14 @@ async function shareReport(downloadOnly) {
     lines.push('Backup Radios per OP: ' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : appData.backupRadiosPerOP === 'no' ? 'No' : 'Not answered'));
     lines.push('MCD Desksets per OP: ' + (appData.mcdDesksets === 'yes' ? 'Yes' : appData.mcdDesksets === 'no' ? 'No' : 'Not answered'));
     if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
-    lines.push('Existing Antenna System: ' + (appData.antennaSystem === 'yes' ? 'Yes' : appData.antennaSystem === 'no' ? 'No' : 'Not answered'));
+    lines.push('Existing Antenna System: ' + (appData.antennaSystem === 'yes' ? 'Yes' : appData.antennaSystem === 'no' ? 'No — new antenna required' : 'Not answered'));
     if (appData.antennaSystem === 'yes') {
       if (appData.antennaCombining) lines.push('Antenna Details: ' + appData.antennaCombining);
       if ((appData.photosAnt||[]).length) lines.push('Antenna Photos: ' + appData.photosAnt.length);
+    }
+    if (appData.antennaSystem === 'no') {
+      lines.push('Backroom to Tower/Roof Distance: ' + (appData.antennaDistance ? appData.antennaDistance + 'ft' : 'Not answered'));
+      lines.push('Tower / Elevated Structure: ' + (appData.towerAvailable === 'yes' ? 'Yes' : appData.towerAvailable === 'no' ? 'No — non-penetrating roof mount required' : 'Not answered'));
     }
   }
 
@@ -1697,9 +1875,9 @@ async function shareReport(downloadOnly) {
     if (appData.auxInputs || appData.auxOutputs) lines.push('Aux I/O: ' + (appData.auxInputs || '0') + ' inputs, ' + (appData.auxOutputs || '0') + ' outputs');
     lines.push('Backhaul: ' + (appData.backhaulType === 'na' ? 'N/A' : appData.backhaulType === 'new_microwave' ? 'New Microwave Required' + (appData.backhaulMicrowaveData ? ' — ' + appData.backhaulMicrowaveData : '') : appData.backhaulType === 'existing' ? 'Existing Reused' + (appData.backhaulExistingData ? ' — ' + appData.backhaulExistingData : '') : appData.backhaulType === 'other' ? 'Other' + (appData.backhaulOtherData ? ' — ' + appData.backhaulOtherData : '') : 'Not answered'));
     if (appData.backhaulType && appData.backhaulType !== 'na' && appData.backhaulType !== '') lines.push('Backhaul Redundancy: ' + (appData.backhaulRedundancy === 'redundant' ? 'Redundant' : appData.backhaulRedundancy === 'non_redundant' ? 'Non-Redundant' : 'Not answered'));
-    lines.push('Backup Power / UPS: ' + (appData.backupPower ? (upsLabels[appData.backupPower] || appData.backupPower) : 'Not answered'));
+    lines.push('Backup Power / UPS: ' + (appData.backupPower ? (UPS_LABELS[appData.backupPower] || appData.backupPower) : 'Not answered'));
     lines.push('CAM: ' + (appData.camRequired === 'yes' ? 'Yes' : appData.camRequired === 'no' ? 'No' : 'Not answered'));
-    lines.push('Logging Recorder: ' + (appData.loggingRecorder === 'yes' ? 'Yes' + (appData.loggingRecorderBrand ? ' — ' + appData.loggingRecorderBrand : '') : appData.loggingRecorder === 'no' ? 'No' : 'Not answered'));
+    lines.push('Logging Recorder: ' + (appData.loggingRecorder === 'new' ? 'New' + (appData.loggingRecorderBrand ? ' — ' + appData.loggingRecorderBrand : '') : appData.loggingRecorder === 'expand' ? 'Expand Existing' + (appData.loggingRecorderBrand ? ' — ' + appData.loggingRecorderBrand : '') : appData.loggingRecorder === 'no' ? 'No' : 'Not answered'));
     lines.push('CAD API: ' + (appData.cadAPI === 'yes' ? 'Yes' + (appData.cadVendorName ? ' (' + appData.cadVendorName + ')' : '') : appData.cadAPI === 'no' ? 'No' : 'Not answered'));
     lines.push('Fire Station Alerting: ' + (appData.fireAlerting === 'yes' ? 'Yes' + (appData.fireAlertingType ? ' (' + appData.fireAlertingType + ')' : '') : appData.fireAlerting === 'no' ? 'No' : 'Not answered'));
     lines.push('Other 3rd Party Interfaces: ' + (appData.otherInterfaces === 'yes' ? 'Yes' + (appData.otherInterfacesDetails ? ' — ' + appData.otherInterfacesDetails : '') : appData.otherInterfaces === 'no' ? 'No' : 'Not answered'));
@@ -1780,6 +1958,16 @@ async function shareReport(downloadOnly) {
   
   // Add summary.txt to ZIP
   zip.file('AXS_Summary.txt', text);
+
+  // Add attachments
+  if (appData.attachments && appData.attachments.length > 0) {
+    appData.attachments.forEach(function(a) {
+      try {
+        var base64Data = a.data.split(',')[1];
+        zip.file('Attachments/' + a.name, base64Data, {base64: true});
+      } catch(e) { console.log('Error adding attachment:', e); }
+    });
+  }
   
   try {
     var zipBlob = await zip.generateAsync({type: 'blob'});
@@ -1889,7 +2077,7 @@ function saveAndReturn() {
 function discardAndReturn() {
   if (!confirm('Discard this capture? This cannot be undone.')) return;
   if (currentCaptureId) {
-    localStorage.setItem('axsV4', JSON.stringify(getSaved().filter(function(c) { return c.id !== currentCaptureId; })));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaved().filter(function(c) { return c.id !== currentCaptureId; })));
   }
   currentCaptureId = null;
   currentScreen = 0;
@@ -1898,7 +2086,7 @@ function discardAndReturn() {
 }
 
 function goBackFromSummary() {
-  currentScreen = 8;
+  currentScreen = 7;
   showScreen(7);
 }
 
@@ -1963,12 +2151,7 @@ function getConvRows(which) {
   return list.length ? list : [{count:'',type:''}];
 }
 
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.multiselect-dropdown')) {
-    document.querySelectorAll('.multiselect-options').forEach(function(el) { el.classList.remove('open'); });
-  }
-});
+
 </script>
 
 </body>
