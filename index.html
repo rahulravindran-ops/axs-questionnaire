@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AXS Capture">
-<title>AXS Requirements Capture v4.0</title>
+<title>AXS Requirements Capture v5.0</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -106,6 +106,139 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 .tip-bubble { display:none; background:#eff6ff; border-left:3px solid #3b82f6; border-radius:0 6px 6px 0; padding:9px 12px; margin-bottom:10px; font-size:12px; color:#1e40af; line-height:1.5; }
 .tip-bubble strong { display:block; font-size:12px; font-weight:700; margin-bottom:3px; color:#1e3a8a; }
 .tip-bubble .tip-example { display:block; margin-top:4px; font-style:italic; color:#3b82f6; }
+
+/* ── CARDS ── */
+.card { background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+.card.card-done { border-color:#c7d9f0; background:#f0f6ff; }
+.card-label { font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+.card-label .card-opt { font-size:10px; background:#e5e7eb; color:#9ca3af; padding:1px 6px; border-radius:4px; text-transform:none; letter-spacing:0; font-weight:600; }
+
+/* ── COLLAPSIBLE SECTIONS ── */
+.sec-header { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; margin-bottom:8px; cursor:pointer; transition:all 0.15s; user-select:none; }
+.sec-header:hover { background:#f0f6ff; border-color:#c7d9f0; }
+.sec-header.sec-open { border-color:#003e7e; background:#eff6ff; border-radius:10px 10px 0 0; margin-bottom:0; }
+.sec-left { display:flex; align-items:center; gap:10px; }
+.sec-icon { font-size:16px; flex-shrink:0; }
+.sec-name { font-weight:700; font-size:13px; color:#1f2937; }
+.sec-sub { font-size:11px; color:#9ca3af; margin-top:1px; }
+.sec-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.sec-arrow { font-size:11px; color:#9ca3af; transition:transform 0.2s; }
+.sec-header.sec-open .sec-arrow { transform:rotate(180deg); }
+.sec-pill-done { background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+.sec-pill-empty { font-size:11px; color:#9ca3af; }
+.sec-body { border:1.5px solid #003e7e; border-top:none; border-radius:0 0 10px 10px; padding:16px; margin-bottom:12px; display:none; }
+.sec-body.sec-open { display:block; }
+
+/* ── PROJECT TYPE OPTIONS ── */
+.pt-option { border:2px solid #e5e7eb; border-radius:12px; padding:15px 16px; margin-bottom:10px; cursor:pointer; display:flex; align-items:flex-start; gap:12px; transition:all 0.15s; }
+.pt-option:hover { border-color:#93c5fd; background:#f9fafb; }
+.pt-option.pt-selected { border-color:#003e7e; background:#eff6ff; }
+.pt-option.pt-rec { border-color:#10b981; background:#f0fdf4; }
+.pt-option.pt-rec.pt-selected { border-color:#059669; background:#dcfce7; }
+.pt-radio { width:20px; height:20px; flex-shrink:0; accent-color:#003e7e; margin-top:2px; }
+.pt-body { flex:1; }
+.pt-name { font-weight:700; font-size:14px; color:#1f2937; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pt-rec-badge { background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; flex-shrink:0; }
+.pt-desc { font-size:12px; color:#6b7280; margin-top:4px; line-height:1.5; }
+.pt-rationale { font-size:11px; color:#059669; margin-top:5px; font-weight:600; }
+
+/* ── OP COUNTER ── */
+.op-item { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.op-item-label { flex:1; font-size:12px; color:#374151; font-weight:600; }
+.op-item input[type="number"] { width:72px; flex-shrink:0; padding:8px; font-size:18px; }
+.op-total-bar { display:flex; justify-content:space-between; align-items:center; background:#003e7e; border-radius:8px; padding:9px 14px; margin-top:4px; }
+.op-total-bar .op-total-label { font-size:12px; color:rgba(255,255,255,0.8); font-weight:600; }
+.op-total-bar .op-total-val { font-size:22px; font-weight:800; color:white; }
+
+/* ── COLLAPSIBLE CONTACT ── */
+.contact-toggle { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; cursor:pointer; user-select:none; margin-bottom:0; }
+.contact-toggle.contact-open { border-radius:10px 10px 0 0; border-color:#003e7e; background:#eff6ff; }
+.contact-body { display:none; border:1.5px solid #003e7e; border-top:none; border-radius:0 0 10px 10px; padding:14px; }
+.contact-body.contact-open { display:block; }
+
+/* ── CARDS ── */
+.card { background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+.card-title { font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+.card-title .tip-icon { text-transform:none; letter-spacing:0; }
+
+/* ── COLLAPSIBLE SECTIONS ── */
+.sec-hd { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; margin-bottom:8px; cursor:pointer; user-select:none; transition:all 0.15s; }
+.sec-hd:hover, .sec-hd.open { background:#eff6ff; border-color:#003e7e; }
+.sec-hd.open { border-radius:10px 10px 0 0; margin-bottom:0; }
+.sec-hd-left { display:flex; align-items:center; gap:10px; }
+.sec-hd-icon { font-size:15px; }
+.sec-hd-name { font-weight:700; font-size:13px; color:#1f2937; }
+.sec-hd-sub { font-size:11px; color:#9ca3af; margin-top:1px; }
+.sec-hd-right { display:flex; align-items:center; gap:8px; }
+.sec-pill { background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+.sec-pill-empty { font-size:11px; color:#9ca3af; }
+.sec-arrow { font-size:11px; color:#9ca3af; transition:transform 0.2s; }
+.sec-hd.open .sec-arrow { transform:rotate(180deg); }
+.sec-bd { border:1.5px solid #003e7e; border-top:none; border-radius:0 0 10px 10px; padding:16px; margin-bottom:12px; display:none; }
+.sec-bd.open { display:block; }
+
+/* ── PROJECT TYPE CARDS ── */
+.pt-opt { display:flex; align-items:flex-start; gap:12px; border:2px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:10px; cursor:pointer; transition:all 0.15s; }
+.pt-opt:hover { border-color:#93c5fd; background:#f9fafb; }
+.pt-opt.selected { border-color:#003e7e; background:#eff6ff; }
+.pt-opt.rec { border-color:#10b981; background:#f0fdf4; }
+.pt-opt.rec.selected { border-color:#059669; background:#dcfce7; }
+.pt-opt input[type="radio"] { width:18px; height:18px; accent-color:#003e7e; flex-shrink:0; margin-top:3px; }
+.pt-name { font-weight:700; font-size:15px; color:#1f2937; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pt-rec-badge { background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; flex-shrink:0; }
+.pt-desc { font-size:12px; color:#6b7280; margin-top:5px; line-height:1.5; }
+.pt-rationale { font-size:11px; color:#059669; margin-top:5px; font-weight:600; }
+
+/* ── SELECT chevron ── */
+select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+/* ── Cards ── */
+.card { background:#f9fafb; border:1.5px solid #d1d5db; border-radius:12px; padding:14px 16px; margin-bottom:16px; }
+.card-title { font-size:11px; font-weight:700; color:#003e7e; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:12px; padding-left:10px; border-left:3px solid #003e7e; }
+/* ── Collapsible sections ── */
+.sec-header { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; margin-bottom:8px; cursor:pointer; transition:all 0.15s; user-select:none; }
+.sec-header:hover { background:#f0f6ff; border-color:#c7d9f0; }
+.sec-header.open { border-color:#003e7e; background:#eff6ff; border-radius:10px 10px 0 0; margin-bottom:0; }
+.sec-left { display:flex; align-items:center; gap:10px; }
+.sec-icon { font-size:15px; }
+.sec-name { font-weight:700; font-size:13px; color:#1f2937; }
+.sec-sub { font-size:11px; color:#9ca3af; margin-top:1px; }
+.sec-right { display:flex; align-items:center; gap:8px; }
+.sec-pill { background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+.sec-count { font-size:11px; color:#9ca3af; }
+.sec-arrow { font-size:10px; color:#9ca3af; transition:transform 0.2s; }
+.sec-header.open .sec-arrow { transform:rotate(180deg); }
+.sec-body { border:1.5px solid #003e7e; border-top:none; border-radius:0 0 10px 10px; padding:16px; margin-bottom:12px; display:none; background:white; }
+.sec-body.open { display:block; }
+/* ── Project type cards ── */
+.pt-option { border:2px solid #e5e7eb; border-radius:12px; padding:15px 16px; margin-bottom:10px; cursor:pointer; transition:all 0.15s; display:flex; align-items:flex-start; gap:12px; }
+.pt-option:hover { border-color:#93c5fd; background:#f9fafb; }
+.pt-option.selected { border-color:#003e7e; background:#eff6ff; }
+.pt-option.rec { border-color:#10b981; background:#f0fdf4; }
+.pt-option.rec.selected { border-color:#059669; background:#dcfce7; }
+.pt-radio { width:18px; height:18px; flex-shrink:0; accent-color:#003e7e; margin-top:3px; }
+.pt-body { flex:1; }
+.pt-name { font-weight:700; font-size:14px; color:#1f2937; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pt-rec-badge { background:#10b981; color:white; font-size:9px; font-weight:700; padding:2px 7px; border-radius:6px; flex-shrink:0; }
+.pt-desc { font-size:12px; color:#6b7280; margin-top:4px; line-height:1.45; }
+.pt-rationale { font-size:11px; color:#059669; margin-top:5px; font-weight:600; }
+/* ── Select with chevron ── */
+select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+/* ── Checkbox card ── */
+.check-card { display:flex; align-items:center; gap:12px; padding:13px 14px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; cursor:pointer; margin-bottom:12px; }
+.check-card input[type="checkbox"] { width:20px; height:20px; accent-color:#003e7e; flex-shrink:0; }
+.check-card strong { display:block; font-size:13px; color:#1f2937; font-weight:700; }
+.check-card span { font-size:11px; color:#6b7280; }
+/* ── Contact collapsible toggle ── */
+.contact-toggle { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f3f4f6; border:1.5px solid #e5e7eb; border-radius:8px; cursor:pointer; margin-bottom:8px; }
+.contact-toggle span { font-size:13px; font-weight:600; color:#374151; }
+.contact-toggle .ct-arrow { font-size:10px; color:#9ca3af; transition:transform 0.2s; }
+.contact-toggle.open .ct-arrow { transform:rotate(180deg); }
+.contact-body { display:none; }
+
+/* ── YES/NO INLINE BUTTONS ── */
+.yn-btn { flex:1; text-align:center; padding:10px 8px; font-size:13px; font-weight:600; color:#374151; background:#f3f4f6; border:2px solid #e5e7eb; border-radius:8px; cursor:pointer; transition:all 0.15s; }
+.yn-btn:hover { border-color:#003e7e; background:#eff6ff; color:#003e7e; }
+.yn-btn.selected { background:#003e7e; color:white; border-color:#003e7e; }
 </style>
 </head>
 <body>
@@ -113,7 +246,7 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 <div class="app">
   <div class="header">
     <h1>AXS Requirements Capture</h1>
-    <p>v4.0 - Consolidated</p>
+    <p>v5.0 - Consolidated</p>
   </div>
   
   <div class="progress">
@@ -141,19 +274,21 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
     <!-- ==================== SCREEN 1: BASIC INFO ==================== -->
     <div class="screen" id="screen1">
-      <div class="section-badge">Screen 1 of 7</div>
+      <div class="section-badge">Screen 1 of 8</div>
       <div class="screen-title">Basic Information</div>
       
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Customer Name</label><button class="tip-icon" data-tip="tip-s1-customer" onclick="toggleTip('tip-s1-customer')">?</button></div>
-        <div class="tip-bubble" id="tip-s1-customer"><strong>Enter the agency's official name</strong>Use the full legal name as it should appear on documents.<span class="tip-example">e.g. "City of Dallas" not "Dallas PD" — "Travis County Emergency Services" not "Travis County"</span></div>
-        <input type="text" id="customerName" placeholder="e.g., City of Dallas">
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Project Name</label><button class="tip-icon" data-tip="tip-s1-project" onclick="toggleTip('tip-s1-project')">?</button></div>
-        <div class="tip-bubble" id="tip-s1-project"><strong>Short, recognizable project description</strong>Used in follow-up emails and documents. Keep it specific enough to distinguish from other projects at the same agency.<span class="tip-example">e.g. "New 911 Dispatch Center" or "PSAP Upgrade — Phase 2"</span></div>
-        <input type="text" id="projectName" placeholder="e.g., New 911 Dispatch Center">
+      <div class="card">
+        <div class="card-title">Customer / Project</div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <div class="tip-row"><label class="field-label">Customer Name</label><button class="tip-icon" data-tip="tip-s1-customer" onclick="toggleTip('tip-s1-customer')">?</button></div>
+          <div class="tip-bubble" id="tip-s1-customer"><strong>Enter the agency's official name</strong>Use the full legal name as it should appear on documents.<span class="tip-example">e.g. "City of Dallas" not "Dallas PD" — "Travis County Emergency Services" not "Travis County"</span></div>
+          <input type="text" id="customerName" placeholder="e.g., City of Dallas">
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <div class="tip-row"><label class="field-label">Project Name</label><button class="tip-icon" data-tip="tip-s1-project" onclick="toggleTip('tip-s1-project')">?</button></div>
+          <div class="tip-bubble" id="tip-s1-project"><strong>Short, recognizable project description</strong>Used in follow-up emails and documents. Keep it specific enough to distinguish from other projects at the same agency.<span class="tip-example">e.g. "New 911 Dispatch Center" or "PSAP Upgrade — Phase 2"</span></div>
+          <input type="text" id="projectName" placeholder="e.g., New 911 Dispatch Center">
+        </div>
       </div>
       
       <div class="field-group">
@@ -194,57 +329,79 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <input type="text" id="regionalSystem" placeholder="e.g., North Texas Regional System">
       </div>
 
-      <div class="field-group">
-        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px; background:#eff6ff; border:2px solid #93c5fd; border-radius:10px;">
-          <input type="checkbox" id="isKCore" onchange="appData.isKCore = this.checked;" style="width:22px; height:22px; accent-color:#003e7e; flex-shrink:0;">
-          <span>
-            <strong style="font-size:14px; color:#003e7e; display:block;">Conventional K-Core System</strong>
-            <span style="font-size:12px; color:#374151;">Check if this agency runs a conventional K-core configuration</span>
-          </span>
-        </label>
-      </div>
-
       <div class="divider"></div>
 
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Customer Contact <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s1-contact" onclick="toggleTip('tip-s1-contact')">?</button></div>
-        <div class="tip-bubble" id="tip-s1-contact"><strong>Capture the primary point of contact at the agency</strong>This person will typically be the one following up on requirements and approving the quote. Having their details in the report saves time later.<span class="tip-example">Usually the IT Director, Comm Center Manager, or designated project lead.</span></div>
-        <input type="text" id="contactName" placeholder="Full name" style="margin-bottom:8px;">
-        <input type="text" id="contactTitle" placeholder="Title / role" style="margin-bottom:8px;">
-        <input type="text" id="contactPhone" placeholder="Phone number" style="margin-bottom:8px;">
-        <input type="text" id="contactEmail" placeholder="Email address">
+      <div class="contact-toggle" id="contactToggle" onclick="toggleContact()">
+        <span>Customer Contact Info</span>
+        <span class="ct-arrow">▼</span>
+      </div>
+      <div class="contact-body" id="contactBody">
+        <div style="padding:14px; border:1.5px solid #003e7e; border-top:none; border-radius:0 0 10px 10px; margin-bottom:8px;">
+          <input type="text" id="contactName" placeholder="Full name" style="margin-bottom:8px;">
+          <input type="text" id="contactTitle" placeholder="Title / role" style="margin-bottom:8px;">
+          <input type="text" id="contactPhone" placeholder="Phone number" style="margin-bottom:8px;">
+          <input type="text" id="contactEmail" placeholder="Email address">
+        </div>
       </div>
     </div>
 
-    <!-- ==================== SCREEN 2: PROJECT CONFIG ==================== -->
+    <!-- ==================== SCREEN 2: PROJECT TYPE ==================== -->
     <div class="screen" id="screen2">
-      <div class="section-badge">Screen 2 of 7</div>
-      <div class="screen-title">Project Configuration</div>
-      
+      <div class="section-badge">Screen 2 of 8</div>
+      <div class="screen-title">Project Type</div>
+
       <div class="field-group">
-        <div class="tip-row"><label class="field-label">Project Type</label><button class="tip-icon" data-tip="tip-s2-type" onclick="toggleTip('tip-s2-type')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-type"><strong>Sets the scope of the entire project</strong>New Dispatch = brand new center or facility. Platform Migration = replacing MCC consoles with AXS. Expansion = adding positions to an existing AXS system.<span class="tip-example">Ask: "Is this a brand new center, or are you replacing existing consoles?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('projectType','migration'); updateScreensForProjectType('migration');" style="border-color:#10b981; background:#f0fdf4;">
-            <input type="radio" name="projectType" value="migration">
-            <span class="option-label">Platform Migration Only <span style="background:#10b981; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; margin-left:6px; vertical-align:middle;">RECOMMENDED</span></span>
-            <div style="font-size:12px; color:#374151; margin-top:4px; font-weight:normal;">Fastest path to close — minimal requirements, locks in AXS platform.</div>
+        <div class="tip-row"><label class="field-label">Project Type</label><button class="tip-icon" data-tip="tip-s2new-type" onclick="toggleTip('tip-s2new-type')">?</button></div>
+        <div class="tip-bubble" id="tip-s2new-type"><strong>Sets the scope of the entire project</strong>New Dispatch = brand new center or facility. Platform Migration = replacing MCC consoles with AXS. Expansion = adding positions to an existing AXS system.<span class="tip-example">Ask: "Is this a brand new center, or are you replacing existing consoles?"</span></div>
+
+        <div class="pt-opt rec" id="ptOpt_migration" onclick="selectPT('migration')">
+          <input type="radio" name="projectTypePT" value="migration">
+          <div class="pt-body">
+            <div class="pt-name">Platform Migration Only <span class="pt-rec-badge">RECOMMENDED</span></div>
+            <div class="pt-desc">Replace existing MCC consoles with AXS — minimal scope, fastest path to close.</div>
+            <div class="pt-rationale">✓ Locks in platform. Minimal field requirements needed.</div>
           </div>
-          <div class="option" onclick="selectRadio('projectType','migration_scope'); updateScreensForProjectType('migration_scope');">
-            <input type="radio" name="projectType" value="migration_scope">
-            <span class="option-label">Platform Migration + Additional Scope</span>
+        </div>
+
+        <div class="pt-opt" id="ptOpt_migration_scope" onclick="selectPT('migration_scope')">
+          <input type="radio" name="projectTypePT" value="migration_scope">
+          <div class="pt-body">
+            <div class="pt-name">Platform Migration + Additional Scope</div>
+            <div class="pt-desc">Console replacement plus additional work — new radios, backhaul, interfaces, or other scope items.</div>
           </div>
-          <div class="option" onclick="selectRadio('projectType','new'); updateScreensForProjectType('new');">
-            <input type="radio" name="projectType" value="new">
-            <span class="option-label">New Dispatch</span>
+        </div>
+
+        <div class="pt-opt" id="ptOpt_new" onclick="selectPT('new')">
+          <input type="radio" name="projectTypePT" value="new">
+          <div class="pt-body">
+            <div class="pt-name">New Dispatch</div>
+            <div class="pt-desc">Brand new dispatch center or facility — no existing AXS or MCC system at this site.</div>
           </div>
-          <div class="option" onclick="selectRadio('projectType','expansion'); updateScreensForProjectType('expansion');">
-            <input type="radio" name="projectType" value="expansion">
-            <span class="option-label">Expansion / OP Add-on</span>
+        </div>
+
+        <div class="pt-opt" id="ptOpt_expansion" onclick="selectPT('expansion')">
+          <input type="radio" name="projectTypePT" value="expansion">
+          <div class="pt-body">
+            <div class="pt-name">Expansion / OP Add-on</div>
+            <div class="pt-desc">Adding operator positions to an existing AXS system already in service.</div>
           </div>
         </div>
       </div>
 
+      <label class="check-card" style="background:#f3f4f6; border-color:#d1d5db;">
+        <input type="checkbox" id="isKCore" onchange="appData.isKCore = this.checked;">
+        <div>
+          <strong style="color:#374151;">Conventional K-Core System</strong>
+          <span>Check if this agency runs a conventional K-core configuration</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- ==================== SCREEN 3: PROJECT CONFIG ==================== -->
+    <div class="screen" id="screen3">
+      <div class="section-badge">Screen 3 of 8</div>
+      <div class="screen-title">Project Configuration</div>
+      
       <!-- New Dispatch: building type -->
       <div class="field-group" id="newDispatchBuildingGroup" style="display:none;">
         <div class="tip-row"><label class="field-label">Building Type</label><button class="tip-icon" data-tip="tip-s2-building" onclick="toggleTip('tip-s2-building')">?</button></div>
@@ -266,13 +423,6 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="tip-row"><label class="field-label">Existing Equipment Details <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s2-existingfac" onclick="toggleTip('tip-s2-existingfac')">?</button></div>
         <div class="tip-bubble" id="tip-s2-existingfac"><strong>Note the existing vendor, model, and approximate age</strong>Helps scope any demo/removal work and flags potential compatibility considerations.<span class="tip-example">e.g. "Zetron Acom, ~10 years old" or "Motorola MCC7500, installed 2014"</span></div>
         <input type="text" id="existingFacilityDetails" placeholder="e.g., existing vendor, model, approximate age...">
-      </div>
-
-      <!-- Migration: additional scope -->
-      <div class="field-group" id="migrationScopeGroup" style="display:none;">
-        <div class="tip-row"><label class="field-label">Additional Scope Details</label><button class="tip-icon" data-tip="tip-s2-scope" onclick="toggleTip('tip-s2-scope')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-scope"><strong>Capture any scope beyond the console swap itself</strong>Examples include new backroom radios, backhaul links, conventional channel gateways, or interface upgrades.</div>
-        <textarea id="migrationScopeDetails" placeholder="e.g., new CCGW for conventional channels, backhaul link upgrade, additional interfaces..."></textarea>
       </div>
 
       <!-- Migration: AIM vs CCHUB -->
@@ -345,96 +495,53 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 3: SITE LAYOUT ==================== -->
-    <div class="screen" id="screen3">
-      <div class="section-badge">Screen 3 of 7</div>
+    <!-- ==================== SCREEN 4: SITE LAYOUT ==================== -->
+    <div class="screen" id="screen4">
+      <div class="section-badge">Screen 4 of 8</div>
       <div class="screen-title">Site Layout & Cabling</div>
-      
+
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Positions Co-located in One Room?</label><button class="tip-icon" data-tip="tip-s3-coloc" onclick="toggleTip('tip-s3-coloc')">?</button></div>
         <div class="tip-bubble" id="tip-s3-coloc"><strong>Multiple rooms significantly increases cabling complexity</strong>If positions are spread across rooms or floors, each run needs its own cable path. This adds labor time and cost. Take photos of the layout if complex.</div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('colocated','yes')">
-            <input type="radio" name="colocated" value="yes">
-            <span class="option-label">Yes - Same Room</span>
-          </div>
-          <div class="option" onclick="selectRadio('colocated','no')">
-            <input type="radio" name="colocated" value="no">
-            <span class="option-label">No - Multiple Rooms</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Existing Cabling Between Backroom & Positions?</label><button class="tip-icon" data-tip="tip-s3-cable" onclick="toggleTip('tip-s3-cable')">?</button></div>
-        <div class="tip-bubble" id="tip-s3-cable"><strong>Cat5e or better can often be reused — saves significant cost</strong>Ask: "Is there existing network cabling running from the equipment room to each console position?" Look for patch panels and cable trays during the site walk.</div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('existingCabling','yes')">
-            <input type="radio" name="existingCabling" value="yes">
-            <span class="option-label">Yes - Can Reuse</span>
-          </div>
-          <div class="option" onclick="selectRadio('existingCabling','no')">
-            <input type="radio" name="existingCabling" value="no">
-            <span class="option-label">No - Need New Cables</span>
-          </div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <div class="yn-btn" id="yn-colocated-yes" onclick="selectYN('colocated','yes')">Yes — Same Room</div>
+          <div class="yn-btn" id="yn-colocated-no" onclick="selectYN('colocated','no')">No — Multiple Rooms</div>
         </div>
       </div>
 
       <div class="field-group">
-        <div class="tip-row"><label class="field-label">Conduits Exist for Running New Cabling?</label><button class="tip-icon" data-tip="tip-s3-conduit" onclick="toggleTip('tip-s3-conduit')">?</button></div>
-        <div class="tip-bubble" id="tip-s3-conduit"><strong>No conduits = additional installation cost and time</strong>If new cabling is needed and there are no conduits, the installer will need to core-drill or surface-mount raceways. Flag this early — it can affect the SI estimate significantly.</div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('conduitsExist','yes')">
-            <input type="radio" name="conduitsExist" value="yes">
-            <span class="option-label">Yes - Conduits Available</span>
-          </div>
-          <div class="option" onclick="selectRadio('conduitsExist','no')">
-            <input type="radio" name="conduitsExist" value="no">
-            <span class="option-label">No - Need New Conduits</span>
-          </div>
-          <div class="option" onclick="selectRadio('conduitsExist','na')">
-            <input type="radio" name="conduitsExist" value="na">
-            <span class="option-label">N/A</span>
-          </div>
+        <div class="tip-row"><label class="field-label">Existing Cabling Reusable?</label><button class="tip-icon" data-tip="tip-s3-cable" onclick="toggleTip('tip-s3-cable')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-cable"><strong>Cat5e or better can often be reused — saves significant cost</strong>Ask: "Is there existing network cabling running from the equipment room to each console position?" Look for patch panels and cable trays during the site walk.</div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <div class="yn-btn" id="yn-existingCabling-yes" onclick="selectYN('existingCabling','yes')">Yes — Can Reuse</div>
+          <div class="yn-btn" id="yn-existingCabling-no" onclick="selectYN('existingCabling','no')">No — Need New</div>
         </div>
       </div>
-      
+
       <div class="field-group">
-        <label class="field-label">Layout Notes <span class="field-sublabel">(optional)</span></label>
-        <textarea id="layoutNotes" placeholder="Any additional notes about site layout, cable runs, room configuration..."></textarea>
+        <div class="tip-row"><label class="field-label">Conduits Available for New Cabling?</label><button class="tip-icon" data-tip="tip-s3-conduit" onclick="toggleTip('tip-s3-conduit')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-conduit"><strong>No conduits = additional installation cost and time</strong>If new cabling is needed and there are no conduits, the installer will need to core-drill or surface-mount raceways. Flag this early — it can affect the SI estimate significantly.</div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <div class="yn-btn" id="yn-conduitsExist-yes" onclick="selectYN('conduitsExist','yes')">Yes</div>
+          <div class="yn-btn" id="yn-conduitsExist-no" onclick="selectYN('conduitsExist','no')">No</div>
+          <div class="yn-btn" id="yn-conduitsExist-na" onclick="selectYN('conduitsExist','na')">N/A</div>
+        </div>
       </div>
 
       <div class="field-group">
         <div class="tip-row"><label class="field-label">Equipment Racks</label><button class="tip-icon" data-tip="tip-s3-racks" onclick="toggleTip('tip-s3-racks')">?</button></div>
         <div class="tip-bubble" id="tip-s3-racks"><strong>Backroom equipment needs rack space — confirm what's available or required</strong>If existing racks have open space, we may be able to use them. Otherwise we need to specify what new rack enclosures to quote. Measure carefully — 7' vs 7½' matters for facility clearance.<span class="tip-example">Look for open rack units in the backroom and note the rack height. Ask: "Do you have open space in existing racks, or will we need to provide new ones?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('rackType','existing')">
-            <input type="radio" name="rackType" value="existing">
-            <span class="option-label">Space available in existing racks</span>
-          </div>
-          <div class="option" onclick="selectRadio('rackType','7ft')">
-            <input type="radio" name="rackType" value="7ft">
-            <span class="option-label">7' rack required</span>
-          </div>
-          <div class="option" onclick="selectRadio('rackType','7.5ft')">
-            <input type="radio" name="rackType" value="7.5ft">
-            <span class="option-label">7½' rack required</span>
-          </div>
-          <div class="option" onclick="selectRadio('rackType','7ftcab')">
-            <input type="radio" name="rackType" value="7ftcab">
-            <span class="option-label">7' cabinet required</span>
-          </div>
-        </div>
+        <select id="rackType" onchange="appData.rackType = this.value;">
+          <option value="">Select...</option>
+          <option value="existing">Space available in existing racks</option>
+          <option value="7ft">7' rack required</option>
+          <option value="7.5ft">7½' rack required</option>
+          <option value="7ftcab">7' cabinet required</option>
+        </select>
       </div>
 
       <div class="field-group">
-        <div class="tip-row"><label class="field-label">Additional Circuits / Electrical Work <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s3-electrical" onclick="toggleTip('tip-s3-electrical')">?</button></div>
-        <div class="tip-bubble" id="tip-s3-electrical"><strong>Note any electrical requirements beyond standard console installation</strong>Examples: dedicated circuits needed, panel capacity concerns, generator tie-in, UPS outlet requirements, or any electrician work that may need to be scoped separately.<span class="tip-example">e.g. "Needs 2 dedicated 20A circuits for backroom" or "Existing panel at capacity — electrician required"</span></div>
-        <textarea id="electricalNotes" placeholder="e.g., dedicated circuits needed, panel upgrade required, generator tie-in..."></textarea>
-      </div>
-
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Estimated Distance — Consoles to Backroom Equipment</label><button class="tip-icon" data-tip="tip-s3-dist" onclick="toggleTip('tip-s3-dist')">?</button></div>
+        <div class="tip-row"><label class="field-label">Estimated Distance — Consoles to Backroom</label><button class="tip-icon" data-tip="tip-s3-dist" onclick="toggleTip('tip-s3-dist')">?</button></div>
         <div class="tip-bubble" id="tip-s3-dist"><strong>Distances over 300ft require signal converters or intermediate patch panels</strong>Measure or estimate the cable run from the console positions to the backroom equipment rack — not a straight-line distance but the actual path cables would travel (through walls, above ceilings, down corridors).<span class="tip-example">Walk the route and estimate. Flag anything over 200ft to be safe.</span></div>
         <div class="inline-fields">
           <div style="flex:1;">
@@ -448,7 +555,18 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           <div class="warning-text">⚠️ Over 300ft — converters or intermediate patch panels will likely be required. Flag for engineering.</div>
         </div>
       </div>
-      
+
+      <div class="field-group">
+        <div class="tip-row"><label class="field-label">Additional Circuits / Electrical Work <span class="field-sublabel">(optional)</span></label><button class="tip-icon" data-tip="tip-s3-electrical" onclick="toggleTip('tip-s3-electrical')">?</button></div>
+        <div class="tip-bubble" id="tip-s3-electrical"><strong>Note any electrical requirements beyond standard console installation</strong>Examples: dedicated circuits needed, panel capacity concerns, generator tie-in, UPS outlet requirements, or any electrician work that may need to be scoped separately.<span class="tip-example">e.g. "Needs 2 dedicated 20A circuits for backroom" or "Existing panel at capacity — electrician required"</span></div>
+        <textarea id="electricalNotes" placeholder="e.g., dedicated circuits needed, panel upgrade required, generator tie-in..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Layout Notes <span class="field-sublabel">(optional)</span></label>
+        <textarea id="layoutNotes" placeholder="Any additional notes about site layout, cable runs, room configuration..."></textarea>
+      </div>
+
       <div class="photo-section">
         <div class="photo-section-title">📸 Dispatch Room / Cabling Photos</div>
         <input type="file" id="photo3" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos3')">
@@ -458,32 +576,26 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 4: EQUIPMENT ==================== -->
-    <div class="screen" id="screen4">
-      <div class="section-badge">Screen 4 of 7</div>
+    <!-- ==================== SCREEN 5: EQUIPMENT ==================== -->
+    <div class="screen" id="screen5">
+      <div class="section-badge">Screen 5 of 8</div>
       <div class="screen-title">Equipment & Features</div>
 
-      <!-- Migration-only questions (shown for Platform Migration Only, hidden for all others) -->
+      <!-- Migration-only questions -->
       <div id="migrationOnlyFields" style="display:none;">
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr" onclick="toggleTip('tip-s5-irr')">?</button></div>
           <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position. Many migration customers want to add IRR during the upgrade.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('irrRequired','yes'); appData.irrRequired='yes';">
-              <input type="radio" name="irrRequiredMig" value="yes">
-              <span class="option-label">Yes - Include IRR</span>
-            </div>
-            <div class="option" onclick="selectRadio('irrRequired','no'); appData.irrRequired='no';">
-              <input type="radio" name="irrRequiredMig" value="no">
-              <span class="option-label">No IRR</span>
-            </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-irrRequiredMig-yes" onclick="appData.irrRequired='yes'; selectYN('irrRequiredMig','yes');">Yes — Include IRR</div>
+            <div class="yn-btn" id="yn-irrRequiredMig-no" onclick="appData.irrRequired='no'; selectYN('irrRequiredMig','no');">No IRR</div>
           </div>
         </div>
 
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s4-encr-mig" onclick="toggleTip('tip-s4-encr-mig')">?</button></div>
           <div class="tip-bubble" id="tip-s4-encr-mig"><strong>Confirm the encryption type in use on the existing system</strong>Hardware encryption uses a physical module — common in older MCC installs. Software is license-based. Knowing this upfront avoids surprises during migration.<span class="tip-example">Ask: "Does your current system use hardware encryption modules, or is it software-based?"</span></div>
-          <select id="encryptionImplMig" onchange="appData.encryptionImpl = this.value;">
+          <select id="encryptionImplMig" onchange="appData.encryptionImpl = this.value; showEl('migKeyUpdateGroup', this.value && this.value !== 'none');">
             <option value="">Select...</option>
             <option value="hardware">Hardware</option>
             <option value="software">Software</option>
@@ -494,30 +606,18 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Conventional Radio Interfaces / CCGW</label><button class="tip-icon" data-tip="tip-s4-ccgw" onclick="toggleTip('tip-s4-ccgw')">?</button></div>
           <div class="tip-bubble" id="tip-s4-ccgw"><strong>Determines whether conventional channel gateways need to be migrated or replaced</strong>A CCGW interfaces conventional radios to the console system. If the customer has one today, it may need to be carried over or replaced as part of the migration.<span class="tip-example">Ask: "Does your current system interface to any conventional radios, or do you have a conventional channel gateway installed?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('hasCCGW','yes')">
-              <input type="radio" name="hasCCGW" value="yes">
-              <span class="option-label">Yes — has conventional radios or CCGW today</span>
-            </div>
-            <div class="option" onclick="selectRadio('hasCCGW','no')">
-              <input type="radio" name="hasCCGW" value="no">
-              <span class="option-label">No</span>
-            </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-hasCCGW-yes" onclick="selectYN('hasCCGW','yes')">Yes — Has CCGW Today</div>
+            <div class="yn-btn" id="yn-hasCCGW-no" onclick="selectYN('hasCCGW','no')">No</div>
           </div>
         </div>
 
-        <div class="field-group">
+        <div class="field-group" id="migKeyUpdateGroup" style="display:none;">
           <div class="tip-row"><label class="field-label">Encryption Key Management</label><button class="tip-icon" data-tip="tip-s4-keyupdate" onclick="toggleTip('tip-s4-keyupdate')">?</button></div>
           <div class="tip-bubble" id="tip-s4-keyupdate"><strong>Affects how encryption key infrastructure is scoped in the migration</strong>Central key management (KMF) requires network infrastructure. Per-position updates mean someone physically touches each console to load keys — common in smaller agencies.<span class="tip-example">Ask: "How are your encryption keys updated today — is it done centrally over the network, or does someone have to update each position individually?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('keyUpdate','central')">
-              <input type="radio" name="keyUpdate" value="central">
-              <span class="option-label">Centrally over the network</span>
-            </div>
-            <div class="option" onclick="selectRadio('keyUpdate','individual')">
-              <input type="radio" name="keyUpdate" value="individual">
-              <span class="option-label">Individually at each position</span>
-            </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-keyUpdateMig-central" onclick="selectYN('keyUpdateMig','central'); appData.keyUpdate='central';">Centrally over network</div>
+            <div class="yn-btn" id="yn-keyUpdateMig-individual" onclick="selectYN('keyUpdateMig','individual'); appData.keyUpdate='individual';">Individually — Per Position</div>
           </div>
         </div>
         <div class="divider"></div>
@@ -528,20 +628,12 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Touch Screen Monitors</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
           <div class="tip-bubble" id="tip-s5-touch"><strong>Touch screens add ~$800/position to the quote</strong>If the customer already has monitors they want to keep, select "Customer Providing" — this removes them from pricing. Confirm monitor brand/model if reusing, as not all are compatible.<span class="tip-example">Ask: "Are you planning to reuse your existing monitors?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('touchScreens','yes'); showMonitorSize(true);">
-              <input type="radio" name="touchScreens" value="yes">
-              <span class="option-label">Yes - Include Touch Screens</span>
-            </div>
-            <div class="option" onclick="selectRadio('touchScreens','customer'); showMonitorSize(false);">
-              <input type="radio" name="touchScreens" value="customer">
-              <span class="option-label">No - Customer Providing</span>
-            </div>
-            <div class="option" onclick="selectRadio('touchScreens','nontouch'); showMonitorSize(true);">
-              <input type="radio" name="touchScreens" value="nontouch">
-              <span class="option-label">No - Need Non-Touch</span>
-            </div>
-          </div>
+          <select id="touchScreens" onchange="appData.touchScreens=this.value; showMonitorSize(this.value==='yes'||this.value==='nontouch');">
+            <option value="">Select...</option>
+            <option value="yes">Yes — Include Touch Screens</option>
+            <option value="customer">No — Customer Providing</option>
+            <option value="nontouch">No — Need Non-Touch</option>
+          </select>
         </div>
 
         <div class="field-group" id="monitorSizeGroup" style="display:none;">
@@ -565,15 +657,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Instant Recall Recorder (IRR)</label><button class="tip-icon" data-tip="tip-s5-irr-std" onclick="toggleTip('tip-s5-irr-std')">?</button></div>
           <div class="tip-bubble" id="tip-s5-irr-std"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('irrRequired','yes')">
-              <input type="radio" name="irrRequired" value="yes">
-              <span class="option-label">Yes - Include IRR</span>
-            </div>
-            <div class="option" onclick="selectRadio('irrRequired','no')">
-              <input type="radio" name="irrRequired" value="no">
-              <span class="option-label">No IRR</span>
-            </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-irrRequired-yes" onclick="selectYN('irrRequired','yes')">Yes — Include IRR</div>
+            <div class="yn-btn" id="yn-irrRequired-no" onclick="selectYN('irrRequired','no')">No IRR</div>
           </div>
         </div>
 
@@ -620,15 +706,9 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
           <div class="field-group" id="keyUpdateGroup" style="display:none;">
             <div class="tip-row"><label class="field-label">Encryption Key Management</label><button class="tip-icon" data-tip="tip-s4-keyupdate-std" onclick="toggleTip('tip-s4-keyupdate-std')">?</button></div>
             <div class="tip-bubble" id="tip-s4-keyupdate-std"><strong>Affects how encryption key infrastructure is scoped</strong>Central key management (KMF) requires network infrastructure. Per-position updates mean someone physically touches each console to load keys — common in smaller agencies.<span class="tip-example">Ask: "How are your encryption keys updated — is it done centrally over the network, or does someone have to update each position individually?"</span></div>
-            <div class="radio-group">
-              <div class="option" onclick="selectRadio('keyUpdate','central')">
-                <input type="radio" name="keyUpdate" value="central">
-                <span class="option-label">Centrally over the network</span>
-              </div>
-              <div class="option" onclick="selectRadio('keyUpdate','individual')">
-                <input type="radio" name="keyUpdate" value="individual">
-                <span class="option-label">Individually at each position</span>
-              </div>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <div class="yn-btn" id="yn-keyUpdate-central" onclick="selectYN('keyUpdate','central')">Centrally over network</div>
+              <div class="yn-btn" id="yn-keyUpdate-individual" onclick="selectYN('keyUpdate','individual')">Individually — Per Position</div>
             </div>
           </div>
         </div>
@@ -636,8 +716,8 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
     </div>
 
     <!-- ==================== SCREEN 5: CHANNELS & RADIOS ==================== -->
-    <div class="screen" id="screen5">
-      <div class="section-badge">Screen 5 of 7</div>
+    <div class="screen" id="screen6">
+      <div class="section-badge">Screen 6 of 8</div>
       <div class="screen-title">Channels & Radios</div>
       
       <!-- Existing Conventional Channels — hidden for Expansion -->
@@ -801,11 +881,11 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
       </div>
     </div>
 
-    <!-- ==================== SCREEN 6: INTERFACES & POWER ==================== -->
-    <div class="screen" id="screen6">
-      <div class="section-badge">Screen 6 of 7</div>
+    <!-- ==================== SCREEN 7: INTERFACES & POWER ==================== -->
+    <div class="screen" id="screen7">
+      <div class="section-badge">Screen 7 of 8</div>
       <div class="screen-title">Interfaces & Power</div>
-      
+
       <div class="hideForExpansion">
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Auxiliary I/O</label><button class="tip-icon" data-tip="tip-s7-aux" onclick="toggleTip('tip-s7-aux')">?</button></div>
@@ -823,53 +903,17 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         </div>
 
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">Backhaul Links</label><button class="tip-icon" data-tip="tip-s7-backhaul" onclick="toggleTip('tip-s7-backhaul')">?</button></div>
-          <div class="tip-bubble" id="tip-s7-backhaul"><strong>Backhaul connects the console to the radio system infrastructure</strong>New microwave = we're providing a new RF link, typically for remote sites. Existing = customer already has fiber, leased line, or microwave in place. Other covers carrier-managed services like ACS or MPLS.<span class="tip-example">Ask: "How does your dispatch center currently connect back to the radio tower sites?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('backhaulType','na'); showBackhaulDetails(false); showBackhaulRedundancy(false);">
-              <input type="radio" name="backhaulType" value="na">
-              <span class="option-label">N/A</span>
-            </div>
-            <div class="option" onclick="selectRadio('backhaulType','new_microwave'); showBackhaulDetails('microwave'); showBackhaulRedundancy(true);">
-              <input type="radio" name="backhaulType" value="new_microwave">
-              <span class="option-label">New Microwave Required</span>
-            </div>
-            <div class="option" onclick="selectRadio('backhaulType','existing'); showBackhaulDetails('existing'); showBackhaulRedundancy(true);">
-              <input type="radio" name="backhaulType" value="existing">
-              <span class="option-label">Existing to be Reused</span>
-            </div>
-            <div class="option" onclick="selectRadio('backhaulType','other'); showBackhaulDetails('other'); showBackhaulRedundancy(true);">
-              <input type="radio" name="backhaulType" value="other">
-              <span class="option-label">Other</span>
-            </div>
+          <div class="tip-row"><label class="field-label">Logging Recorder</label><button class="tip-icon" data-tip="tip-s7-logging" onclick="toggleTip('tip-s7-logging')">?</button></div>
+          <div class="tip-bubble" id="tip-s7-logging"><strong>Logging recorders capture all radio and phone audio for compliance and investigations</strong>Different from IRR — logging is long-term, agency-wide storage. Ask if they have an existing recorder and whether it needs to be replaced or just expanded with new channels.</div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-loggingRecorder-new" onclick="selectYN('loggingRecorder','new'); showEl('loggingRecorderBrandGroup',true);">New</div>
+            <div class="yn-btn" id="yn-loggingRecorder-expand" onclick="selectYN('loggingRecorder','expand'); showEl('loggingRecorderBrandGroup',true);">Expand Existing</div>
+            <div class="yn-btn" id="yn-loggingRecorder-no" onclick="selectYN('loggingRecorder','no'); showEl('loggingRecorderBrandGroup',false);">No</div>
           </div>
-          <div id="backhaulMicrowaveDetails" style="display:none; margin-top:8px;">
-            <input type="text" id="backhaulMicrowaveData" placeholder="e.g., point-to-point, vendor, frequency band...">
-          </div>
-          <div id="backhaulExistingDetails" style="display:none; margin-top:8px;">
-            <input type="text" id="backhaulExistingData" placeholder="e.g., existing fiber, leased line, details...">
-          </div>
-          <div id="backhaulOtherDetails" style="display:none; margin-top:8px;">
-            <input type="text" id="backhaulOtherData" placeholder="e.g., ACS, carrier ethernet, MPLS...">
+          <div id="loggingRecorderBrandGroup" style="display:none; margin-top:8px;">
+            <input type="text" id="loggingRecorderBrand" placeholder="Brand / model (e.g. Eventide, Nice, Motorola...)">
           </div>
         </div>
-
-        <div class="field-group" id="backhaulRedundancyGroup" style="display:none;">
-          <div class="tip-row"><label class="field-label">Backhaul Redundancy</label><button class="tip-icon" data-tip="tip-s7-bhredun" onclick="toggleTip('tip-s7-bhredun')">?</button></div>
-          <div class="tip-bubble" id="tip-s7-bhredun"><strong>Redundant = two independent paths so one failure doesn't cut off the console</strong>Most mission-critical agencies require redundancy. Non-redundant is lower cost but a single failure can take down the whole system. Flag non-redundant as a risk in your notes.</div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('backhaulRedundancy','redundant')">
-              <input type="radio" name="backhaulRedundancy" value="redundant">
-              <span class="option-label">Redundant</span>
-            </div>
-            <div class="option" onclick="selectRadio('backhaulRedundancy','non_redundant')">
-              <input type="radio" name="backhaulRedundancy" value="non_redundant">
-              <span class="option-label">Non-Redundant</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
       </div>
 
       <div class="field-group">
@@ -886,43 +930,36 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
 
       <div class="hideForExpansion">
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">Console Alias Manager (CAM)</label><button class="tip-icon" data-tip="tip-s7-cam" onclick="toggleTip('tip-s7-cam')">?</button></div>
-          <div class="tip-bubble" id="tip-s7-cam"><strong>CAM lets dispatchers see plain-English names instead of radio IDs</strong>Without CAM, the console shows a raw unit ID like "4201" instead of "Unit 12 — Sgt. Johnson." Highly recommended for any agency with a fleet management system or who needs readable unit names on screen.</div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('camRequired','yes')">
-              <input type="radio" name="camRequired" value="yes">
-              <span class="option-label">Yes - Include CAM</span>
-            </div>
-            <div class="option" onclick="selectRadio('camRequired','no')">
-              <input type="radio" name="camRequired" value="no">
-              <span class="option-label">No CAM</span>
-            </div>
+          <div class="tip-row"><label class="field-label">Backhaul Links</label><button class="tip-icon" data-tip="tip-s7-backhaul" onclick="toggleTip('tip-s7-backhaul')">?</button></div>
+          <div class="tip-bubble" id="tip-s7-backhaul"><strong>Backhaul connects the console to the radio system infrastructure</strong>New microwave = we're providing a new RF link, typically for remote sites. Existing = customer already has fiber, leased line, or microwave in place. Other covers carrier-managed services like ACS or MPLS.<span class="tip-example">Ask: "How does your dispatch center currently connect back to the radio tower sites?"</span></div>
+          <select id="backhaulType" onchange="appData.backhaulType=this.value; var isMw=this.value==='new_microwave', isEx=this.value==='existing', isOt=this.value==='other', hasVal=isMw||isEx||isOt; showEl('backhaulMicrowaveDetails',isMw); showEl('backhaulExistingDetails',isEx); showEl('backhaulOtherDetails',isOt); showBackhaulRedundancy(hasVal);">
+            <option value="">Select...</option>
+            <option value="na">N/A</option>
+            <option value="new_microwave">New Microwave Required</option>
+            <option value="existing">Existing to be Reused</option>
+            <option value="other">Other</option>
+          </select>
+          <div id="backhaulMicrowaveDetails" style="display:none; margin-top:8px;">
+            <input type="text" id="backhaulMicrowaveData" placeholder="e.g., point-to-point, vendor, frequency band...">
+          </div>
+          <div id="backhaulExistingDetails" style="display:none; margin-top:8px;">
+            <input type="text" id="backhaulExistingData" placeholder="e.g., existing fiber, leased line, details...">
+          </div>
+          <div id="backhaulOtherDetails" style="display:none; margin-top:8px;">
+            <input type="text" id="backhaulOtherData" placeholder="e.g., ACS, carrier ethernet, MPLS...">
+          </div>
+        </div>
+
+        <div class="field-group" id="backhaulRedundancyGroup" style="display:none;">
+          <div class="tip-row"><label class="field-label">Backhaul Redundancy</label><button class="tip-icon" data-tip="tip-s7-bhredun" onclick="toggleTip('tip-s7-bhredun')">?</button></div>
+          <div class="tip-bubble" id="tip-s7-bhredun"><strong>Redundant = two independent paths so one failure doesn't cut off the console</strong>Most mission-critical agencies require redundancy. Non-redundant is lower cost but a single failure can take down the whole system. Flag non-redundant as a risk in your notes.</div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-backhaulRedundancy-redundant" onclick="selectYN('backhaulRedundancy','redundant')">Redundant</div>
+            <div class="yn-btn" id="yn-backhaulRedundancy-non_redundant" onclick="selectYN('backhaulRedundancy','non_redundant')">Non-Redundant</div>
           </div>
         </div>
 
         <div class="divider"></div>
-
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Logging Recorder (New or Expand)?</label><button class="tip-icon" data-tip="tip-s7-logging" onclick="toggleTip('tip-s7-logging')">?</button></div>
-          <div class="tip-bubble" id="tip-s7-logging"><strong>Logging recorders capture all radio and phone audio for compliance and investigations</strong>Different from IRR — logging is long-term, agency-wide storage. Ask if they have an existing recorder and whether it needs to be replaced or just expanded with new channels.</div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('loggingRecorder','new'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
-              <input type="radio" name="loggingRecorder" value="new">
-              <span class="option-label">New</span>
-            </div>
-            <div class="option" onclick="selectRadio('loggingRecorder','expand'); document.getElementById('loggingRecorderBrandGroup').style.display='block';">
-              <input type="radio" name="loggingRecorder" value="expand">
-              <span class="option-label">Expand Existing</span>
-            </div>
-            <div class="option" onclick="selectRadio('loggingRecorder','no'); document.getElementById('loggingRecorderBrandGroup').style.display='none';">
-              <input type="radio" name="loggingRecorder" value="no">
-              <span class="option-label">No</span>
-            </div>
-          </div>
-          <div id="loggingRecorderBrandGroup" style="display:none; margin-top:8px;">
-            <input type="text" id="loggingRecorderBrand" placeholder="Brand / model (e.g. Eventide, Nice, Motorola...)">
-          </div>
-        </div>
 
         <div class="field-group">
           <div class="tip-row"><label class="field-label">CAD Vendor API Access?</label><button class="tip-icon" data-tip="tip-s7-cad" onclick="toggleTip('tip-s7-cad')">?</button></div>
@@ -984,93 +1021,101 @@ input[type="number"].big-input { font-size:24px; font-weight:bold; text-align:ce
         <div class="photo-count" id="photoCount7"></div>
       </div>
     </div>
-
-    <!-- ==================== SCREEN 7: OPERATIONAL & TRAINING ==================== -->
-    <div class="screen" id="screen7">
-      <div class="section-badge">Screen 7 of 7</div>
-      <div class="screen-title">Operational & Training</div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">All Consoles Utilized During All Shifts?</label><button class="tip-icon" data-tip="tip-s8-shifts" onclick="toggleTip('tip-s8-shifts')">?</button></div>
-        <div class="tip-bubble" id="tip-s8-shifts"><strong>Affects cutover planning and staffing during install</strong>If some positions sit idle overnight, the installer can use those as a staging area or swap them first with less disruption. "Some Idle" gives more flexibility for a phased cutover.<span class="tip-example">Ask: "Do you staff all your console positions 24/7, or are some positions only used during peak hours?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('allShifts','yes')">
-            <input type="radio" name="allShifts" value="yes">
-            <span class="option-label">Yes - All Shifts</span>
-          </div>
-          <div class="option" onclick="selectRadio('allShifts','no')">
-            <input type="radio" name="allShifts" value="no">
-            <span class="option-label">No - Some Idle</span>
-          </div>
-        </div>
-      </div>
-      
-      <div id="cutoverGroup">
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Can One Console Be Removed for Cutover?</label><button class="tip-icon" data-tip="tip-s8-cutover" onclick="toggleTip('tip-s8-cutover')">?</button></div>
-          <div class="tip-bubble" id="tip-s8-cutover"><strong>This is one of the most critical logistics questions for the install team</strong>Remove & Replace = swap one position at a time while others stay live — cleanest approach. "Cannot Remove" means we need to install new consoles alongside existing ones before cutting over — requires extra space and planning.<span class="tip-example">Ask: "During the installation, can we take one console offline at a time while your dispatchers use the others?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('removeForCutover','yes'); showParallelSpace(false);">
-              <input type="radio" name="removeForCutover" value="yes">
-              <span class="option-label">Yes - Remove & Replace One at a Time</span>
-            </div>
-            <div class="option" onclick="selectRadio('removeForCutover','no'); showParallelSpace(true);">
-              <input type="radio" name="removeForCutover" value="no">
-              <span class="option-label">No - Cannot Remove</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field-group" id="parallelSpaceGroup" style="display:none;">
-        <div class="tip-row"><label class="field-label">Space for Parallel Console Installation?</label><button class="tip-icon" data-tip="tip-s8-parallel" onclick="toggleTip('tip-s8-parallel')">?</button></div>
-        <div class="tip-bubble" id="tip-s8-parallel"><strong>Parallel install requires temporary floor space — typically 3–4 ft per position</strong>If no space is available, the project needs a different cutover strategy (e.g. a maintenance window or temporary dispatch relocation). Flag "No Space" as a risk item — it adds complexity and cost.<span class="tip-example">Walk the room and look for open wall space, unused desks, or staging areas near the existing positions.</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('parallelSpace','yes')">
-            <input type="radio" name="parallelSpace" value="yes">
-            <span class="option-label">Yes - Room Available</span>
-          </div>
-          <div class="option" onclick="selectRadio('parallelSpace','no')">
-            <input type="radio" name="parallelSpace" value="no">
-            <span class="option-label">No - No Space</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Training Requirements</label><button class="tip-icon" data-tip="tip-s8-training" onclick="toggleTip('tip-s8-training')">?</button></div>
-        <div class="tip-bubble" id="tip-s8-training"><strong>Supervisor (Admin) training covers system configuration; Operator training covers daily use</strong>Count total people who need training — not shifts. A 3-shift agency with 4 dispatchers per shift needs 12 operator seats. Under-counting training is a common mistake that leads to change orders.<span class="tip-example">Ask: "How many total dispatchers and supervisors will need to be trained — counting all shifts?"</span></div>
-        <div class="inline-fields">
-          <div>
-            <label class="field-label field-sublabel">Supervisors (Admin)</label>
-            <input type="number" id="supervisorTraining" placeholder="0" min="0">
-          </div>
-          <div>
-            <label class="field-label field-sublabel">Operators</label>
-            <input type="number" id="operatorTraining" placeholder="0" min="0">
-          </div>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">OP Positions Available for Training</label><button class="tip-icon" data-tip="tip-s8-trainpos" onclick="toggleTip('tip-s8-trainpos')">?</button></div>
-        <div class="tip-bubble" id="tip-s8-trainpos"><strong>How many positions can be taken offline simultaneously for training purposes</strong>Affects how training sessions are structured and how many trainees can be accommodated at once. A center that can only spare 1 position will need more training sessions than one that can spare 4.<span class="tip-example">Ask: "During business hours, how many console positions could you make available for our trainers to use without impacting operations?"</span></div>
-        <input type="number" id="trainingPositions" placeholder="0" min="0">
-      </div>
-      
-      <div class="photo-section">
-        <div class="photo-section-title">📸 Backroom Electronics Room Photos</div>
-        <input type="file" id="photo8" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photos8')">
-        <button class="photo-btn" onclick="document.getElementById('photo8').click()">📸 Add Photos</button>
-        <div class="photo-grid" id="photoGrid8"></div>
-        <div class="photo-count" id="photoCount8"></div>
-      </div>
-    </div>
-
-    <!-- ==================== SCREEN 8: SUMMARY ==================== -->
+        <!-- ==================== SCREEN 8: OPERATIONS, TRAINING & MAINTENANCE ==================== -->
     <div class="screen" id="screen8">
+      <div class="section-badge">Screen 8 of 8</div>
+      <div class="screen-title">Operations, Training & Maintenance</div>
+
+      <!-- OPERATIONS CARD -->
+      <div class="card">
+        <div class="card-title">⚙️ Operations</div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">All Consoles Utilized During All Shifts?</label><button class="tip-icon" data-tip="tip-s8-shifts" onclick="toggleTip('tip-s8-shifts')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-shifts"><strong>Affects cutover planning and staffing during install</strong>If some positions sit idle overnight, the installer can use those as a staging area or swap them first with less disruption.<span class="tip-example">Ask: "Do you staff all your console positions 24/7, or are some positions only used during peak hours?"</span></div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-allShifts-yes" onclick="selectYN('allShifts','yes')">Yes — All Shifts</div>
+            <div class="yn-btn" id="yn-allShifts-no" onclick="selectYN('allShifts','no')">No — Some Idle</div>
+          </div>
+        </div>
+
+        <div id="cutoverGroup">
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">Can One Console Be Removed for Cutover?</label><button class="tip-icon" data-tip="tip-s8-cutover" onclick="toggleTip('tip-s8-cutover')">?</button></div>
+            <div class="tip-bubble" id="tip-s8-cutover"><strong>This is one of the most critical logistics questions for the install team</strong>Remove & Replace = swap one position at a time while others stay live.<span class="tip-example">Ask: "During the installation, can we take one console offline at a time while your dispatchers use the others?"</span></div>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <div class="yn-btn" id="yn-removeForCutover-yes" onclick="selectYN('removeForCutover','yes'); showParallelSpace(false);">Yes — Remove & Replace</div>
+              <div class="yn-btn" id="yn-removeForCutover-no" onclick="selectYN('removeForCutover','no'); showParallelSpace(true);">No — Cannot Remove</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="parallelSpaceGroup" style="display:none;">
+          <div class="tip-row"><label class="field-label">Space for Parallel Console Installation?</label><button class="tip-icon" data-tip="tip-s8-parallel" onclick="toggleTip('tip-s8-parallel')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-parallel"><strong>Parallel install requires temporary floor space — typically 3–4 ft per position</strong>If no space is available, the project needs a different cutover strategy.<span class="tip-example">Walk the room and look for open wall space, unused desks, or staging areas near the existing positions.</span></div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-parallelSpace-yes" onclick="selectYN('parallelSpace','yes')">Yes — Room Available</div>
+            <div class="yn-btn" id="yn-parallelSpace-no" onclick="selectYN('parallelSpace','no')">No — No Space</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING CARD -->
+      <div class="card">
+        <div class="card-title">🎓 Training</div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Training Requirements</label><button class="tip-icon" data-tip="tip-s8-training" onclick="toggleTip('tip-s8-training')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-training"><strong>Supervisor (Admin) training covers system configuration; Operator training covers daily use</strong>Count total people who need training — not shifts.<span class="tip-example">Ask: "How many total dispatchers and supervisors will need to be trained — counting all shifts?"</span></div>
+          <div class="inline-fields">
+            <div>
+              <label class="field-label field-sublabel">Supervisors (Admin)</label>
+              <input type="number" id="supervisorTraining" placeholder="0" min="0">
+            </div>
+            <div>
+              <label class="field-label field-sublabel">Operators</label>
+              <input type="number" id="operatorTraining" placeholder="0" min="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">OP Positions Available for Training</label><button class="tip-icon" data-tip="tip-s8-trainpos" onclick="toggleTip('tip-s8-trainpos')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-trainpos"><strong>How many positions can be taken offline simultaneously for training purposes</strong><span class="tip-example">Ask: "During business hours, how many console positions could you make available for our trainers to use without impacting operations?"</span></div>
+          <input type="number" id="trainingPositions" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- MAINTENANCE CARD -->
+      <div class="card">
+        <div class="card-title">🔧 Maintenance</div>
+
+        <div class="field-group">
+          <label class="field-label">Existing Maintenance Plan</label>
+          <select id="maintenancePlan" onchange="appData.maintenancePlan = this.value;">
+            <option value="">Select...</option>
+            <option value="essential">Essential</option>
+            <option value="essential_plus">Essential Plus</option>
+            <option value="advanced">Advanced</option>
+            <option value="advanced_plus">Advanced Plus</option>
+            <option value="premier">Premier</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Customer Currently on SUA Plan?</label><button class="tip-icon" data-tip="tip-s8-sua" onclick="toggleTip('tip-s8-sua')">?</button></div>
+          <div class="tip-bubble" id="tip-s8-sua"><strong>Software Upgrade Agreement ensures the customer receives ongoing software updates</strong>Knowing if they're on SUA affects how we scope licensing and upgrade entitlements in the quote.</div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-suaPlan-yes" onclick="selectYN('suaPlan','yes')">Yes</div>
+            <div class="yn-btn" id="yn-suaPlan-no" onclick="selectYN('suaPlan','no')">No</div>
+            <div class="yn-btn" id="yn-suaPlan-unknown" onclick="selectYN('suaPlan','unknown')">Unknown</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+        <!-- ==================== SCREEN 8: SUMMARY ==================== -->
+    <div class="screen" id="screen9">
       <div class="success-icon">✓</div>
       <div class="screen-title" style="text-align:center;">Capture Complete!</div>
       
@@ -1140,10 +1185,44 @@ function toggleTip(id) {
   if (btn) btn.classList.toggle('open', !open);
 }
 
+function toggleContact() {
+  var toggle = document.getElementById('contactToggle');
+  var body = document.getElementById('contactBody');
+  var isOpen = body.classList.contains('contact-open');
+  body.classList.toggle('contact-open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+
+function selectYN(field, value) {
+  appData[field] = value;
+  document.querySelectorAll('[id^="yn-' + field + '-"]').forEach(function(btn) {
+    btn.classList.remove('selected');
+  });
+  var chosen = document.getElementById('yn-' + field + '-' + value);
+  if (chosen) chosen.classList.add('selected');
+}
+
+function toggleSec(bodyId, hdr) {
+  var body = document.getElementById(bodyId);
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (hdr) hdr.classList.toggle('open', !isOpen);
+}
+
+function toggleContact() {
+  var body = document.getElementById('contactBody');
+  var hdr = document.getElementById('contactToggle');
+  if (!body || !hdr) return;
+  var isOpen = body.classList.contains('contact-open');
+  body.classList.toggle('contact-open', !isOpen);
+  hdr.classList.toggle('contact-open', !isOpen);
+}
+
 
 // ── Shared constants ─────────────────────────────────────────────
-var STORAGE_KEY = 'axsV4';
-var APP_VERSION = '4.0';
+var STORAGE_KEY = 'axsV5';
+var APP_VERSION = '5.0';
 var MAX_SAVES   = 10;
 var MAX_PHOTOS  = 5;
 var MAX_ATTACH  = 10;
@@ -1177,7 +1256,7 @@ function freshAppData() {
   return {
     customerName:'', projectName:'', state:'', city:'', regionalSystem:'',
     isKCore:false, contactName:'', contactTitle:'', contactPhone:'', contactEmail:'',
-    projectType:'', buildingType:'', existingFacilityDetails:'', migrationScopeDetails:'', existingConsoleNotes:'', mccHardwareType:'',
+    projectType:'', buildingType:'', existingFacilityDetails:'', existingConsoleNotes:'', mccHardwareType:'',
     opPositions:'', opAxs:'', opRemoteRNI:'', opRemoteORNI:'',
     colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
@@ -1191,6 +1270,7 @@ function freshAppData() {
     otherInterfaces:'', otherInterfacesDetails:'',
     allShifts:'', removeForCutover:'', parallelSpace:'',
     supervisorTraining:'', operatorTraining:'', trainingPositions:'',
+    maintenancePlan:'', suaPlan:'',
     photos2:[], photos3:[], photos6:[], photosAnt:[], photos7:[], photos8:[], attachments:[]
   };
 }
@@ -1198,7 +1278,7 @@ function freshAppData() {
 
 
 var currentScreen = 0;
-var totalScreens  = 9;
+var totalScreens  = 10;
 var currentCaptureId = null;
 var appData = freshAppData();
 
@@ -1266,7 +1346,7 @@ function showScreen(n) {
   var nav = document.getElementById('navButtons');
   var saveBtn = document.getElementById('saveExitBtn');
   var buttonBg = document.getElementById('buttonBg');
-  if (n === 0 || n === 8) {
+  if (n === 0 || n === 9) {
     nav.style.display = 'none';
     if (saveBtn) saveBtn.style.display = 'none';
     if (buttonBg) buttonBg.style.display = 'none';
@@ -1276,7 +1356,7 @@ function showScreen(n) {
     if (saveBtn) saveBtn.style.display = 'block';
     if (buttonBg) buttonBg.style.display = 'block';
     document.getElementById('backBtn').style.display = n > 1 ? 'block' : 'none';
-    document.getElementById('nextBtn').textContent = n === 7 ? 'Finish →' : 'Next →';
+    document.getElementById('nextBtn').textContent = n === 8 ? 'Finish →' : 'Next →';
   }
   
   updateProgress();
@@ -1285,7 +1365,7 @@ function showScreen(n) {
 }
 
 function updateProgress() {
-  var p = currentScreen === 0 ? 0 : ((currentScreen) / 7) * 100;
+  var p = currentScreen === 0 ? 0 : ((currentScreen) / 8) * 100;
   document.getElementById('progressBar').style.width = Math.min(p, 100) + '%';
 }
 
@@ -1296,6 +1376,28 @@ function selectRadio(name, value) {
   });
   var sel = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
   if (sel) { sel.checked = true; sel.parentElement.classList.add('selected'); }
+}
+
+function selectPT(type) {
+  ['migration','migration_scope','new','expansion'].forEach(function(t) {
+    var card = document.getElementById('ptOpt_' + t);
+    if (!card) return;
+    card.classList.remove('selected');
+    var radio = card.querySelector('input[type="radio"]');
+    if (radio) radio.checked = false;
+  });
+  var chosen = document.getElementById('ptOpt_' + type);
+  if (chosen) {
+    chosen.classList.add('selected');
+    var r = chosen.querySelector('input[type="radio"]');
+    if (r) r.checked = true;
+  }
+  appData.projectType = type;
+  // Sync legacy radios on screen3
+  document.querySelectorAll('input[name="projectType"][value="' + type + '"]').forEach(function(r) {
+    r.checked = true; r.parentElement.classList.add('selected');
+  });
+  updateScreensForProjectType(type);
 }
 
 function showMonitorSize(show) { var el = document.getElementById("monitorSizeGroup"); if (el) el.style.display = show ? "block" : "none"; }
@@ -1359,12 +1461,11 @@ function updateScreensForProjectType(type) {
   });
 
   // Update runtime skip list (not stored in appData)
-  skipScreens = isMigrationOnly ? [3, 5, 6] : [];
+  skipScreens = isMigrationOnly ? [4, 6, 7] : [];
 
   // Screen 2 conditional groups
   showEl('newDispatchBuildingGroup',  isNewDispatch);
   showEl('newDispatchExistingDetails', false); // reset; shown by buildingType selection
-  showEl('migrationScopeGroup',       isMigrationScope);
   showEl('migrationHardwareGroup',    isMigrationOnly || isMigrationScope);
   showEl('migrationConsoleNotesGroup', isMigrationOnly || isMigrationScope || isExpansion);
 
@@ -1383,21 +1484,22 @@ function collectScreenData() {
     appData.state = document.getElementById('state').value;
     appData.city = document.getElementById('city').value;
     appData.regionalSystem = document.getElementById('regionalSystem').value;
-    appData.isKCore = document.getElementById('isKCore').checked;
     appData.contactName = document.getElementById('contactName').value;
     appData.contactTitle = document.getElementById('contactTitle').value;
     appData.contactPhone = document.getElementById('contactPhone').value;
     appData.contactEmail = document.getElementById('contactEmail').value;
   } else if (currentScreen === 2) {
+    appData.isKCore = document.getElementById('isKCore').checked;
+    // projectType already written to appData via selectPT() on selection
+  } else if (currentScreen === 3) {
     appData.existingConsoleNotes = document.getElementById('existingConsoleNotes').value;
     appData.existingFacilityDetails = document.getElementById('existingFacilityDetails') ? document.getElementById('existingFacilityDetails').value : '';
-    appData.migrationScopeDetails = document.getElementById('migrationScopeDetails') ? document.getElementById('migrationScopeDetails').value : '';
     updateOpTotal();
-  } else if (currentScreen === 3) {
+  } else if (currentScreen === 4) {
     appData.layoutNotes = document.getElementById('layoutNotes').value;
     appData.electricalNotes = document.getElementById('electricalNotes').value;
     appData.backroomDistance = document.getElementById('backroomDistance').value;
-  } else if (currentScreen === 4) {
+  } else if (currentScreen === 5) {
     appData.monitorSize = document.getElementById('monitorSize').value;
     appData.speakersPerPosition = document.getElementById('speakersPerPosition').value;
     appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
@@ -1405,13 +1507,13 @@ function collectScreenData() {
     var migEncr = document.getElementById('encryptionImplMig');
     var stdEncr = document.getElementById('encryptionImpl');
     appData.encryptionImpl = (migEncr && migEncr.value) ? migEncr.value : (stdEncr ? stdEncr.value : '');
-  } else if (currentScreen === 5) {
+  } else if (currentScreen === 6) {
     appData.existingConvList = getConvRows('existing');
     appData.newConvList = getConvRows('new');
     appData.screen6Notes = document.getElementById('screen6Notes').value;
     appData.antennaCombining = document.getElementById('antennaCombining') ? document.getElementById('antennaCombining').value : '';
     appData.antennaDistance = document.getElementById('antennaDistance') ? document.getElementById('antennaDistance').value : '';
-  } else if (currentScreen === 6) {
+  } else if (currentScreen === 7) {
     appData.auxInputs = document.getElementById('auxInputs').value;
     appData.auxOutputs = document.getElementById('auxOutputs').value;
     appData.backhaulMicrowaveData = document.getElementById('backhaulMicrowaveData').value;
@@ -1425,10 +1527,11 @@ function collectScreenData() {
     appData.otherInterfaces = document.getElementById('otherInterfaces').value;
     appData.otherInterfacesDetails = document.getElementById('otherInterfacesDetails').value;
     appData.loggingRecorderBrand = document.getElementById('loggingRecorderBrand') ? document.getElementById('loggingRecorderBrand').value : '';
-  } else if (currentScreen === 7) {
+  } else if (currentScreen === 8) {
     appData.supervisorTraining = document.getElementById('supervisorTraining').value;
     appData.operatorTraining = document.getElementById('operatorTraining').value;
     appData.trainingPositions = document.getElementById('trainingPositions').value;
+    appData.maintenancePlan = document.getElementById('maintenancePlan').value;
   }
 }
 
@@ -1437,7 +1540,7 @@ function goNext() {
   var next = currentScreen + 1;
   while (skipScreens.indexOf(next) !== -1) next++;
   currentScreen = next;
-  if (currentScreen === 8) { generateSummary(); }
+  if (currentScreen === 9) { generateSummary(); }
   saveCapture();
   showScreen(currentScreen);
 }
@@ -1474,51 +1577,70 @@ function restoreForm() {
   document.getElementById('state').value = appData.state || '';
   document.getElementById('city').value = appData.city || '';
   document.getElementById('regionalSystem').value = appData.regionalSystem || '';
-  document.getElementById('isKCore').checked = appData.isKCore || false;
+  // Auto-expand contact if data exists
+  if (appData.contactName || appData.contactTitle || appData.contactPhone || appData.contactEmail) {
+    var ct = document.getElementById('contactToggle'); var cb = document.getElementById('contactBody');
+    if (ct) ct.classList.add('open'); if (cb) cb.classList.add('contact-open');
+  }
   document.getElementById('contactName').value = appData.contactName || '';
   document.getElementById('contactTitle').value = appData.contactTitle || '';
   document.getElementById('contactPhone').value = appData.contactPhone || '';
   document.getElementById('contactEmail').value = appData.contactEmail || '';
   document.getElementById('existingConsoleNotes').value = appData.existingConsoleNotes || '';
   if (document.getElementById('existingFacilityDetails')) document.getElementById('existingFacilityDetails').value = appData.existingFacilityDetails || '';
-  if (document.getElementById('migrationScopeDetails')) document.getElementById('migrationScopeDetails').value = appData.migrationScopeDetails || '';
   document.getElementById('opAxs').value = appData.opAxs || '';
   document.getElementById('opRemoteRNI').value = appData.opRemoteRNI || '';
   document.getElementById('opRemoteORNI').value = appData.opRemoteORNI || '';
   if (appData.opAxs || appData.opRemoteRNI || appData.opRemoteORNI) updateOpTotal();
+  // Screen 4 yn-btns + rack dropdown
+  ['colocated','existingCabling','conduitsExist'].forEach(function(f) {
+    if (appData[f]) { var b = document.getElementById('yn-' + f + '-' + appData[f]); if (b) b.classList.add('selected'); }
+  });
+  var rackSel = document.getElementById('rackType'); if (rackSel) rackSel.value = appData.rackType || '';
   document.getElementById('layoutNotes').value = appData.layoutNotes || '';
   document.getElementById('electricalNotes').value = appData.electricalNotes || '';
   document.getElementById('backroomDistance').value = appData.backroomDistance || '';
   if (appData.backroomDistance && parseInt(appData.backroomDistance) > 300) checkDistance(appData.backroomDistance);
+  // Screen 5 dropdowns + yn-btns
+  var tsEl = document.getElementById('touchScreens');
+  if (tsEl) { tsEl.value = appData.touchScreens || ''; showMonitorSize(appData.touchScreens === 'yes' || appData.touchScreens === 'nontouch'); }
   document.getElementById('monitorSize').value = appData.monitorSize || '';
   document.getElementById('speakersPerPosition').value = appData.speakersPerPosition || '';
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
   document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
   document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
   var migEncr = document.getElementById('encryptionImplMig');
-  if (migEncr) migEncr.value = appData.encryptionImpl || '';
+  if (migEncr) { migEncr.value = appData.encryptionImpl || ''; showEl('migKeyUpdateGroup', appData.encryptionImpl && appData.encryptionImpl !== 'none'); }
   var keyUpGrp = document.getElementById('keyUpdateGroup');
   if (keyUpGrp) keyUpGrp.style.display = (appData.encryptionImpl && appData.encryptionImpl !== 'none') ? 'block' : 'none';
+  if (appData.irrRequired) {
+    var irrStd = document.getElementById('yn-irrRequired-' + appData.irrRequired); if (irrStd) irrStd.classList.add('selected');
+    var irrMig = document.getElementById('yn-irrRequiredMig-' + appData.irrRequired); if (irrMig) irrMig.classList.add('selected');
+  }
+  if (appData.hasCCGW) { var ccgwBtn = document.getElementById('yn-hasCCGW-' + appData.hasCCGW); if (ccgwBtn) ccgwBtn.classList.add('selected'); }
+  if (appData.keyUpdate) {
+    var kuStd = document.getElementById('yn-keyUpdate-' + appData.keyUpdate); if (kuStd) kuStd.classList.add('selected');
+    var kuMig = document.getElementById('yn-keyUpdateMig-' + appData.keyUpdate); if (kuMig) kuMig.classList.add('selected');
+  }
+  // Screen 6
   if (appData.existingConvList) renderConvRows('existing');
   if (appData.newConvList) renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
   document.getElementById('antennaCombining').value = appData.antennaCombining || '';
+  // Screen 7
   document.getElementById('auxInputs').value = appData.auxInputs || '';
   document.getElementById('auxOutputs').value = appData.auxOutputs || '';
+  if (appData.loggingRecorder) {
+    var lrBtn = document.getElementById('yn-loggingRecorder-' + appData.loggingRecorder); if (lrBtn) lrBtn.classList.add('selected');
+    if (appData.loggingRecorder === 'new' || appData.loggingRecorder === 'expand') showEl('loggingRecorderBrandGroup', true);
+  }
+  if (appData.loggingRecorderBrand && document.getElementById('loggingRecorderBrand')) document.getElementById('loggingRecorderBrand').value = appData.loggingRecorderBrand;
+  var bhSel = document.getElementById('backhaulType'); if (bhSel) bhSel.value = appData.backhaulType || '';
+  if (appData.backhaulType && appData.backhaulType !== 'na') { showBackhaulDetails(appData.backhaulType === 'new_microwave' ? 'microwave' : appData.backhaulType); showBackhaulRedundancy(true); }
+  if (appData.backhaulRedundancy) { var brBtn = document.getElementById('yn-backhaulRedundancy-' + appData.backhaulRedundancy); if (brBtn) brBtn.classList.add('selected'); }
   document.getElementById('backhaulMicrowaveData').value = appData.backhaulMicrowaveData || '';
   document.getElementById('backhaulExistingData').value = appData.backhaulExistingData || '';
   document.getElementById('backhaulOtherData').value = appData.backhaulOtherData || '';
-  if (appData.loggingRecorderBrand && document.getElementById('loggingRecorderBrand')) {
-    document.getElementById('loggingRecorderBrand').value = appData.loggingRecorderBrand;
-    document.getElementById('loggingRecorderBrandGroup').style.display = 'block';
-  } else if (appData.loggingRecorder === 'new' || appData.loggingRecorder === 'expand') {
-    var bg = document.getElementById('loggingRecorderBrandGroup');
-    if (bg) bg.style.display = 'block';
-  }
-  if (appData.backhaulType && appData.backhaulType !== 'na') {
-    showBackhaulDetails(appData.backhaulType === 'new_microwave' ? 'microwave' : appData.backhaulType);
-    showBackhaulRedundancy(true);
-  }
   document.getElementById('backupPower').value = appData.backupPower || '';
   document.getElementById('cadAPI').value = appData.cadAPI || '';
   document.getElementById('cadVendorName').value = appData.cadVendorName || '';
@@ -1526,11 +1648,19 @@ function restoreForm() {
   document.getElementById('fireAlertingType').value = appData.fireAlertingType || '';
   document.getElementById('otherInterfaces').value = appData.otherInterfaces || '';
   document.getElementById('otherInterfacesDetails').value = appData.otherInterfacesDetails || '';
+  // Screen 8 yn-btns + maintenance
+  if (appData.allShifts) { var asBtn = document.getElementById('yn-allShifts-' + appData.allShifts); if (asBtn) asBtn.classList.add('selected'); }
+  if (appData.removeForCutover) { var rcBtn = document.getElementById('yn-removeForCutover-' + appData.removeForCutover); if (rcBtn) rcBtn.classList.add('selected'); }
+  if (appData.parallelSpace) { var psBtn = document.getElementById('yn-parallelSpace-' + appData.parallelSpace); if (psBtn) psBtn.classList.add('selected'); }
+  if (appData.removeForCutover === 'no') showParallelSpace(true);
   document.getElementById('supervisorTraining').value = appData.supervisorTraining || '';
   document.getElementById('operatorTraining').value = appData.operatorTraining || '';
   document.getElementById('trainingPositions').value = appData.trainingPositions || '';
+  var mpSel = document.getElementById('maintenancePlan'); if (mpSel) mpSel.value = appData.maintenancePlan || '';
+  if (appData.suaPlan) { var suaBtn = document.getElementById('yn-suaPlan-' + appData.suaPlan); if (suaBtn) suaBtn.classList.add('selected'); }
 
-  ['projectType','buildingType','colocated','existingCabling','conduitsExist','touchScreens','irrRequired','camRequired','loggingRecorder','allShifts','removeForCutover','parallelSpace','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','towerAvailable','backhaulType','backhaulRedundancy','rackType','hasCCGW','keyUpdate','mccHardwareType'].forEach(function(name) {
+  // Restore radio fields still using selectRadio
+  ['projectType','buildingType','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','towerAvailable','mccHardwareType'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
@@ -1538,6 +1668,18 @@ function restoreForm() {
   });
 
   if (appData.projectType) updateScreensForProjectType(appData.projectType);
+  // Restore screen 2: K-Core + pt-opt cards
+  document.getElementById('isKCore').checked = appData.isKCore || false;
+  if (appData.projectType) {
+    ['migration','migration_scope','new','expansion'].forEach(function(t) {
+      var card = document.getElementById('ptOpt_' + t);
+      if (card) {
+        card.classList.toggle('selected', t === appData.projectType);
+        var r = card.querySelector('input[type="radio"]');
+        if (r) r.checked = (t === appData.projectType);
+      }
+    });
+  }
   // Restore migration IRR separately since it uses a different radio name
   if (appData.irrRequired) {
     var migIrr = document.querySelector('input[name="irrRequiredMig"][value="' + appData.irrRequired + '"]');
@@ -1692,6 +1834,7 @@ function generateSummary() {
     '<div class="summary-row"><span class="summary-label">Customer</span><span class="summary-value">' + appData.customerName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Project</span><span class="summary-value">' + appData.projectName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Location</span><span class="summary-value">' + appData.city + ', ' + appData.state + '</span></div>' +
+    (appData.regionalSystem ? '<div class="summary-row"><span class="summary-label">Regional System</span><span class="summary-value">' + appData.regionalSystem + '</span></div>' : '') +
     (appData.isKCore ? '<div class="summary-row"><span class="summary-label">K-Core</span><span class="summary-value">Yes — Conventional K-Core</span></div>' : '') +
     (appData.contactName ? '<div class="summary-row"><span class="summary-label">Contact</span><span class="summary-value">' + appData.contactName + (appData.contactTitle ? ', ' + appData.contactTitle : '') + '</span></div>' : '') +
     (appData.contactPhone ? '<div class="summary-row"><span class="summary-label">Phone</span><span class="summary-value">' + appData.contactPhone + '</span></div>' : '') +
@@ -1701,7 +1844,6 @@ function generateSummary() {
   html += '<div class="summary-section"><div class="summary-title">Configuration</div>' +
     '<div class="summary-row"><span class="summary-label">Project Type</span><span class="summary-value">' + (TYPE_LABELS[appData.projectType] || appData.projectType) + '</span></div>' +
     (appData.buildingType ? '<div class="summary-row"><span class="summary-label">Building Type</span><span class="summary-value">' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : '') + '</span></div>' : '') +
-    (appData.migrationScopeDetails ? '<div class="summary-row"><span class="summary-label">Add\'l Scope</span><span class="summary-value">' + appData.migrationScopeDetails.substring(0,50) + (appData.migrationScopeDetails.length > 50 ? '…' : '') + '</span></div>' : '') +
     (appData.existingConsoleNotes ? '<div class="summary-row"><span class="summary-label">Existing Console</span><span class="summary-value">' + appData.existingConsoleNotes.substring(0,40) + (appData.existingConsoleNotes.length > 40 ? '…' : '') + '</span></div>' : '') +
     '<div class="summary-row"><span class="summary-label">OP Positions</span><span class="summary-value">' + (appData.opPositions || '0') + ' total' + (appData.opAxs ? ' (' + appData.opAxs + ' Std' + (appData.opRemoteRNI ? ', ' + appData.opRemoteRNI + ' Laptop-RNI' : '') + (appData.opRemoteORNI ? ', ' + appData.opRemoteORNI + ' Laptop-ORNI' : '') + ')' : '') + '</span></div>' +
     (appData.rackType ? '<div class="summary-row"><span class="summary-label">Racks</span><span class="summary-value">' + (RACK_LABELS[appData.rackType] || appData.rackType) + '</span></div>' : '') +
@@ -1734,10 +1876,12 @@ function generateSummary() {
       '</div>';
   }
 
-  html += '<div class="summary-section"><div class="summary-title">Training</div>' +
+  html += '<div class="summary-section"><div class="summary-title">Training & Maintenance</div>' +
     '<div class="summary-row"><span class="summary-label">Supervisors</span><span class="summary-value">' + (appData.supervisorTraining || '0') + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Operators</span><span class="summary-value">' + (appData.operatorTraining || '0') + '</span></div>' +
     (appData.trainingPositions ? '<div class="summary-row"><span class="summary-label">Positions for Training</span><span class="summary-value">' + appData.trainingPositions + '</span></div>' : '') +
+    (appData.maintenancePlan ? '<div class="summary-row"><span class="summary-label">Maintenance Plan</span><span class="summary-value">' + appData.maintenancePlan.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) + '</span></div>' : '') +
+    (appData.suaPlan ? '<div class="summary-row"><span class="summary-label">SUA Plan</span><span class="summary-value">' + (appData.suaPlan.charAt(0).toUpperCase() + appData.suaPlan.slice(1)) + '</span></div>' : '') +
     '</div>';
 
   var photoCount = getTotalPhotoCount();
@@ -1750,7 +1894,7 @@ function generateSummary() {
   document.getElementById('downloadPhotosBtn').style.display = photoCount > 0 ? 'block' : 'none';
   renderAttachmentList();
 
-  var exportData = { v:'4.0', t:Date.now(), d:appData };
+  var exportData = { v:APP_VERSION, t:Date.now(), d:appData };
   var code = btoa(JSON.stringify(exportData));
   var codeValue = 'AXS-' + code.substring(0,24).toUpperCase();
   document.getElementById('exportCode').textContent = codeValue;
@@ -1781,7 +1925,6 @@ async function shareReport(downloadOnly) {
   lines.push('--- PROJECT ---');
   if (appData.projectType) lines.push('Type: ' + (TYPE_LABELS[appData.projectType] || appData.projectType));
   if (appData.buildingType) lines.push('Building: ' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : ''));
-  if (appData.migrationScopeDetails) lines.push('Additional Scope: ' + appData.migrationScopeDetails);
   if (appData.mccHardwareType) lines.push('MCC Hardware Type: ' + (appData.mccHardwareType === 'cchub' ? 'MCC7500E CCHUB' : appData.mccHardwareType === 'aim' ? 'MCC7500E AIM' : 'Unknown'));
   if (appData.existingConsoleNotes && appData.projectType !== 'new') lines.push('Existing Console Notes: ' + appData.existingConsoleNotes);
   if (appData.opPositions) {
@@ -1892,12 +2035,14 @@ async function shareReport(downloadOnly) {
     if (appData.removeForCutover === 'no') lines.push('Space for Parallel Install: ' + (appData.parallelSpace === 'yes' ? 'Yes' : appData.parallelSpace === 'no' ? 'No' : 'Not answered'));
   }
 
-  // Training
+  // Training & Maintenance
   lines.push('');
-  lines.push('--- TRAINING ---');
+  lines.push('--- TRAINING & MAINTENANCE ---');
   lines.push('Supervisors: ' + (appData.supervisorTraining || '0'));
   lines.push('Operators: ' + (appData.operatorTraining || '0'));
   lines.push('Positions Available for Training: ' + (appData.trainingPositions || 'Not answered'));
+  if (appData.maintenancePlan) lines.push('Maintenance Plan: ' + appData.maintenancePlan.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}));
+  if (appData.suaPlan) lines.push('SUA Plan: ' + (appData.suaPlan.charAt(0).toUpperCase() + appData.suaPlan.slice(1)));
   
   // Photo counts
   var photoCounts = [];
@@ -2086,8 +2231,8 @@ function discardAndReturn() {
 }
 
 function goBackFromSummary() {
-  currentScreen = 7;
-  showScreen(7);
+  currentScreen = 8;
+  showScreen(8);
 }
 
 function renderConvRows(which) {
