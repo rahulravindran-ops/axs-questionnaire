@@ -1193,6 +1193,142 @@ function showToast(msg, duration) {
   setTimeout(function() { t.classList.remove('show'); }, duration || 4000);
 }
 
+function downloadCSV(returnOnly) {
+  var d = appData;
+  var isMig = d.projectType === 'migration';
+  var isExp = d.projectType === 'expansion';
+
+  function esc(v) {
+    if (v === undefined || v === null) v = '';
+    v = String(v);
+    if (v.indexOf(',') !== -1 || v.indexOf('"') !== -1 || v.indexOf('\n') !== -1) {
+      v = '"' + v.replace(/"/g, '""') + '"';
+    }
+    return v;
+  }
+
+  function row(question, answer) {
+    return esc(question) + ',' + esc(answer || '') + '\n';
+  }
+
+  function yn(val) {
+    return val === 'yes' ? 'Yes' : val === 'no' ? 'No' : val || '';
+  }
+
+  var csv = 'Field,Answer\n';
+
+  // Basic Info
+  csv += row('Customer Name', d.customerName);
+  csv += row('Project Name', d.projectName);
+  csv += row('State', d.state);
+  csv += row('City', d.city);
+  csv += row('Regional System', d.regionalSystem);
+  csv += row('Contact Name', d.contactName);
+  csv += row('Contact Title', d.contactTitle);
+  csv += row('Contact Phone', d.contactPhone);
+  csv += row('Contact Email', d.contactEmail);
+
+  // Project
+  csv += row('','');
+  csv += row('Project Type', TYPE_LABELS[d.projectType] || d.projectType);
+  csv += row('K-Core System', d.isKCore ? 'Yes' : 'No');
+  csv += row('Building Type', d.buildingType === 'new_building' ? 'New Building' : d.buildingType === 'existing_facility' ? 'Existing Facility' : '');
+  csv += row('Existing Equipment Details', d.existingFacilityDetails);
+  csv += row('MCC Hardware Type', d.mccHardwareType === 'cchub' ? 'MCC7500E CCHUB' : d.mccHardwareType === 'aim' ? 'MCC7500E AIM' : d.mccHardwareType === 'unknown' ? 'Unknown' : '');
+  csv += row('Existing Console Notes', d.existingConsoleNotes);
+  csv += row('OP Positions — Standard AXS', d.opAxs);
+  csv += row('OP Positions — Laptop (inside RN)', d.opRemoteRNI);
+  csv += row('OP Positions — Laptop (outside RN)', d.opRemoteORNI);
+  csv += row('OP Positions — Total', d.opPositions);
+
+  // Site Layout
+  csv += row('','');
+  csv += row('Positions Co-located', d.colocated === 'yes' ? 'Yes — Same Room' : d.colocated === 'no' ? 'No — Multiple Rooms' : '');
+  csv += row('Existing Cabling Reusable', d.existingCabling === 'yes' ? 'Yes' : d.existingCabling === 'no' ? 'No' : '');
+  csv += row('Conduits Available', d.conduitsExist === 'yes' ? 'Yes' : d.conduitsExist === 'no' ? 'No' : d.conduitsExist === 'na' ? 'N/A' : '');
+  csv += row('Equipment Racks', RACK_LABELS[d.rackType] || d.rackType);
+  csv += row('Backroom Distance (ft)', d.backroomDistance);
+  csv += row('Electrical Notes', d.electricalNotes);
+  csv += row('Layout Notes', d.layoutNotes);
+
+  // Equipment
+  csv += row('','');
+  csv += row('Monitor Type', d.touchScreens === 'yes' ? 'Touch Screen' : d.touchScreens === 'customer' ? 'Customer Providing' : d.touchScreens === 'nontouch' ? 'Non-Touch' : '');
+  csv += row('Monitor Size', d.monitorSize ? d.monitorSize + '"' : '');
+  csv += row('Speakers Per Position', d.speakersPerPosition);
+  csv += row('IRR', d.irrRequired === 'yes' ? 'Yes — Include IRR' : d.irrRequired === 'no' ? 'No / Vesta / 3rd Party' : '');
+  csv += row('Reuse Footswitches', d.reuseFootswitches);
+  csv += row('Reuse Headset Jacks', d.reuseHeadsets);
+  csv += row('Encryption', d.encryptionImpl ? d.encryptionImpl.charAt(0).toUpperCase() + d.encryptionImpl.slice(1) : '');
+  csv += row('Encryption Key Management', KEY_LABELS[d.keyUpdate] || d.keyUpdate);
+  if (isMig) {
+    csv += row('Conventional Radios / CCGW', yn(d.hasCCGW));
+  }
+
+  // Channels & Radios
+  csv += row('','');
+  csv += row('Existing Conv Channels', yn(d.existingConvChannels));
+  if (d.existingConvChannels === 'yes' && d.existingConvList) {
+    d.existingConvList.filter(function(r){return r.count||r.band||r.model;}).forEach(function(r, i) {
+      csv += row('  Existing Conv Radio ' + (i+1), (r.count||'?') + ' x ' + (r.band||'') + (r.model?' — '+r.model:''));
+    });
+  }
+  csv += row('New Conv Radios Needed', yn(d.newConvRadios));
+  if (d.newConvRadios === 'yes' && d.newConvList) {
+    d.newConvList.filter(function(r){return r.count||r.band||r.model;}).forEach(function(r, i) {
+      csv += row('  New Conv Radio ' + (i+1), (r.count||'?') + ' x ' + (r.band||'') + (r.model?' — '+r.model:''));
+    });
+  }
+  csv += row('Backup Radios Per OP Position', yn(d.backupRadiosPerOP));
+  csv += row('MCD Desksets Per OP Position', yn(d.mcdDesksets));
+  csv += row('Antenna System', d.antennaSystem === 'yes' ? 'Existing' : d.antennaSystem === 'no' ? 'New Required' : d.antennaSystem === 'mixed' ? 'Mixed' : '');
+  csv += row('Antenna Notes', d.antennaNotes);
+  csv += row('Backroom to Antenna Distance (ft)', d.antennaDistance);
+  csv += row('Tower / Elevated Structure', yn(d.towerAvailable));
+  csv += row('Antenna Combining Details', d.antennaCombining);
+  csv += row('Conv Channel Notes', d.screen6Notes);
+
+  // Interfaces & Power
+  csv += row('','');
+  csv += row('Aux Inputs', d.auxInputs);
+  csv += row('Aux Outputs', d.auxOutputs);
+  csv += row('Logging Recorder', d.loggingRecorder === 'new' ? 'New' : d.loggingRecorder === 'expand' ? 'Expand Existing' : d.loggingRecorder === 'no' ? 'No' : '');
+  csv += row('Logging Recorder Brand', d.loggingRecorderBrand);
+  csv += row('Backup Power / UPS', UPS_LABELS[d.backupPower] || d.backupPower);
+  csv += row('Backhaul Type', d.backhaulType === 'new_microwave' ? 'New Microwave' : d.backhaulType === 'existing' ? 'Existing Reused' : d.backhaulType === 'other' ? 'Other' : d.backhaulType === 'na' ? 'N/A' : '');
+  csv += row('Backhaul Redundancy', d.backhaulRedundancy === 'redundant' ? 'Redundant' : d.backhaulRedundancy === 'non_redundant' ? 'Non-Redundant' : '');
+  csv += row('CAD API', yn(d.cadAPI));
+  csv += row('CAD Vendor', d.cadVendorName);
+  csv += row('Fire Station Alerting', yn(d.fireAlerting));
+  csv += row('Fire Alerting System', d.fireAlertingType);
+  csv += row('Other 3rd Party Interfaces', yn(d.otherInterfaces));
+  csv += row('3rd Party Interface Details', d.otherInterfacesDetails);
+
+  // Operations, Training & Maintenance
+  csv += row('','');
+  csv += row('All Consoles All Shifts', d.allShifts === 'yes' ? 'Yes — All Shifts' : d.allShifts === 'no' ? 'No — Some Idle' : '');
+  csv += row('Console Removable for Cutover', yn(d.removeForCutover));
+  csv += row('Space for Parallel Install', yn(d.parallelSpace));
+  csv += row('Supervisor Training Count', d.supervisorTraining);
+  csv += row('Operator Training Count', d.operatorTraining);
+  csv += row('OP Positions for Training', d.trainingPositions);
+  csv += row('Maintenance Plan', d.maintenancePlan ? d.maintenancePlan.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) : '');
+  csv += row('SUA Plan', d.suaPlan ? d.suaPlan.charAt(0).toUpperCase() + d.suaPlan.slice(1) : '');
+
+  if (returnOnly) return csv;
+
+  var slug = (d.customerName || 'capture').replace(/[^a-z0-9]/gi,'_');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = slug + '_AXS_Requirements.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  showToast('CSV downloaded — open in Google Sheets', 3000);
+}
 function downloadReport() {
   var customerSlug = appData.customerName.replace(/[^a-z0-9]/gi, '_') || 'capture';
   var fileName = customerSlug + '_AXS_Report.zip';
@@ -2151,9 +2287,10 @@ async function shareReport(downloadOnly) {
   
   lines.push('');
   lines.push('Import Code: ' + document.getElementById('exportCode').textContent);
-  
-  var text = lines.join('\n');
-  
+
+  // Build CSV from appData (same content, spreadsheet-friendly format)
+  var csvContent = downloadCSV(true); // pass true = return string, don't download
+
   // Collect photos and create ZIP if there are any
   var photoSections = [
     { key: 'photos2', name: '1_Operator_Position' },
@@ -2192,8 +2329,8 @@ async function shareReport(downloadOnly) {
     }
   }
   
-  // Add summary.txt to ZIP
-  zip.file('AXS_Summary.txt', text);
+  // Add summary CSV to ZIP
+  zip.file('AXS_Summary.csv', csvContent);
 
   // Add attachments
   if (appData.attachments && appData.attachments.length > 0) {
@@ -2289,8 +2426,8 @@ async function shareReport(downloadOnly) {
     modal.innerHTML = '<div style="background:white;border-radius:12px;padding:20px;width:100%;max-width:460px;max-height:80vh;display:flex;flex-direction:column;">' +
       '<div style="font-weight:700;font-size:15px;color:#003e7e;margin-bottom:4px;">ZIP downloaded — copy summary below</div>' +
       '<div style="font-size:12px;color:#6b7280;margin-bottom:10px;">Paste into an email with the ZIP file attached.</div>' +
-      '<textarea style="flex:1;min-height:200px;font-size:12px;font-family:monospace;border:2px solid #e5e7eb;border-radius:8px;padding:10px;resize:none;" id="shareTextarea">' + text.replace(/</g,'&lt;') + '</textarea>' +
-      '<button onclick="var t=document.getElementById(\'shareTextarea\');t.select();document.execCommand(\'copy\');this.textContent=\'Copied!\';" style="margin-top:10px;padding:12px;background:#003e7e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copy Summary Text</button>' +
+      '<textarea style="flex:1;min-height:200px;font-size:12px;font-family:monospace;border:2px solid #e5e7eb;border-radius:8px;padding:10px;resize:none;" id="shareTextarea">' + csvContent.replace(/</g,'&lt;') + '</textarea>' +
+      '<button onclick="var t=document.getElementById(\'shareTextarea\');t.select();document.execCommand(\'copy\');this.textContent=\'Copied!\';" style="margin-top:10px;padding:12px;background:#003e7e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copy CSV</button>' +
       '<button onclick="this.parentElement.parentElement.remove();" style="margin-top:8px;padding:10px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Close</button>' +
       '</div>';
     document.body.appendChild(modal);
