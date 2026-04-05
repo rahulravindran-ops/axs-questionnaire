@@ -1318,7 +1318,7 @@ function downloadCSV(returnOnly) {
   if (returnOnly) return csv;
 
   var slug = (d.customerName || 'capture').replace(/[^a-z0-9]/gi,'_');
-  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
@@ -2330,7 +2330,7 @@ async function shareReport(downloadOnly) {
   }
   
   // Add summary CSV to ZIP
-  zip.file('AXS_Summary.csv', csvContent);
+  zip.file('AXS_Summary.csv', '\uFEFF' + csvContent);
 
   // Add attachments
   if (appData.attachments && appData.attachments.length > 0) {
