@@ -235,7 +235,11 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
 .contact-toggle.open .ct-arrow { transform:rotate(180deg); }
 .contact-body { display:none; }
 
-/* ── YES/NO INLINE BUTTONS ── */
+/* ── VALIDATION ERRORS ── */
+.field-error-msg { color:#dc2626; font-size:12px; font-weight:600; margin-top:6px; display:flex; align-items:center; gap:4px; }
+.field-error-highlight input, .field-error-highlight select, .field-error-highlight textarea { border-color:#dc2626 !important; }
+.field-error-highlight .yn-btn.selected { border-color:#dc2626 !important; }
+.field-error-highlight .option { border-color:#dc2626 !important; }
 .yn-btn { flex:1; text-align:center; padding:10px 8px; font-size:13px; font-weight:600; color:#374151; background:#f3f4f6; border:2px solid #e5e7eb; border-radius:8px; cursor:pointer; transition:all 0.15s; }
 .yn-btn:hover { border-color:#003e7e; background:#eff6ff; color:#003e7e; }
 .yn-btn.selected { background:#003e7e; color:white; border-color:#003e7e; }
@@ -588,19 +592,17 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
           <div class="tip-bubble" id="tip-s5-irr"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position. Many migration customers want to add IRR during the upgrade.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
           <div style="display:flex; gap:8px; margin-top:4px;">
             <div class="yn-btn" id="yn-irrRequiredMig-yes" onclick="appData.irrRequired='yes'; selectYN('irrRequiredMig','yes');">Yes — Include IRR</div>
-            <div class="yn-btn" id="yn-irrRequiredMig-no" onclick="appData.irrRequired='no'; selectYN('irrRequiredMig','no');">No IRR</div>
+            <div class="yn-btn" id="yn-irrRequiredMig-no" onclick="appData.irrRequired='no'; selectYN('irrRequiredMig','no');">No / Vesta / 3rd Party</div>
           </div>
         </div>
 
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s4-encr-mig" onclick="toggleTip('tip-s4-encr-mig')">?</button></div>
           <div class="tip-bubble" id="tip-s4-encr-mig"><strong>Confirm the encryption type in use on the existing system</strong>Hardware encryption uses a physical module — common in older MCC installs. Software is license-based. Knowing this upfront avoids surprises during migration.<span class="tip-example">Ask: "Does your current system use hardware encryption modules, or is it software-based?"</span></div>
-          <select id="encryptionImplMig" onchange="appData.encryptionImpl = this.value; showEl('migKeyUpdateGroup', this.value && this.value !== 'none');">
-            <option value="">Select...</option>
-            <option value="hardware">Hardware</option>
-            <option value="software">Software</option>
-            <option value="none">None</option>
-          </select>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="yn-btn" id="yn-encryptionImplMig-hardware" onclick="toggleEncryption('mig','hardware')">Hardware</div>
+            <div class="yn-btn" id="yn-encryptionImplMig-software" onclick="toggleEncryption('mig','software')">Software</div>
+          </div>
         </div>
 
         <div class="field-group">
@@ -625,8 +627,12 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
 
       <!-- Standard equipment fields (hidden for Platform Migration Only) -->
       <div class="hideForMigration">
+        <div class="help-box" style="margin-bottom:14px;">
+          <div class="help-text">📦 <strong>Standard accessories assumed per position:</strong> 2 headset jacks, 1 footswitch, 1 gooseneck mic. Confirm with customer if anything differs.</div>
+        </div>
+
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">Touch Screen Monitors</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
+          <div class="tip-row"><label class="field-label">Monitor Type Needed</label><button class="tip-icon" data-tip="tip-s5-touch" onclick="toggleTip('tip-s5-touch')">?</button></div>
           <div class="tip-bubble" id="tip-s5-touch"><strong>Touch screens add ~$800/position to the quote</strong>If the customer already has monitors they want to keep, select "Customer Providing" — this removes them from pricing. Confirm monitor brand/model if reusing, as not all are compatible.<span class="tip-example">Ask: "Are you planning to reuse your existing monitors?"</span></div>
           <select id="touchScreens" onchange="appData.touchScreens=this.value; showMonitorSize(this.value==='yes'||this.value==='nontouch');">
             <option value="">Select...</option>
@@ -651,7 +657,10 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
         <div class="field-group">
           <div class="tip-row"><label class="field-label">Speakers Per Position <span class="field-sublabel">(excluding IRR)</span></label><button class="tip-icon" data-tip="tip-s5-speakers" onclick="toggleTip('tip-s5-speakers')">?</button></div>
           <div class="tip-bubble" id="tip-s5-speakers"><strong>Most positions use 1–2 speakers</strong>Dispatcher audio separation requires 2 speakers. Ask if they use audio separation today — if yes, they'll want 2.<span class="tip-example">Ask: "Do your dispatchers currently split audio channels between speakers?"</span></div>
-          <input type="number" id="speakersPerPosition" placeholder="0" min="0">
+          <input type="number" id="speakersPerPosition" placeholder="0" min="0" oninput="var w=document.getElementById('speakersWarning'); w.style.display=(parseInt(this.value)||0)>8?'block':'none'; appData.speakersPerPosition=this.value;">
+          <div id="speakersWarning" class="warning" style="display:none; margin-top:8px;">
+            <div class="warning-text">⚠️ Max supported by the Hub is 8 speakers per position — confirm this is correct.</div>
+          </div>
         </div>
 
         <div class="field-group">
@@ -659,7 +668,7 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
           <div class="tip-bubble" id="tip-s5-irr-std"><strong>IRR lets dispatchers replay the last ~30 seconds of audio at their position</strong>Different from a logging recorder — IRR is local and per-position.<span class="tip-example">Ask: "Do your dispatchers ever need to quickly replay what was just said on a channel?"</span></div>
           <div style="display:flex; gap:8px; margin-top:4px;">
             <div class="yn-btn" id="yn-irrRequired-yes" onclick="selectYN('irrRequired','yes')">Yes — Include IRR</div>
-            <div class="yn-btn" id="yn-irrRequired-no" onclick="selectYN('irrRequired','no')">No IRR</div>
+            <div class="yn-btn" id="yn-irrRequired-no" onclick="selectYN('irrRequired','no')">No / Vesta / 3rd Party</div>
           </div>
         </div>
 
@@ -696,12 +705,10 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
           <div class="field-group">
             <div class="tip-row"><label class="field-label">Encryption</label><button class="tip-icon" data-tip="tip-s5-encrimpl" onclick="toggleTip('tip-s5-encrimpl')">?</button></div>
             <div class="tip-bubble" id="tip-s5-encrimpl"><strong>AXS bundles encryption — confirm type in use or required</strong>Software is most common for state/local. Hardware encryption modules are required for some federal/DoD customers.</div>
-            <select id="encryptionImpl" onchange="appData.encryptionImpl = this.value; var el = document.getElementById('keyUpdateGroup'); if (el) el.style.display = (this.value && this.value !== 'none') ? 'block' : 'none';">
-              <option value="">Select...</option>
-              <option value="hardware">Hardware</option>
-              <option value="software">Software</option>
-              <option value="none">None</option>
-            </select>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <div class="yn-btn" id="yn-encryptionImpl-hardware" onclick="toggleEncryption('std','hardware')">Hardware</div>
+              <div class="yn-btn" id="yn-encryptionImpl-software" onclick="toggleEncryption('std','software')">Software</div>
+            </div>
           </div>
           <div class="field-group" id="keyUpdateGroup" style="display:none;">
             <div class="tip-row"><label class="field-label">Encryption Key Management</label><button class="tip-icon" data-tip="tip-s4-keyupdate-std" onclick="toggleTip('tip-s4-keyupdate-std')">?</button></div>
@@ -715,160 +722,176 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
       </div>
     </div>
 
-    <!-- ==================== SCREEN 5: CHANNELS & RADIOS ==================== -->
+    <!-- ==================== SCREEN 6: CHANNELS & RADIOS ==================== -->
     <div class="screen" id="screen6">
       <div class="section-badge">Screen 6 of 8</div>
-      <div class="screen-title">Channels & Radios</div>
-      
-      <!-- Existing Conventional Channels — hidden for Expansion -->
+      <div class="screen-title">Backup / Conventional Channels</div>
+
+      <!-- BACKROOM RADIOS CARD — hidden for Expansion -->
       <div class="hideForExpansion">
+        <div class="card">
+          <div class="card-title">📻 Backroom Radios</div>
+
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">Existing conventional channels to stay?</label><button class="tip-icon" data-tip="tip-s6-exconv" onclick="toggleTip('tip-s6-exconv')">?</button></div>
+            <div class="tip-bubble" id="tip-s6-exconv"><strong>Conventional channels are direct radio connections outside the P25 trunked system</strong>Common for mutual aid, fire alerting, or legacy VHF/UHF radios. If yes, capture the total count — engineering will size CCGWs accordingly.<span class="tip-example">Ask: "Do you dispatch any channels that go directly to a radio — not through the trunked system?"</span></div>
+            <div class="radio-group">
+              <div class="option" onclick="selectRadio('existingConvChannels','yes'); showExistingConvDetails(true);">
+                <input type="radio" name="existingConvChannels" value="yes">
+                <span class="option-label">Yes</span>
+              </div>
+              <div class="option" onclick="selectRadio('existingConvChannels','no'); showExistingConvDetails(false);">
+                <input type="radio" name="existingConvChannels" value="no">
+                <span class="option-label">No</span>
+              </div>
+            </div>
+          </div>
+          <div id="existingConvDetails" style="display:none; margin-bottom:12px;">
+            <div id="existingConvRows"></div>
+            <button type="button" onclick="addConvRow('existing')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
+          </div>
+
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="tip-row"><label class="field-label">New conventional radios needed for mutual aid or backup?</label><button class="tip-icon" data-tip="tip-s6-newconv" onclick="toggleTip('tip-s6-newconv')">?</button></div>
+            <div class="tip-bubble" id="tip-s6-newconv"><strong>New radios may be needed when expanding capability or adding mutual aid channels</strong>Capture total count — engineering will determine CCGW requirements from that number.<span class="tip-example">Ask: "Are there any new radio channels you need to add that you don't have today?"</span></div>
+            <div class="radio-group">
+              <div class="option" onclick="selectRadio('newConvRadios','yes'); showNewConvDetails(true);">
+                <input type="radio" name="newConvRadios" value="yes">
+                <span class="option-label">Yes</span>
+              </div>
+              <div class="option" onclick="selectRadio('newConvRadios','no'); showNewConvDetails(false);">
+                <input type="radio" name="newConvRadios" value="no">
+                <span class="option-label">No</span>
+              </div>
+            </div>
+          </div>
+          <div id="newConvDetails" style="display:none; margin-bottom:0;">
+            <div id="newConvRows"></div>
+            <button type="button" onclick="addConvRow('new')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPERATOR POSITION BACKUP CARD -->
+      <div class="card">
+        <div class="card-title">🎙️ Operator Position Backup</div>
+
         <div class="field-group">
-          <div class="tip-row"><label class="field-label">Does the customer interface to existing conventional channels which will need to stay?</label><button class="tip-icon" data-tip="tip-s6-exconv" onclick="toggleTip('tip-s6-exconv')">?</button></div>
-          <div class="tip-bubble" id="tip-s6-exconv"><strong>Conventional channels are direct radio connections outside the P25 trunked system</strong>Common for mutual aid, fire alerting, or legacy VHF/UHF radios. If yes, capture the total count — engineering will size CCGWs accordingly.<span class="tip-example">Ask: "Do you dispatch any channels that go directly to a radio — not through the trunked system?"</span></div>
+          <div class="tip-row"><label class="field-label">Backup radios required at each OP position?</label><button class="tip-icon" data-tip="tip-s6-backup" onclick="toggleTip('tip-s6-backup')">?</button></div>
+          <div class="tip-bubble" id="tip-s6-backup"><strong>Backup radios sit on the desk as a failsafe if the console goes down</strong>Usually a portable or mobile radio per position. Adds cost per position — confirm if it's a hard requirement or a nice-to-have.<span class="tip-example">Ask: "If a console position went offline, does each dispatcher need a standalone radio on their desk?"</span></div>
           <div class="radio-group">
-            <div class="option" onclick="selectRadio('existingConvChannels','yes'); showExistingConvDetails(true);">
-              <input type="radio" name="existingConvChannels" value="yes">
+            <div class="option" onclick="selectRadio('backupRadiosPerOP','yes')">
+              <input type="radio" name="backupRadiosPerOP" value="yes">
               <span class="option-label">Yes</span>
             </div>
-            <div class="option" onclick="selectRadio('existingConvChannels','no'); showExistingConvDetails(false);">
-              <input type="radio" name="existingConvChannels" value="no">
+            <div class="option" onclick="selectRadio('backupRadiosPerOP','no')">
+              <input type="radio" name="backupRadiosPerOP" value="no">
               <span class="option-label">No</span>
             </div>
           </div>
         </div>
-        <div id="existingConvDetails" style="display:none; margin-bottom:12px;">
-          <div id="existingConvRows"></div>
-          <button type="button" onclick="addConvRow('existing')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
-        </div>
 
-        <!-- New Conventional Radios -->
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Will new conventional radios be needed for mutual aid or backup?</label><button class="tip-icon" data-tip="tip-s6-newconv" onclick="toggleTip('tip-s6-newconv')">?</button></div>
-          <div class="tip-bubble" id="tip-s6-newconv"><strong>New radios may be needed when expanding capability or adding mutual aid channels</strong>Capture total count — engineering will determine CCGW requirements from that number.<span class="tip-example">Ask: "Are there any new radio channels you need to add that you don't have today?"</span></div>
+        <div class="field-group" style="margin-bottom:0;">
+          <div class="tip-row"><label class="field-label">MCD Desksets required at each OP position?</label><button class="tip-icon" data-tip="tip-s6-mcd" onclick="toggleTip('tip-s6-mcd')">?</button></div>
+          <div class="tip-bubble" id="tip-s6-mcd"><strong>MCD Desksets are dedicated mobile radio control heads mounted at the console position</strong>They give the dispatcher direct control of a mobile radio without a separate handheld. Confirm whether this is a requirement or optional — they add cost per position.<span class="tip-example">Ask: "Do your dispatchers need a mobile radio control head at each position, or is a handheld sufficient?"</span></div>
           <div class="radio-group">
-            <div class="option" onclick="selectRadio('newConvRadios','yes'); showNewConvDetails(true);">
-              <input type="radio" name="newConvRadios" value="yes">
+            <div class="option" onclick="selectRadio('mcdDesksets','yes')">
+              <input type="radio" name="mcdDesksets" value="yes">
               <span class="option-label">Yes</span>
             </div>
-            <div class="option" onclick="selectRadio('newConvRadios','no'); showNewConvDetails(false);">
-              <input type="radio" name="newConvRadios" value="no">
+            <div class="option" onclick="selectRadio('mcdDesksets','no')">
+              <input type="radio" name="mcdDesksets" value="no">
               <span class="option-label">No</span>
             </div>
           </div>
         </div>
-        <div id="newConvDetails" style="display:none; margin-bottom:12px;">
-          <div id="newConvRows"></div>
-          <button type="button" onclick="addConvRow('new')" style="background:none; border:2px dashed #003e7e; color:#003e7e; width:100%; padding:8px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px;">+ Add Another Type</button>
+      </div>
+
+      <!-- ANTENNA SYSTEM CARD -->
+      <div class="card">
+        <div class="card-title">📡 Antenna System</div>
+
+        <div class="field-group">
+          <div class="tip-row"><label class="field-label">Existing Antenna System(s)?</label><button class="tip-icon" data-tip="tip-s6-antenna" onclick="toggleTip('tip-s6-antenna')">?</button></div>
+          <div class="tip-bubble" id="tip-s6-antenna"><strong>Existing antennas may be reusable — this can save significant cost</strong>Capture combiner type, number of ports, and condition. Poor antenna systems cause RF issues that are hard to troubleshoot post-install. Always photograph coax labeling, connectors, and entry points.<span class="tip-example">Ask: "Do you have antennas on the roof or tower currently serving these radios?"</span></div>
+          <div class="radio-group">
+            <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true); showNewAntennaDetails(false);">
+              <input type="radio" name="antennaSystem" value="yes">
+              <span class="option-label">Yes — existing antenna system</span>
+            </div>
+            <div class="option" onclick="selectRadio('antennaSystem','no'); showAntennaDetails(false); showNewAntennaDetails(true);">
+              <input type="radio" name="antennaSystem" value="no">
+              <span class="option-label">No — new antenna required</span>
+            </div>
+            <div class="option" onclick="selectRadio('antennaSystem','mixed'); showAntennaDetails(true); showNewAntennaDetails(true);">
+              <input type="radio" name="antennaSystem" value="mixed">
+              <span class="option-label">Mixed — reusing some, adding new</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Antenna Notes <span class="field-sublabel">(optional)</span></label>
+          <textarea id="antennaNotes" placeholder="e.g., reusing VHF antenna on roof, adding new UHF antenna on tower..." oninput="appData.antennaNotes=this.value;"></textarea>
+        </div>
+
+        <div id="newAntennaDetails" style="display:none;">
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">Distance — Backroom to Tower / Roof</label><button class="tip-icon" data-tip="tip-s6-antdist" onclick="toggleTip('tip-s6-antdist')">?</button></div>
+            <div class="tip-bubble" id="tip-s6-antdist"><strong>Feedline length affects signal loss and coax sizing</strong>Measure the actual cable run from the radio equipment in the backroom to the antenna mounting point — not a straight line. Runs over 100ft may require low-loss coax or an in-line amplifier. Always walk the route.<span class="tip-example">Include any vertical rise (floor to roof), horizontal runs through ceilings, and any conduit bends.</span></div>
+            <div class="inline-fields">
+              <div style="flex:1;">
+                <input type="number" id="antennaDistance" placeholder="0" min="0" oninput="appData.antennaDistance = this.value;">
+              </div>
+              <div style="flex:0.4; display:flex; align-items:center; padding-left:8px;">
+                <span style="font-size:14px; color:#374151; font-weight:600;">feet</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="tip-row"><label class="field-label">Tower / Elevated Structure Available?</label><button class="tip-icon" data-tip="tip-s6-tower" onclick="toggleTip('tip-s6-tower')">?</button></div>
+            <div class="tip-bubble" id="tip-s6-tower"><strong>Determines the antenna mounting approach and additional hardware required</strong>If no tower or raised structure exists, non-penetrating rooftop mounts are typically required — these use ballast weight rather than drilling and are common on flat commercial roofs.<span class="tip-example">Ask: "Is there an existing tower or elevated structure we can mount antennas on, or would we be going straight to the rooftop?"</span></div>
+            <div class="radio-group">
+              <div class="option" onclick="selectRadio('towerAvailable','yes'); document.getElementById('nonPenMountNote').style.display='none';">
+                <input type="radio" name="towerAvailable" value="yes">
+                <span class="option-label">Yes — tower or elevated structure available</span>
+              </div>
+              <div class="option" onclick="selectRadio('towerAvailable','no'); document.getElementById('nonPenMountNote').style.display='block';">
+                <input type="radio" name="towerAvailable" value="no">
+                <span class="option-label">No — rooftop only</span>
+              </div>
+            </div>
+            <div id="nonPenMountNote" style="display:none; margin-top:10px; background:#fef3c7; border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 12px; font-size:12px; color:#92400e;">
+              <strong style="display:block; margin-bottom:4px;">⚠️ Non-Penetrating Roof Mount Required</strong>
+              A non-penetrating antenna mount (ballast-weighted, no roof drilling) will be needed. Confirm flat roof access, roof load capacity, and whether building management approval is required.
+            </div>
+          </div>
+        </div>
+
+        <div id="antennaDetails" style="display:none;">
+          <div class="field-group" style="margin-bottom:0;">
+            <label class="field-label">Combining / Antenna Details <span class="field-sublabel">(combiners, duplexers, shared antenna, separate runs, etc.)</span></label>
+            <textarea id="antennaCombining" placeholder="e.g., 4-port combiner feeding shared rooftop antenna, separate feedlines per radio, duplexed VHF/UHF..."></textarea>
+          </div>
+          <div class="photo-section" style="margin-top:12px;">
+            <div class="photo-section-title">📸 Antenna / Feed Lines / Entry Port Photos</div>
+            <div class="help-box" style="margin-bottom:10px;">
+              <div class="help-text">📷 Capture antennas, coax runs, entry ports, combiners, duplexers, and any labeling visible on lines.</div>
+            </div>
+            <input type="file" id="photoAnt" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photosAnt')">
+            <button class="photo-btn" onclick="document.getElementById('photoAnt').click()">📸 Add Photos</button>
+            <div class="photo-grid" id="photoGridAnt"></div>
+            <div class="photo-count" id="photoCountAnt"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Backup Radios — shown for all project types -->
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Are backup radios required at each OP position?</label><button class="tip-icon" data-tip="tip-s6-backup" onclick="toggleTip('tip-s6-backup')">?</button></div>
-        <div class="tip-bubble" id="tip-s6-backup"><strong>Backup radios sit on the desk as a failsafe if the console goes down</strong>Usually a portable or mobile radio per position. Adds cost per position — confirm if it's a hard requirement or a nice-to-have.<span class="tip-example">Ask: "If a console position went offline, does each dispatcher need a standalone radio on their desk?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('backupRadiosPerOP','yes')">
-            <input type="radio" name="backupRadiosPerOP" value="yes">
-            <span class="option-label">Yes</span>
-          </div>
-          <div class="option" onclick="selectRadio('backupRadiosPerOP','no')">
-            <input type="radio" name="backupRadiosPerOP" value="no">
-            <span class="option-label">No</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- MCD Desksets — shown for all project types -->
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Are MCD Desksets required at each OP position?</label><button class="tip-icon" data-tip="tip-s6-mcd" onclick="toggleTip('tip-s6-mcd')">?</button></div>
-        <div class="tip-bubble" id="tip-s6-mcd"><strong>MCD Desksets are dedicated mobile radio control heads mounted at the console position</strong>They give the dispatcher direct control of a mobile radio without a separate handheld. Confirm whether this is a requirement or optional — they add cost per position.<span class="tip-example">Ask: "Do your dispatchers need a mobile radio control head at each position, or is a handheld sufficient?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('mcdDesksets','yes')">
-            <input type="radio" name="mcdDesksets" value="yes">
-            <span class="option-label">Yes</span>
-          </div>
-          <div class="option" onclick="selectRadio('mcdDesksets','no')">
-            <input type="radio" name="mcdDesksets" value="no">
-            <span class="option-label">No</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notes — hidden for Expansion -->
+      <!-- Notes at bottom -->
       <div class="hideForExpansion">
         <div class="field-group">
           <label class="field-label">Additional Notes <span class="field-sublabel">(optional)</span></label>
           <textarea id="screen6Notes" placeholder="Any additional notes about conventional channels or backup radios..."></textarea>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Antenna Systems — shown for all project types -->
-      <div class="field-group">
-        <div class="tip-row"><label class="field-label">Existing Antenna System(s)?</label><button class="tip-icon" data-tip="tip-s6-antenna" onclick="toggleTip('tip-s6-antenna')">?</button></div>
-        <div class="tip-bubble" id="tip-s6-antenna"><strong>Existing antennas may be reusable — this can save significant cost</strong>Capture combiner type, number of ports, and condition. Poor antenna systems cause RF issues that are hard to troubleshoot post-install. Always photograph coax labeling, connectors, and entry points.<span class="tip-example">Ask: "Do you have antennas on the roof or tower currently serving these radios?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('antennaSystem','yes'); showAntennaDetails(true); showNewAntennaDetails(false);">
-            <input type="radio" name="antennaSystem" value="yes">
-            <span class="option-label">Yes — existing antenna system</span>
-          </div>
-          <div class="option" onclick="selectRadio('antennaSystem','no'); showAntennaDetails(false); showNewAntennaDetails(true);">
-            <input type="radio" name="antennaSystem" value="no">
-            <span class="option-label">No — new antenna required</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- No existing antenna: new antenna scoping fields -->
-      <div id="newAntennaDetails" style="display:none;">
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Distance — Backroom to Tower / Roof</label><button class="tip-icon" data-tip="tip-s6-antdist" onclick="toggleTip('tip-s6-antdist')">?</button></div>
-          <div class="tip-bubble" id="tip-s6-antdist"><strong>Feedline length affects signal loss and coax sizing</strong>Measure the actual cable run from the radio equipment in the backroom to the antenna mounting point — not a straight line. Runs over 100ft may require low-loss coax or an in-line amplifier. Always walk the route.<span class="tip-example">Include any vertical rise (floor to roof), horizontal runs through ceilings, and any conduit bends.</span></div>
-          <div class="inline-fields">
-            <div style="flex:1;">
-              <input type="number" id="antennaDistance" placeholder="0" min="0" oninput="appData.antennaDistance = this.value;">
-            </div>
-            <div style="flex:0.4; display:flex; align-items:center; padding-left:8px;">
-              <span style="font-size:14px; color:#374151; font-weight:600;">feet</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <div class="tip-row"><label class="field-label">Tower / Elevated Structure Available?</label><button class="tip-icon" data-tip="tip-s6-tower" onclick="toggleTip('tip-s6-tower')">?</button></div>
-          <div class="tip-bubble" id="tip-s6-tower"><strong>Determines the antenna mounting approach and additional hardware required</strong>If no tower or raised structure exists, non-penetrating rooftop mounts are typically required — these use ballast weight rather than drilling and are common on flat commercial roofs. Confirm roof type (flat/sloped) and whether roof penetration is permitted by the building owner.<span class="tip-example">Ask: "Is there an existing tower or elevated structure we can mount antennas on, or would we be going straight to the rooftop?"</span></div>
-          <div class="radio-group">
-            <div class="option" onclick="selectRadio('towerAvailable','yes'); document.getElementById('nonPenMountNote').style.display='none';">
-              <input type="radio" name="towerAvailable" value="yes">
-              <span class="option-label">Yes — tower or elevated structure available</span>
-            </div>
-            <div class="option" onclick="selectRadio('towerAvailable','no'); document.getElementById('nonPenMountNote').style.display='block';">
-              <input type="radio" name="towerAvailable" value="no">
-              <span class="option-label">No — rooftop only</span>
-            </div>
-          </div>
-          <div id="nonPenMountNote" style="display:none; margin-top:10px; background:#fef3c7; border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 12px; font-size:12px; color:#92400e;">
-            <strong style="display:block; margin-bottom:4px;">⚠️ Non-Penetrating Roof Mount Required</strong>
-            A non-penetrating antenna mount (ballast-weighted, no roof drilling) will be needed. Confirm flat roof access, roof load capacity, and whether building management approval is required. Add to scope notes.
-          </div>
-        </div>
-      </div>
-
-      <div id="antennaDetails" style="display:none;">
-        <div class="field-group">
-          <label class="field-label">Combining / Antenna Details <span class="field-sublabel">(combiners, duplexers, shared antenna, separate runs, etc.)</span></label>
-          <textarea id="antennaCombining" placeholder="e.g., 4-port combiner feeding shared rooftop antenna, separate feedlines per radio, duplexed VHF/UHF..."></textarea>
-        </div>
-        <div class="photo-section">
-          <div class="photo-section-title">📸 Antenna / Feed Lines / Entry Port Photos</div>
-          <div class="help-box" style="margin-bottom:10px;">
-            <div class="help-text">📷 Capture antennas, coax runs, entry ports, combiners, duplexers, and any labeling visible on lines.</div>
-          </div>
-          <input type="file" id="photoAnt" accept="image/*" multiple style="display:none;" onchange="handlePhoto(event,'photosAnt')">
-          <button class="photo-btn" onclick="document.getElementById('photoAnt').click()">📸 Add Photos</button>
-          <div class="photo-grid" id="photoGridAnt"></div>
-          <div class="photo-count" id="photoCountAnt"></div>
         </div>
       </div>
 
@@ -1200,6 +1223,21 @@ function selectYN(field, value) {
   });
   var chosen = document.getElementById('yn-' + field + '-' + value);
   if (chosen) chosen.classList.add('selected');
+  clearValidationErrors();
+}
+
+function toggleEncryption(which, type) {
+  var hwId = which === 'mig' ? 'yn-encryptionImplMig-hardware' : 'yn-encryptionImpl-hardware';
+  var swId = which === 'mig' ? 'yn-encryptionImplMig-software' : 'yn-encryptionImpl-software';
+  var keyGrp = which === 'mig' ? 'migKeyUpdateGroup' : 'keyUpdateGroup';
+  var hwBtn = document.getElementById(hwId);
+  var swBtn = document.getElementById(swId);
+  if (type === 'hardware') hwBtn.classList.toggle('selected');
+  if (type === 'software') swBtn.classList.toggle('selected');
+  var hw = hwBtn.classList.contains('selected');
+  var sw = swBtn.classList.contains('selected');
+  appData.encryptionImpl = hw && sw ? 'both' : hw ? 'hardware' : sw ? 'software' : 'none';
+  showEl(keyGrp, hw || sw);
 }
 
 function toggleSec(bodyId, hdr) {
@@ -1261,9 +1299,9 @@ function freshAppData() {
     colocated:'', existingCabling:'', conduitsExist:'', layoutNotes:'', rackType:'', electricalNotes:'', backroomDistance:'',
     touchScreens:'', monitorSize:'', speakersPerPosition:'', irrRequired:'',
     reuseFootswitches:'', reuseHeadsets:'', encryptionImpl:'', hasCCGW:'', keyUpdate:'',
-    existingConvChannels:'', existingConvList:[{count:'',type:''}],
-    newConvRadios:'', newConvList:[{count:'',type:''}],
-    backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'', antennaDistance:'', towerAvailable:'',
+    existingConvChannels:'', existingConvList:[{count:'',band:'',model:''}],
+    newConvRadios:'', newConvList:[{count:'',band:'',model:''}],
+    backupRadiosPerOP:'', mcdDesksets:'', screen6Notes:'', antennaSystem:'', antennaCombining:'', antennaDistance:'', towerAvailable:'', antennaNotes:'',
     auxInputs:'', auxOutputs:'', backhaulType:'', backhaulMicrowaveData:'', backhaulExistingData:'', backhaulOtherData:'', backhaulRedundancy:'', backupPower:'', camRequired:'',
     loggingRecorder:'', loggingRecorderBrand:'', cadAPI:'', cadVendorName:'',
     fireAlerting:'', fireAlertingType:'',
@@ -1430,6 +1468,7 @@ function updateOpTotal() {
   appData.opPositions = total || '';
   var warn = document.getElementById('opWarning');
   if (warn) warn.style.display = (total > 0 && (total < 4 || total > 24)) ? 'block' : 'none';
+  if (total > 0) clearValidationErrors();
 }
 
 function updateEncryptionVisibility() {
@@ -1504,15 +1543,14 @@ function collectScreenData() {
     appData.speakersPerPosition = document.getElementById('speakersPerPosition').value;
     appData.reuseFootswitches = document.getElementById('reuseFootswitches').value;
     appData.reuseHeadsets = document.getElementById('reuseHeadsets').value;
-    var migEncr = document.getElementById('encryptionImplMig');
-    var stdEncr = document.getElementById('encryptionImpl');
-    appData.encryptionImpl = (migEncr && migEncr.value) ? migEncr.value : (stdEncr ? stdEncr.value : '');
+    // encryptionImpl already written via yn-btn onclick handlers
   } else if (currentScreen === 6) {
     appData.existingConvList = getConvRows('existing');
     appData.newConvList = getConvRows('new');
     appData.screen6Notes = document.getElementById('screen6Notes').value;
     appData.antennaCombining = document.getElementById('antennaCombining') ? document.getElementById('antennaCombining').value : '';
     appData.antennaDistance = document.getElementById('antennaDistance') ? document.getElementById('antennaDistance').value : '';
+    appData.antennaNotes = document.getElementById('antennaNotes') ? document.getElementById('antennaNotes').value : '';
   } else if (currentScreen === 7) {
     appData.auxInputs = document.getElementById('auxInputs').value;
     appData.auxOutputs = document.getElementById('auxOutputs').value;
@@ -1535,8 +1573,53 @@ function collectScreenData() {
   }
 }
 
+function clearValidationErrors() {
+  document.querySelectorAll('.field-error-msg').forEach(function(e) { e.remove(); });
+  document.querySelectorAll('.field-error-highlight').forEach(function(e) { e.classList.remove('field-error-highlight'); });
+}
+
+function showFieldError(anchorId, message) {
+  var anchor = document.getElementById(anchorId);
+  if (!anchor) return;
+  var fg = anchor.closest('.field-group') || anchor.parentElement;
+  fg.classList.add('field-error-highlight');
+  var msg = document.createElement('div');
+  msg.className = 'field-error-msg';
+  msg.innerHTML = '⚠️ ' + message;
+  fg.appendChild(msg);
+  return fg;
+}
+
+function validateScreen() {
+  clearValidationErrors();
+  var firstError = null;
+
+  if (currentScreen === 3) {
+    var total = (parseInt(document.getElementById('opAxs').value) || 0) +
+                (parseInt(document.getElementById('opRemoteRNI').value) || 0) +
+                (parseInt(document.getElementById('opRemoteORNI').value) || 0);
+    if (total === 0) {
+      firstError = showFieldError('opAxs', 'Enter at least one Operator Position to continue.');
+    }
+  }
+
+  if (currentScreen === 5 && appData.projectType === 'migration') {
+    if (!appData.hasCCGW) {
+      var e = showFieldError('yn-hasCCGW-yes', 'Please answer the Conventional Radio / CCGW question.');
+      if (!firstError) firstError = e;
+    }
+  }
+
+  if (firstError) {
+    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+  return true;
+}
+
 function goNext() {
   collectScreenData();
+  if (!validateScreen()) return;
   var next = currentScreen + 1;
   while (skipScreens.indexOf(next) !== -1) next++;
   currentScreen = next;
@@ -1608,11 +1691,15 @@ function restoreForm() {
   document.getElementById('speakersPerPosition').value = appData.speakersPerPosition || '';
   document.getElementById('reuseFootswitches').value = appData.reuseFootswitches || '';
   document.getElementById('reuseHeadsets').value = appData.reuseHeadsets || '';
-  document.getElementById('encryptionImpl').value = appData.encryptionImpl || '';
-  var migEncr = document.getElementById('encryptionImplMig');
-  if (migEncr) { migEncr.value = appData.encryptionImpl || ''; showEl('migKeyUpdateGroup', appData.encryptionImpl && appData.encryptionImpl !== 'none'); }
-  var keyUpGrp = document.getElementById('keyUpdateGroup');
-  if (keyUpGrp) keyUpGrp.style.display = (appData.encryptionImpl && appData.encryptionImpl !== 'none') ? 'block' : 'none';
+  // Encryption toggle restore
+  if (appData.encryptionImpl) {
+    var hw = appData.encryptionImpl === 'hardware' || appData.encryptionImpl === 'both';
+    var sw = appData.encryptionImpl === 'software' || appData.encryptionImpl === 'both';
+    if (hw) { var e1 = document.getElementById('yn-encryptionImplMig-hardware'); if (e1) e1.classList.add('selected'); var e2 = document.getElementById('yn-encryptionImpl-hardware'); if (e2) e2.classList.add('selected'); }
+    if (sw) { var e3 = document.getElementById('yn-encryptionImplMig-software'); if (e3) e3.classList.add('selected'); var e4 = document.getElementById('yn-encryptionImpl-software'); if (e4) e4.classList.add('selected'); }
+    var hasEnc = hw || sw;
+    showEl('migKeyUpdateGroup', hasEnc); showEl('keyUpdateGroup', hasEnc);
+  }
   if (appData.irrRequired) {
     var irrStd = document.getElementById('yn-irrRequired-' + appData.irrRequired); if (irrStd) irrStd.classList.add('selected');
     var irrMig = document.getElementById('yn-irrRequiredMig-' + appData.irrRequired); if (irrMig) irrMig.classList.add('selected');
@@ -1627,6 +1714,7 @@ function restoreForm() {
   if (appData.newConvList) renderConvRows('new');
   document.getElementById('screen6Notes').value = appData.screen6Notes || '';
   document.getElementById('antennaCombining').value = appData.antennaCombining || '';
+  if (appData.antennaNotes && document.getElementById('antennaNotes')) document.getElementById('antennaNotes').value = appData.antennaNotes || '';
   // Screen 7
   document.getElementById('auxInputs').value = appData.auxInputs || '';
   document.getElementById('auxOutputs').value = appData.auxOutputs || '';
@@ -1691,6 +1779,8 @@ function restoreForm() {
   if (appData.existingConvChannels === 'yes') showExistingConvDetails(true);
   if (appData.newConvRadios === 'yes') showNewConvDetails(true);
   if (appData.antennaSystem === 'yes') showAntennaDetails(true);
+  if (appData.antennaSystem === 'no') showNewAntennaDetails(true);
+  if (appData.antennaSystem === 'mixed') { showAntennaDetails(true); showNewAntennaDetails(true); }
   if (appData.antennaSystem === 'no') showNewAntennaDetails(true);
   if (appData.antennaDistance && document.getElementById('antennaDistance')) document.getElementById('antennaDistance').value = appData.antennaDistance;
   if (appData.towerAvailable === 'no') { var npm = document.getElementById('nonPenMountNote'); if (npm) npm.style.display = 'block'; }
@@ -1860,11 +1950,11 @@ function generateSummary() {
       '</div>';
   } else {
     html += '<div class="summary-section"><div class="summary-title">Channels & Radios</div>' +
-      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' && appData.existingConvList ? appData.existingConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
-      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' && appData.newConvList ? appData.newConvList.filter(function(r){return r.count||r.type;}).map(function(r){return (r.count||'?')+' '+r.type;}).join(', ') || '?' : 'No') + '</span></div>' : '') +
+      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">Existing Conv Channels</span><span class="summary-value">' + (appData.existingConvChannels === 'yes' && appData.existingConvList ? appData.existingConvList.filter(function(r){return r.count||r.band||r.model;}).map(function(r){return (r.count||'?')+' '+(r.band||'')+(r.model?' — '+r.model:'');}).join(', ') || '?' : 'No') + '</span></div>' : '') +
+      (appData.projectType !== 'expansion' ? '<div class="summary-row"><span class="summary-label">New Conv Radios</span><span class="summary-value">' + (appData.newConvRadios === 'yes' && appData.newConvList ? appData.newConvList.filter(function(r){return r.count||r.band||r.model;}).map(function(r){return (r.count||'?')+' '+(r.band||'')+(r.model?' — '+r.model:'');}).join(', ') || '?' : 'No') + '</span></div>' : '') +
       '<div class="summary-row"><span class="summary-label">Backup Radios per OP</span><span class="summary-value">' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : 'No') + '</span></div>' +
       '<div class="summary-row"><span class="summary-label">MCD Desksets per OP</span><span class="summary-value">' + (appData.mcdDesksets === 'yes' ? 'Yes' : 'No') + '</span></div>' +
-      '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Yes' + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') : 'No') + '</span></div>' +
+      '<div class="summary-row"><span class="summary-label">Antenna System</span><span class="summary-value">' + (appData.antennaSystem === 'yes' ? 'Existing' : appData.antennaSystem === 'no' ? 'New Required' : appData.antennaSystem === 'mixed' ? 'Mixed' : 'Not answered') + (appData.antennaCombining ? ' — ' + appData.antennaCombining.substring(0,40) + (appData.antennaCombining.length > 40 ? '…' : '') : '') + (appData.antennaNotes ? ' · ' + appData.antennaNotes.substring(0,30) + (appData.antennaNotes.length > 30 ? '…' : '') : '') + '</span></div>' +
       '</div>';
 
     html += '<div class="summary-section"><div class="summary-title">Equipment</div>' +
@@ -1986,21 +2076,22 @@ async function shareReport(downloadOnly) {
     if (!isExpansion) {
       lines.push('Existing Conv Channels: ' + (appData.existingConvChannels === 'yes' ? 'Yes' : appData.existingConvChannels === 'no' ? 'No' : 'Not answered'));
       if (appData.existingConvChannels === 'yes' && appData.existingConvList) {
-        appData.existingConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
-          lines.push('  ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+        appData.existingConvList.filter(function(r){return r.count||r.band||r.model;}).forEach(function(r){
+          lines.push('  ' + (r.count||'?') + ' x ' + (r.band||'') + (r.model?' — '+r.model:''));
         });
       }
       lines.push('New Conv Radios Needed: ' + (appData.newConvRadios === 'yes' ? 'Yes' : appData.newConvRadios === 'no' ? 'No' : 'Not answered'));
       if (appData.newConvRadios === 'yes' && appData.newConvList) {
-        appData.newConvList.filter(function(r){return r.count||r.type;}).forEach(function(r){
-          lines.push('  ' + (r.count||'?') + ' x ' + (r.type||'Unknown'));
+        appData.newConvList.filter(function(r){return r.count||r.band||r.model;}).forEach(function(r){
+          lines.push('  ' + (r.count||'?') + ' x ' + (r.band||'') + (r.model?' — '+r.model:''));
         });
       }
     }
     lines.push('Backup Radios per OP: ' + (appData.backupRadiosPerOP === 'yes' ? 'Yes' : appData.backupRadiosPerOP === 'no' ? 'No' : 'Not answered'));
     lines.push('MCD Desksets per OP: ' + (appData.mcdDesksets === 'yes' ? 'Yes' : appData.mcdDesksets === 'no' ? 'No' : 'Not answered'));
     if (appData.screen6Notes) lines.push('Notes: ' + appData.screen6Notes);
-    lines.push('Existing Antenna System: ' + (appData.antennaSystem === 'yes' ? 'Yes' : appData.antennaSystem === 'no' ? 'No — new antenna required' : 'Not answered'));
+    lines.push('Existing Antenna System: ' + (appData.antennaSystem === 'yes' ? 'Existing' : appData.antennaSystem === 'no' ? 'No — new antenna required' : appData.antennaSystem === 'mixed' ? 'Mixed — reusing some, adding new' : 'Not answered'));
+    if (appData.antennaNotes) lines.push('Antenna Notes: ' + appData.antennaNotes);
     if (appData.antennaSystem === 'yes') {
       if (appData.antennaCombining) lines.push('Antenna Details: ' + appData.antennaCombining);
       if ((appData.photosAnt||[]).length) lines.push('Antenna Photos: ' + appData.photosAnt.length);
@@ -2237,30 +2328,29 @@ function goBackFromSummary() {
 
 function renderConvRows(which) {
   var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
-  if (!list || list.length === 0) list = [{count:'', type:''}];
+  if (!list || list.length === 0) list = [{count:'', band:'', model:''}];
   var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
   var container = document.getElementById(containerId);
   if (!container) return;
+  var bandOptions = ['','VHF','UHF','700 MHz','800 MHz'];
+  var modelOptions = ['','APX Consolette','APX Mobile in Tray','XTL Mobile','Other Analog / Legacy Radio'];
   var html = '';
   list.forEach(function(row, i) {
-    html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">' +
-      '<div style="flex:0.4;">' +
-        (i === 0 ? '<label class="field-label field-sublabel">Count</label>' : '') +
+    var bandSel = '<select onchange="updateConvRow(\'' + which + '\',' + i + ',\'band\',this.value)" style="width:100%; padding:8px; font-size:13px; border:2px solid #e5e7eb; border-radius:8px;">' +
+      bandOptions.map(function(o){ return '<option value="' + o + '"' + (row.band === o ? ' selected' : '') + '>' + (o || 'Band...') + '</option>'; }).join('') + '</select>';
+    var modelSel = '<select onchange="updateConvRow(\'' + which + '\',' + i + ',\'model\',this.value)" style="width:100%; padding:8px; font-size:13px; border:2px solid #e5e7eb; border-radius:8px;">' +
+      modelOptions.map(function(o){ return '<option value="' + o + '"' + (row.model === o ? ' selected' : '') + '>' + (o || 'Radio type...') + '</option>'; }).join('') + '</select>';
+    html += '<div style="display:flex; gap:6px; align-items:flex-end; margin-bottom:8px;">' +
+      '<div style="flex:0.25;">' + (i === 0 ? '<label class="field-label field-sublabel" style="margin-bottom:4px;">Count</label>' : '') +
         '<input type="number" min="1" placeholder="0" value="' + (row.count || '') + '" ' +
-          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'count\',this.value)" ' +
-          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;">' +
+        'oninput="updateConvRow(\'' + which + '\',' + i + ',\'count\',this.value)" ' +
+        'style="width:100%; padding:8px; font-size:16px; font-weight:bold; color:#003e7e; border:2px solid #003e7e; border-radius:8px; text-align:center;">' +
       '</div>' +
-      '<div style="flex:1;">' +
-        (i === 0 ? '<label class="field-label field-sublabel">Radio Type</label>' : '') +
-        '<input type="text" value="' + (row.type || '') + '" ' +
-          'oninput="updateConvRow(\'' + which + '\',' + i + ',\'type\',this.value)" ' +
-          'style="width:100%; padding:10px; font-size:16px; border:2px solid #e5e7eb; border-radius:8px;" ' +
-          'placeholder="e.g., VHF Analog, P25 APX Consolette...">' +
-      '</div>' +
+      '<div style="flex:0.35;">' + (i === 0 ? '<label class="field-label field-sublabel" style="margin-bottom:4px;">Band</label>' : '') + bandSel + '</div>' +
+      '<div style="flex:0.55;">' + (i === 0 ? '<label class="field-label field-sublabel" style="margin-bottom:4px;">Model</label>' : '') + modelSel + '</div>' +
       (list.length > 1
-        ? '<button type="button" onclick="removeConvRow(\'' + which + '\',' + i + ')" ' +
-            'style="flex:none; width:34px; height:42px;' + (i === 0 ? ' margin-top:20px;' : '') + ' background:#fee2e2; color:#ef4444; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; line-height:1;">×</button>'
-        : '<div style="width:34px;' + (i === 0 ? ' margin-top:20px;' : '') + '"></div>') +
+        ? '<button type="button" onclick="removeConvRow(\'' + which + '\',' + i + ')" style="flex:none; width:30px; height:36px;' + (i === 0 ? ' margin-top:20px;' : '') + ' background:#fee2e2; color:#ef4444; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; line-height:1;">×</button>'
+        : '<div style="width:30px;"></div>') +
     '</div>';
   });
   container.innerHTML = html;
@@ -2273,7 +2363,7 @@ function updateConvRow(which, index, field, value) {
 
 function addConvRow(which) {
   var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
-  list.push({count:'', type:''});
+  list.push({count:'', band:'', model:''});
   renderConvRows(which);
 }
 
@@ -2284,16 +2374,8 @@ function removeConvRow(which, index) {
 }
 
 function getConvRows(which) {
-  var containerId = which === 'existing' ? 'existingConvRows' : 'newConvRows';
-  var container = document.getElementById(containerId);
-  if (!container) return [{count:'',type:''}];
-  var rows = container.querySelectorAll('div[style*="display:flex"]');
-  var list = [];
-  rows.forEach(function(row) {
-    var inputs = row.querySelectorAll('input');
-    if (inputs.length >= 2) list.push({count: inputs[0].value, type: inputs[1].value});
-  });
-  return list.length ? list : [{count:'',type:''}];
+  var list = which === 'existing' ? appData.existingConvList : appData.newConvList;
+  return (list && list.length) ? list : [{count:'',band:'',model:''}];
 }
 
 
