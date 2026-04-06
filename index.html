@@ -1506,6 +1506,7 @@ function startNew() {
   currentCaptureId = null;
   appData = freshAppData();
   skipScreens = [];
+  restoreForm();
   currentScreen = 1;
   showScreen(1);
 }
@@ -1759,9 +1760,9 @@ function goNext() {
   var next = currentScreen + 1;
   while (skipScreens.indexOf(next) !== -1) next++;
   currentScreen = next;
-  if (currentScreen === 9) { generateSummary(); }
   saveCapture();
   showScreen(currentScreen);
+  if (currentScreen === 9) { generateSummary(); }
 }
 
 function goBack() {
