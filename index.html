@@ -429,23 +429,14 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
         <input type="text" id="existingFacilityDetails" placeholder="e.g., existing vendor, model, approximate age...">
       </div>
 
-      <!-- Migration: AIM vs CCHUB -->
+      <!-- Migration: CCHUB -->
       <div class="field-group" id="migrationHardwareGroup" style="display:none;">
-        <div class="tip-row"><label class="field-label">Existing MCC Hardware Type</label><button class="tip-icon" data-tip="tip-s2-hardware" onclick="toggleTip('tip-s2-hardware')">?</button></div>
-        <div class="tip-bubble" id="tip-s2-hardware"><strong>AIM and CCHUB are two different MCC7500 backroom hardware configurations</strong>CCHUB = Consolidated Channel Hub, a rack-mounted backroom unit. AIM = Audio Interface Module, used in earlier MCC installations. Knowing which is installed affects migration planning and what can be reused.<span class="tip-example">Ask: "What backroom hardware do you have today — do you know if it's a CCHUB or AIM configuration?"</span></div>
-        <div class="radio-group">
-          <div class="option" onclick="selectRadio('mccHardwareType','cchub')">
-            <input type="radio" name="mccHardwareType" value="cchub">
-            <span class="option-label">MCC7500E CCHUB</span>
-          </div>
-          <div class="option" onclick="selectRadio('mccHardwareType','aim')">
-            <input type="radio" name="mccHardwareType" value="aim">
-            <span class="option-label">MCC7500E AIM</span>
-          </div>
-          <div class="option" onclick="selectRadio('mccHardwareType','unknown')">
-            <input type="radio" name="mccHardwareType" value="unknown">
-            <span class="option-label">Unknown / Not Sure</span>
-          </div>
+        <div class="tip-row"><label class="field-label">Does the customer have a CCHUB?</label><button class="tip-icon" data-tip="tip-s2-hardware" onclick="toggleTip('tip-s2-hardware')">?</button></div>
+        <div class="tip-bubble" id="tip-s2-hardware"><strong>CCHUB = Consolidated Channel Hub, the rack-mounted backroom unit for MCC7500E</strong>Knowing if a CCHUB is present affects migration planning and what hardware can be reused.<span class="tip-example">Ask: "Do you have a CCHUB in your backroom equipment rack?"</span></div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <div class="yn-btn" id="yn-mccHardwareType-yes" onclick="selectYN('mccHardwareType','yes')">Yes</div>
+          <div class="yn-btn" id="yn-mccHardwareType-no" onclick="selectYN('mccHardwareType','no')">No</div>
+          <div class="yn-btn" id="yn-mccHardwareType-unknown" onclick="selectYN('mccHardwareType','unknown')">Unknown</div>
         </div>
       </div>
 
@@ -1234,7 +1225,7 @@ function downloadCSV(returnOnly) {
   csv += row('K-Core System', d.isKCore ? 'Yes' : 'No');
   csv += row('Building Type', d.buildingType === 'new_building' ? 'New Building' : d.buildingType === 'existing_facility' ? 'Existing Facility' : '');
   csv += row('Existing Equipment Details', d.existingFacilityDetails);
-  csv += row('MCC Hardware Type', d.mccHardwareType === 'cchub' ? 'MCC7500E CCHUB' : d.mccHardwareType === 'aim' ? 'MCC7500E AIM' : d.mccHardwareType === 'unknown' ? 'Unknown' : '');
+  csv += row('Has CCHUB', d.mccHardwareType === 'yes' ? 'Yes' : d.mccHardwareType === 'no' ? 'No' : d.mccHardwareType === 'unknown' ? 'Unknown' : '');
   csv += row('Existing Console Notes', d.existingConsoleNotes);
   csv += row('OP Positions — Standard AXS', d.opAxs);
   csv += row('OP Positions — Laptop (inside RN)', d.opRemoteRNI);
@@ -1491,6 +1482,17 @@ function resumeCapture(id) {
   if (!c) return;
   currentCaptureId = id;
   appData = Object.assign(freshAppData(), JSON.parse(JSON.stringify(c.data)));
+  // Migrate old conv list shape {count, type} → {count, band, model}
+  ['existingConvList','newConvList'].forEach(function(key) {
+    if (appData[key]) {
+      appData[key] = appData[key].map(function(r) {
+        if (r.type !== undefined && r.band === undefined) {
+          return { count: r.count || '', band: '', model: r.type || '' };
+        }
+        return r;
+      });
+    }
+  });
   restoreForm();
   currentScreen = c.currentScreen;
   showScreen(currentScreen);
@@ -1502,11 +1504,57 @@ function deleteCapture(id) {
   loadSavedList();
 }
 
+function clearForm() {
+  // Clear all text/number inputs
+  document.querySelectorAll('.screen input[type="text"], .screen input[type="number"], .screen input[type="email"], .screen textarea').forEach(function(el) {
+    el.value = '';
+  });
+  // Reset all selects to first option
+  document.querySelectorAll('.screen select').forEach(function(el) {
+    el.selectedIndex = 0;
+  });
+  // Deselect all yn-btns
+  document.querySelectorAll('.yn-btn').forEach(function(el) {
+    el.classList.remove('selected');
+  });
+  // Deselect all radio options
+  document.querySelectorAll('.screen input[type="radio"]').forEach(function(el) {
+    el.checked = false;
+    if (el.parentElement) el.parentElement.classList.remove('selected');
+  });
+  // Uncheck checkboxes
+  document.querySelectorAll('.screen input[type="checkbox"]').forEach(function(el) {
+    el.checked = false;
+  });
+  // Hide conditional groups
+  ['existingConvDetails','newConvDetails','monitorSizeGroup','keyUpdateGroup','migKeyUpdateGroup',
+   'backhaulRedundancyGroup','backhaulMicrowaveDetails','backhaulExistingDetails','backhaulOtherDetails',
+   'loggingRecorderBrandGroup','parallelSpaceGroup','newAntennaDetails','antennaDetails',
+   'cadVendorName','fireAlertingType','otherInterfacesDetails','cutoverGroup'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Collapse contact section
+  var ct = document.getElementById('contactToggle'); var cb = document.getElementById('contactBody');
+  if (ct) ct.classList.remove('open'); if (cb) cb.classList.remove('contact-open');
+  // Reset op total
+  var opTot = document.getElementById('opTotal'); if (opTot) opTot.textContent = '0';
+  // Clear conv rows
+  var ecr = document.getElementById('existingConvRows'); if (ecr) ecr.innerHTML = '';
+  var ncr = document.getElementById('newConvRows'); if (ncr) ncr.innerHTML = '';
+  // Hide warnings
+  ['distanceWarning','speakersWarning','opWarning','nonPenMountNote'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  // Clear validation errors
+  clearValidationErrors();
+}
+
 function startNew() {
   currentCaptureId = null;
   appData = freshAppData();
   skipScreens = [];
-  restoreForm();
+  clearForm();
   currentScreen = 1;
   showScreen(1);
 }
@@ -1885,12 +1933,13 @@ function restoreForm() {
   if (appData.suaPlan) { var suaBtn = document.getElementById('yn-suaPlan-' + appData.suaPlan); if (suaBtn) suaBtn.classList.add('selected'); }
 
   // Restore radio fields still using selectRadio
-  ['projectType','buildingType','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','towerAvailable','mccHardwareType'].forEach(function(name) {
+  ['projectType','buildingType','existingConvChannels','newConvRadios','backupRadiosPerOP','mcdDesksets','antennaSystem','towerAvailable'].forEach(function(name) {
     if (appData[name]) {
       var r = document.querySelector('input[name="' + name + '"][value="' + appData[name] + '"]');
       if (r) { r.checked = true; r.parentElement.classList.add('selected'); }
     }
   });
+  if (appData.mccHardwareType) { var mhBtn = document.getElementById('yn-mccHardwareType-' + appData.mccHardwareType); if (mhBtn) mhBtn.classList.add('selected'); }
 
   if (appData.projectType) updateScreensForProjectType(appData.projectType);
   // Restore screen 2: K-Core + pt-opt cards
@@ -2057,6 +2106,7 @@ function downloadAllPhotos() {
 }
 
 function generateSummary() {
+  try {
   var html = '<div class="summary-section"><div class="summary-title">Basic Info</div>' +
     '<div class="summary-row"><span class="summary-label">Customer</span><span class="summary-value">' + appData.customerName + '</span></div>' +
     '<div class="summary-row"><span class="summary-label">Project</span><span class="summary-value">' + appData.projectName + '</span></div>' +
@@ -2126,6 +2176,12 @@ function generateSummary() {
   var codeValue = 'AXS-' + code.substring(0,24).toUpperCase();
   document.getElementById('exportCode').textContent = codeValue;
   document.getElementById('codeSubtext').textContent = codeValue;
+  } catch(e) {
+    document.getElementById('summaryBox').innerHTML =
+      '<div style="color:#dc2626; padding:16px; background:#fef2f2; border-radius:8px; font-size:13px;">' +
+      '<strong>⚠️ Error generating summary:</strong><br>' + e.message + '<br><br>' +
+      '<small>' + (e.stack || '') + '</small></div>';
+  }
 }
 
 
@@ -2152,7 +2208,7 @@ async function shareReport(downloadOnly) {
   lines.push('--- PROJECT ---');
   if (appData.projectType) lines.push('Type: ' + (TYPE_LABELS[appData.projectType] || appData.projectType));
   if (appData.buildingType) lines.push('Building: ' + (appData.buildingType === 'new_building' ? 'New Building' : 'Existing Facility') + (appData.existingFacilityDetails ? ' — ' + appData.existingFacilityDetails : ''));
-  if (appData.mccHardwareType) lines.push('MCC Hardware Type: ' + (appData.mccHardwareType === 'cchub' ? 'MCC7500E CCHUB' : appData.mccHardwareType === 'aim' ? 'MCC7500E AIM' : 'Unknown'));
+  if (appData.mccHardwareType) lines.push('Has CCHUB: ' + (appData.mccHardwareType === 'yes' ? 'Yes' : appData.mccHardwareType === 'no' ? 'No' : 'Unknown'));
   if (appData.existingConsoleNotes && appData.projectType !== 'new') lines.push('Existing Console Notes: ' + appData.existingConsoleNotes);
   if (appData.opPositions) {
     lines.push('OP Positions: ' + appData.opPositions + ' total');
