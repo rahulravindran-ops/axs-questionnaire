@@ -1616,6 +1616,7 @@ function selectPT(type) {
     if (r) r.checked = true;
   }
   appData.projectType = type;
+  clearValidationErrors();
   // Sync legacy radios on screen3
   document.querySelectorAll('input[name="projectType"][value="' + type + '"]').forEach(function(r) {
     r.checked = true; r.parentElement.classList.add('selected');
@@ -1778,6 +1779,12 @@ function showFieldError(anchorId, message) {
 function validateScreen() {
   clearValidationErrors();
   var firstError = null;
+
+  if (currentScreen === 2) {
+    if (!appData.projectType) {
+      firstError = showFieldError('ptOpt_migration', 'Please select a Project Type to continue.');
+    }
+  }
 
   if (currentScreen === 3) {
     var total = (parseInt(document.getElementById('opAxs').value) || 0) +
