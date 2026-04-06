@@ -1135,7 +1135,7 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
       
       <div class="summary-box" id="summaryBox"></div>
       
-      <div id="exportCode" style="display:none;"></div>
+
 
       <div class="field-group" style="margin-bottom:16px;">
         <div class="photo-section-title" style="margin-bottom:8px;">📎 Additional Attachments <span class="field-sublabel">(optional)</span></div>
@@ -1150,7 +1150,7 @@ select { appearance:none; -webkit-appearance:none; background-image:url("data:im
       <button class="action-btn primary" onclick="downloadReport()">⬇️ Download Report</button>
 
       <button class="action-btn secondary mobile-only" onclick="shareReport()">📧 Email Report</button>
-      <div id="codeSubtext" class="mobile-only" style="text-align:center; font-size:11px; color:#9ca3af; margin:-4px 0 12px; font-family:monospace; word-break:break-all;"></div>
+
 
       <button class="action-btn secondary" id="downloadPhotosBtn" onclick="downloadAllPhotos()" style="display:none;">📸 Download All Photos</button>
       
@@ -1840,7 +1840,7 @@ function goBack() {
 function saveAndExit() {
   collectScreenData();
   saveCapture();
-  alert('Progress saved!');
+  showToast('Progress saved!', 2000);
   currentScreen = 0;
   loadSavedList();
   showScreen(0);
@@ -1990,7 +1990,7 @@ function handleAttachment(e) {
   var max = 10;
   if (!appData.attachments) appData.attachments = [];
   var toAdd = Math.min(files.length, max - appData.attachments.length);
-  if (appData.attachments.length >= max) { alert('Maximum 10 attachments'); return; }
+  if (appData.attachments.length >= max) { showToast('Maximum 10 attachments reached.', 3000); return;; }
   var pending = toAdd;
   for (var i = 0; i < toAdd; i++) {
     (function(file) {
@@ -2034,7 +2034,7 @@ function handlePhoto(e, key) {
   var max = 5;
   var current = appData[key].length;
   var toAdd = Math.min(files.length, max - current);
-  if (current >= max) { alert('Maximum ' + max + ' photos per section'); return; }
+  if (current >= max) { showToast('Maximum ' + max + ' photos per section reached.', 3000); return; }
   
   for (var i = 0; i < toAdd; i++) {
     (function(file) {
@@ -2178,11 +2178,6 @@ function generateSummary() {
   document.getElementById('downloadPhotosBtn').style.display = photoCount > 0 ? 'block' : 'none';
   renderAttachmentList();
 
-  var exportData = { v:APP_VERSION, t:Date.now(), d:appData };
-  var code = btoa(JSON.stringify(exportData));
-  var codeValue = 'AXS-' + code.substring(0,24).toUpperCase();
-  document.getElementById('exportCode').textContent = codeValue;
-  document.getElementById('codeSubtext').textContent = codeValue;
   } catch(e) {
     document.getElementById('summaryBox').innerHTML =
       '<div style="color:#dc2626; padding:16px; background:#fef2f2; border-radius:8px; font-size:13px;">' +
@@ -2349,9 +2344,6 @@ async function shareReport(downloadOnly) {
     photoCounts.forEach(function(c) { lines.push(c); });
   }
   
-  lines.push('');
-  lines.push('Import Code: ' + document.getElementById('exportCode').textContent);
-
   // Build CSV from appData (same content, spreadsheet-friendly format)
   var csvContent = downloadCSV(true); // pass true = return string, don't download
 
@@ -2367,12 +2359,9 @@ async function shareReport(downloadOnly) {
   
   var customerSlug = appData.customerName.replace(/[^a-z0-9]/gi, '_') || 'capture';
   var fileName = customerSlug + '_AXS_Report.zip';
-  var code = document.getElementById('exportCode').textContent;
-  
   // Create ZIP file with photos and summary
   if (typeof JSZip === 'undefined') {
-    alert('ZIP library not loaded. Check internet connection.');
-    return;
+    showToast('ZIP library not loaded — check internet connection.', 4000); return;
   }
   
   var zip = new JSZip();
@@ -2428,7 +2417,7 @@ async function shareReport(downloadOnly) {
     // Android skipped entirely: OS shows Play Services error before JS can catch it
     if (!isAndroid && navigator.share && navigator.canShare && navigator.canShare({ files: [zipFile] })) {
       try {
-        await navigator.share({ files: [zipFile], title: shareTitle, text: 'CODE: ' + code });
+        await navigator.share({ files: [zipFile], title: shareTitle });
         return;
       } catch(e) {
         if (e.name === 'AbortError') return;
@@ -2469,7 +2458,7 @@ async function shareReport(downloadOnly) {
           setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
         }
 
-        await navigator.share({ title: shareTitle, text: 'CODE: ' + code });
+        await navigator.share({ title: shareTitle });
         return;
       } catch(e) {
         if (e.name === 'AbortError') return;
@@ -2498,7 +2487,7 @@ async function shareReport(downloadOnly) {
 
   } catch (e) {
     if (e.name !== 'AbortError') {
-      alert('Error generating report: ' + e.message);
+      showToast('Error generating report: ' + e.message, 5000);
     }
   }
 }
